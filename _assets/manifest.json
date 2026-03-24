@@ -1,6 +1,6 @@
 {
-  "name": "Petit Maestro",
-  "short_name": "Maestro",
+  "name": "Melodino",
+  "short_name": "Melodino",
   "description": "Apprends le piano en t'amusant ! / Learn piano the fun way!",
   "start_url": "../index.html",
   "display": "standalone",

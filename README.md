@@ -1,4 +1,4 @@
-# 🎹 Petit Maestro
+# 🎹 Melodino
 
 **Apprends le piano en t'amusant ! / Learn piano the fun way!**
 
@@ -59,7 +59,7 @@
 ## 🚀 Quick Start
 
 ### Option 1: Live Demo
-👉 [**Play now on GitHub Pages**](https://builderced.github.io/petit-maestro/)
+👉 [**Play now on GitHub Pages**](https://builderced.github.io/melodino/)
 
 ### Option 2: Download
 1. Download `index.html` from this repo
@@ -103,7 +103,7 @@
 ## 🎹 ROLI LUMI Setup
 
 1. **Connect** ROLI LUMI via USB-C cable to your Mac
-2. **Open** Petit Maestro in Chrome
+2. **Open** Melodino in Chrome
 3. **Allow** MIDI access when prompted
 4. **Play!** — Keys light up to guide you
 
@@ -141,7 +141,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## 📋 Comparison
 
-| Feature | Petit Maestro | Simply Piano | Flowkey | Piano Marvel |
+| Feature | Melodino | Simply Piano | Flowkey | Piano Marvel |
 |---------|:---:|:---:|:---:|:---:|
 | **Free** | ✅ | ❌ ($120/yr) | ❌ ($120/yr) | ❌ ($100/yr) |
 | **Open Source** | ✅ | ❌ | ❌ | ❌ |

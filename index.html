@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Petit Maestro 🎹</title>
+  <title>Melodino 🎹</title>
 
   <!-- PWA -->
   <link rel="manifest" href="_assets/manifest.json">
   <meta name="theme-color" content="#7C3AED">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Petit Maestro">
+  <meta name="apple-mobile-web-app-title" content="Melodino">
   <link rel="apple-touch-icon" href="_assets/icon-192.svg">
 
   <!-- SEO + Open Graph -->
   <meta name="description" content="Apprends le piano en t'amusant ! App gratuite, open-source, multilingue, adaptee aux enfants 3-12 ans. Compatible ROLI LUMI.">
-  <meta property="og:title" content="Petit Maestro — Apprends le piano en t'amusant !">
+  <meta property="og:title" content="Melodino — Apprends le piano en t'amusant !">
   <meta property="og:description" content="App piano gamifiee pour enfants. Gratuite, open-source, multilingue, offline, compatible ROLI LUMI.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="_assets/icon-512.svg">
@@ -25,7 +25,7 @@
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Petit Maestro",
+    "name": "Melodino",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Any",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
@@ -518,7 +518,7 @@ input[type="range"]::-webkit-slider-thumb {
     <h1 style="font-family:Nunito,sans-serif;font-weight:900;font-size:clamp(32px,8vw,56px);
       background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;
       -webkit-text-fill-color:transparent;background-clip:text;text-align:center">
-      Petit Maestro
+      Melodino
     </h1>
     <p style="color:#9090b0;font-size:18px;text-align:center;max-width:400px">
       Apprends le piano en t'amusant !
@@ -548,7 +548,7 @@ input[type="range"]::-webkit-slider-thumb {
        ════════════════════════════════════════════════════════════════ -->
   <header class="app-header" id="app-header">
     <div class="hdr-avatar" id="hdr-avatar">🎹</div>
-    <span class="hdr-name" id="hdr-name">Petit Maestro</span>
+    <span class="hdr-name" id="hdr-name">Melodino</span>
     <div class="hdr-spacer"></div>
     <div class="hdr-streak" id="hdr-streak" title="Jours consecutifs">🔥 <span id="hdr-streak-num">0</span></div>
     <button class="hdr-midi midi-off" id="hdr-midi" aria-label="Statut MIDI">🎹 —</button>
@@ -563,7 +563,7 @@ input[type="range"]::-webkit-slider-thumb {
     <!-- ── Login ─── -->
     <section class="screen active" id="screen-login">
       <span style="font-size:64px">🎹</span>
-      <h1 class="login-title">Petit Maestro</h1>
+      <h1 class="login-title">Melodino</h1>
       <p class="login-subtitle" id="login-subtitle">Qui joue aujourd'hui ?</p>
       <div class="avatar-grid" id="avatar-grid"></div>
     </section>
@@ -675,7 +675,7 @@ const log = (...a) => { if (DEBUG) console.log('[PM]', ...a); };
    ================================================================ */
 const I18N = {
   fr: {
-    app_name: 'Petit Maestro', who_plays: 'Qui joue aujourd\'hui ?',
+    app_name: 'Melodino', who_plays: 'Qui joue aujourd\'hui ?',
     add_profile: 'Ajouter', home: 'Accueil', free_play: 'Libre',
     settings: 'Parametres', back: 'Retour', play: 'Jouer', stop: 'Stop',
     stars: 'etoiles', score: 'Score', streak: 'Serie', correct: 'Correct',
@@ -708,7 +708,7 @@ const I18N = {
     accessibility: 'Accessibilite',
   },
   en: {
-    app_name: 'Petit Maestro', who_plays: 'Who\'s playing today?',
+    app_name: 'Melodino', who_plays: 'Who\'s playing today?',
     add_profile: 'Add', home: 'Home', free_play: 'Free Play',
     settings: 'Settings', back: 'Back', play: 'Play', stop: 'Stop',
     stars: 'stars', score: 'Score', streak: 'Streak', correct: 'Correct',
@@ -768,7 +768,7 @@ function noteDisplay(noteName) {
    PART 1 — STORAGE MANAGER (IndexedDB)
    ================================================================ */
 const Storage = (() => {
-  const DB = 'petit-maestro';
+  const DB = 'melodino';
   const VER = 1;
   let db = null;
 
@@ -842,7 +842,27 @@ const Audio = (() => {
   let ctx = null;
   let masterGain = null;
   const active = [];
-  const MAX_VOICES = 8;
+  const MAX_VOICES = 10;
+
+  // Sample cache: real piano samples from CDN
+  const sampleCache = {};
+  let samplesLoading = false;
+  let samplesReady = false;
+
+  // CDN for Salamander Grand Piano MP3 samples (velocity layer 4 = medium touch)
+  const SAMPLE_CDN = 'https://unpkg.com/@audio-samples/piano-mp3-velocity4@1.0.5/audio/';
+  // Samples every minor third for accurate pitch-shifting (max ±3 semitones)
+  const BASE_SAMPLES = [
+    'C2v4.mp3','C3v4.mp3','D%234v4.mp3','C4v4.mp3','D%235v4.mp3',
+    'F%234v4.mp3','A4v4.mp3','C5v4.mp3','D%235v4.mp3',
+    'F%235v4.mp3','A5v4.mp3','C6v4.mp3','C7v4.mp3'
+  ];
+  // Map sample filename → MIDI note number
+  const SAMPLE_MIDI = {
+    'C2': 36, 'C3': 48, 'D#4': 63, 'C4': 60, 'D#5': 75,
+    'F#4': 66, 'A4': 69, 'C5': 72, 'D#5b': 75,
+    'F#5': 78, 'A5': 81, 'C6': 84, 'C7': 96
+  };
 
   const FREQ = {};
   const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -859,28 +879,101 @@ const Audio = (() => {
     masterGain = ctx.createGain();
     masterGain.gain.value = 0.7;
     masterGain.connect(ctx.destination);
+    loadSamples(); // Start loading real piano samples in background
   }
 
   function resume() {
     if (ctx && ctx.state === 'suspended') ctx.resume();
   }
 
+  // Load real piano samples from CDN (background, non-blocking)
+  async function loadSamples() {
+    if (samplesLoading || samplesReady) return;
+    samplesLoading = true;
+    try {
+      const results = await Promise.allSettled(BASE_SAMPLES.map(async (file) => {
+        const resp = await fetch(SAMPLE_CDN + file);
+        if (!resp.ok) throw new Error(resp.status);
+        const buf = await resp.arrayBuffer();
+        const audio = await ctx.decodeAudioData(buf);
+        // Extract note name from filename: C4v4.mp3 → C4, D%234v4.mp3 → D#4
+        const name = decodeURIComponent(file).replace('v4.mp3', '');
+        sampleCache[name] = audio;
+      }));
+      samplesReady = Object.keys(sampleCache).length >= 3;
+      log('Piano samples loaded:', Object.keys(sampleCache).length, 'samples');
+    } catch (e) {
+      log('Sample loading failed, using synth fallback');
+    }
+    samplesLoading = false;
+  }
+
+  // Find closest base sample for a note (minimize pitch-shift for best quality)
+  function findClosestSample(noteName) {
+    const noteNum = noteToMidi(noteName);
+    let closest = null; let minDist = 999;
+    for (const [name, buf] of Object.entries(sampleCache)) {
+      const sampleMidi = noteToMidi(name);
+      const dist = Math.abs(noteNum - sampleMidi);
+      if (dist < minDist) { minDist = dist; closest = { buf, midi: sampleMidi }; }
+    }
+    if (!closest) return null;
+    return { sample: closest.buf, detune: (noteNum - closest.midi) * 100 };
+  }
+
+  function noteToMidi(name) {
+    const m = name.match(/^([A-G]#?)(\d)$/);
+    if (!m) return 60;
+    const semis = { C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11 };
+    return (parseInt(m[2]) + 1) * 12 + (semis[m[1]] || 0);
+  }
+
   function playNote(noteName, durMs = 500, velocity = 80) {
     if (!ctx) init();
     resume();
-    const freq = FREQ[noteName];
-    if (!freq) return;
+
+    const vol = (velocity / 127) * 0.7;
+    const now = ctx.currentTime;
 
     // Voice stealing
     while (active.length >= MAX_VOICES) {
       const old = active.shift();
-      try { old.osc1.stop(); old.osc2.stop(); } catch {}
+      try { if (old.stop) old.stop(); } catch {}
     }
 
-    const vol = (velocity / 127) * 0.5;
-    const now = ctx.currentTime;
+    // Spatial pan
+    const pan = ctx.createStereoPanner();
+    const midiNum = noteToMidi(noteName);
+    pan.pan.value = Math.max(-0.7, Math.min(0.7, (midiNum - 60) / 36));
+    pan.connect(masterGain);
 
-    // Triangle wave + slight detune for warmth
+    // Envelope
+    const env = ctx.createGain();
+    env.connect(pan);
+
+    if (samplesReady) {
+      // REAL PIANO: sampled playback with pitch-shift
+      const { sample, detune } = findClosestSample(noteName);
+      if (sample) {
+        const src = ctx.createBufferSource();
+        src.buffer = sample;
+        src.detune.value = detune;
+        env.gain.setValueAtTime(vol, now);
+        env.gain.setValueAtTime(vol, now + durMs / 1000 - 0.05);
+        env.gain.exponentialRampToValueAtTime(0.001, now + durMs / 1000 + 0.3);
+        src.connect(env);
+        src.start(now);
+        src.stop(now + durMs / 1000 + 0.5);
+        active.push(src);
+        setTimeout(() => { const i = active.indexOf(src); if (i > -1) active.splice(i, 1); }, durMs + 600);
+        return;
+      }
+    }
+
+    // FALLBACK: Triangle wave synth (still sounds decent)
+    const freq = FREQ[noteName];
+    if (!freq) return;
+
     const osc1 = ctx.createOscillator();
     osc1.type = 'triangle';
     osc1.frequency.value = freq;
@@ -889,34 +982,24 @@ const Audio = (() => {
     osc2.type = 'triangle';
     osc2.frequency.value = freq * 1.003;
 
-    const env = ctx.createGain();
     env.gain.setValueAtTime(0, now);
-    env.gain.linearRampToValueAtTime(vol, now + 0.02);
-    env.gain.exponentialRampToValueAtTime(vol * 0.6, now + 0.1);
-
-    const release = now + (durMs / 1000);
-    env.gain.setValueAtTime(vol * 0.6, release - 0.05);
-    env.gain.exponentialRampToValueAtTime(0.001, release + 0.1);
-
-    // Spatial pan: low notes left, high notes right
-    const pan = ctx.createStereoPanner();
-    const midiNum = 12 * Math.log2(freq / 440) + 69;
-    pan.pan.value = Math.max(-1, Math.min(1, (midiNum - 60) / 30));
+    env.gain.linearRampToValueAtTime(vol * 0.5, now + 0.015);
+    env.gain.exponentialRampToValueAtTime(vol * 0.3, now + 0.12);
+    const release = now + durMs / 1000;
+    env.gain.setValueAtTime(vol * 0.3, release - 0.04);
+    env.gain.exponentialRampToValueAtTime(0.001, release + 0.15);
 
     osc1.connect(env); osc2.connect(env);
-    env.connect(pan);
-    pan.connect(masterGain);
-
     osc1.start(now); osc2.start(now);
-    osc1.stop(release + 0.15); osc2.stop(release + 0.15);
+    osc1.stop(release + 0.2); osc2.stop(release + 0.2);
 
-    const voice = { osc1, osc2 };
+    const voice = { stop: () => { try { osc1.stop(); osc2.stop(); } catch {} } };
     active.push(voice);
-    setTimeout(() => { const idx = active.indexOf(voice); if (idx > -1) active.splice(idx, 1); }, durMs + 200);
+    setTimeout(() => { const i = active.indexOf(voice); if (i > -1) active.splice(i, 1); }, durMs + 300);
   }
 
   function playNoteInstant(noteName, velocity = 80) {
-    playNote(noteName, 800, velocity);
+    playNote(noteName, 1200, velocity);
   }
 
   function setVolume(v) { if (masterGain) masterGain.gain.value = Math.max(0, Math.min(1, v)); }
@@ -2004,7 +2087,7 @@ document.getElementById('btn-export')?.addEventListener('click', async () => {
   const data = { profiles: await Storage.getAll('profiles'), progress: await Storage.getAll('progress'), exportDate: new Date().toISOString(), version: '1.0.0' };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'petit-maestro-backup.json'; a.click();
+  const a = document.createElement('a'); a.href = url; a.download = 'melodino-backup.json'; a.click();
   URL.revokeObjectURL(url);
 });
 
@@ -2139,7 +2222,7 @@ async function initApp() {
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
-    log('Petit Maestro initialized — waiting for user gesture');
+    log('Melodino initialized — waiting for user gesture');
   } catch (err) {
     log('Init error:', err);
   }

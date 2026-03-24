@@ -1,4 +1,4 @@
-# Contributing to Petit Maestro
+# Contributing to Melodino
 
 Thank you for your interest in contributing! Here's how you can help.
 

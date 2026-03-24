@@ -1,4 +1,4 @@
-# Petit Maestro
+# Melodino
 
 > A free, open-source, gamified piano learning app for children aged 3-12.
 

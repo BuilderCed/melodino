@@ -30,5 +30,5 @@
   <!-- Stars -->
   <text x="256" y="130" text-anchor="middle" font-size="72" fill="#F59E0B">&#9733; &#9733; &#9733;</text>
   <!-- Title -->
-  <text x="256" y="430" text-anchor="middle" font-family="sans-serif" font-weight="800" font-size="48" fill="#E8E8F0">Petit Maestro</text>
+  <text x="256" y="430" text-anchor="middle" font-family="sans-serif" font-weight="800" font-size="48" fill="#E8E8F0">Melodino</text>
 </svg>
