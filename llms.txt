@@ -1,0 +1,56 @@
+# Petit Maestro
+
+> A free, open-source, gamified piano learning app for children aged 3-12.
+
+## What
+
+Single HTML file piano learning application with:
+- ROLI LUMI keyboard integration (USB-C, LED control via SysEx)
+- Falling notes "Guitar Hero" style gameplay
+- 30+ multilingual songs (FR, EN, ES, AR, ZH, JA)
+- Age-adaptive difficulty (3-5, 6-8, 9-12 years)
+- Multi-child profiles with separate progression
+- Stars, worlds, streaks, badges gamification
+- Works with any USB MIDI keyboard or computer keyboard
+- 100% offline after first load (PWA)
+- Zero data collection (COPPA/GDPR-K compliant)
+
+## Tech Stack
+
+- Vanilla JavaScript (no framework, no build step)
+- Web Audio API (SoundFont + triangle wave fallback)
+- Web MIDI API (input + SysEx output for LUMI LEDs)
+- Canvas 2D (falling notes animation at 60fps)
+- IndexedDB (async storage for profiles/progress)
+- Service Worker (cache-first offline PWA)
+- GitHub Pages (free HTTPS hosting)
+
+## How to Use
+
+1. Open index.html in Chrome/Edge on a computer
+2. Optionally connect a ROLI LUMI or any USB MIDI keyboard
+3. Pick a profile, choose a song, and start playing
+
+## Key Files
+
+- index.html — Complete application (single file)
+- sw.js — Service Worker for offline caching
+- _assets/manifest.json — PWA manifest
+
+## Architecture
+
+The app is organized in numbered PART sections within index.html:
+- PART 0: Config, i18n, StorageManager
+- PART 1: Song Database
+- PART 2: Audio Engine
+- PART 3: MIDI Manager
+- PART 4: LUMI LED Controller
+- PART 5-6: Game Engine + Adaptive Difficulty
+- PART 7-8: Profiles + Progression
+- PART 9-10: UI Screens + Parent Dashboard
+- PART 11-12: Accessibility + Service Worker
+
+## Contributing
+
+Add songs in JSON format, add translations, or improve accessibility.
+See CONTRIBUTING.md for details.

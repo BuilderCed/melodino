@@ -1,0 +1,30 @@
+{
+  "name": "Petit Maestro",
+  "short_name": "Maestro",
+  "description": "Apprends le piano en t'amusant ! / Learn piano the fun way!",
+  "start_url": "../index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0F0F1A",
+  "theme_color": "#7C3AED",
+  "lang": "fr",
+  "categories": [
+    "education",
+    "games",
+    "music"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
