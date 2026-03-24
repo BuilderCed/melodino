@@ -5,6 +5,27 @@ All notable changes to Melodino will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-24
+
+### Added
+- 13 new French songs: Une souris verte, Do Re Mi la perdrix, Ainsi font font font,
+  Savez-vous planter les choux, Il etait un petit navire, Maman les petits bateaux,
+  Pomme de reinette, Un elephant qui se balancait, Promenons-nous dans les bois,
+  La Mere Michel, Fur Elise (simplified), Canon de Pachelbel (simplified),
+  Prelude en Do (Bach simplified)
+- World 4: Classiques (Beethoven, Pachelbel, Bach)
+- Real piano sound via soundfont-player + Gleitz CDN (Salamander Grand Piano MusyngKite)
+- Complete ROLI LUMI SysEx library (from xivilay/lumi-web-control)
+- AZERTY keyboard mapping (French Mac)
+- Lancer.command for localhost launch on macOS
+- Note colors by name (Do=red, Re=orange, Mi=yellow, Fa=blue, Sol=green, La=purple, Si=pink)
+- Fun facts in French for every song
+
+### Changed
+- Renamed from Petit Maestro to Melodino
+- Complete rebuild of audio engine using soundfont-player
+- SysEx library rewritten with proper BitArray encoder
+
 ## [1.0.0] - 2026-03-24
 
 ### Added

@@ -102,6 +102,7 @@ html{height:100%} body{height:100%;width:100%;overflow:hidden;background:var(--b
 .world-1{background:linear-gradient(135deg,#3D5A3E,#2A3F2B);border:1px solid #5A7C5B}
 .world-2{background:linear-gradient(135deg,#1E2E4A,#0F1A2E);border:1px solid #2D4A7A}
 .world-3{background:linear-gradient(135deg,#3D1E3D,#261226);border:1px solid #6B2D6B}
+.world-4{background:linear-gradient(135deg,#3A2200,#201200);border:1px solid #7A5000}
 .song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
 .song-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:16px;cursor:pointer;transition:all var(--t-fast)}
 .song-card:hover{border-color:var(--purple);transform:translateY(-1px)}
@@ -299,7 +300,7 @@ const T = {
     lang:'Langue', volume:'Volume', notation:'Notation', accessibility:'Accessibilité',
     colorblind:'Mode daltonien', dyslexia:'Police dyslexie', reducedMotion:'Animations réduites',
     focusMode:'Mode concentration', fullscreen:'Plein écran',
-    world1:'Premiers pas', world2:'Deux mains', world3:'Plus de notes',
+    world1:'Premiers pas', world2:'Deux mains', world3:'Plus de notes', world4:'Classiques',
     correct:'correct', notesPlayed:'notes jouées',
   },
   en: {
@@ -316,7 +317,7 @@ const T = {
     lang:'Language', volume:'Volume', notation:'Notation', accessibility:'Accessibility',
     colorblind:'Color-blind mode', dyslexia:'Dyslexia font', reducedMotion:'Reduced motion',
     focusMode:'Focus mode', fullscreen:'Fullscreen',
-    world1:'First steps', world2:'Two hands', world3:'More notes',
+    world1:'First steps', world2:'Two hands', world3:'More notes', world4:'Classics',
     correct:'correct', notesPlayed:'notes played',
   }
 };
@@ -608,9 +609,187 @@ const SONGS = [
      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'C4',duration:'eighth',hand:'right',finger:1},
      {note:'C4',duration:'half',hand:'right',finger:1}
+   ]},
+  // ── World 1 extras ──
+  {id:11,title:'Une souris verte',composer:'Traditionnel',world:1,difficulty:1,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:50,normal:72,rabbit:90,rocket:108},
+   funFact:'Cette comptine est l\'une des plus connues en France. Personne ne sait qui l\'a inventée !',
+   notes:[
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'A4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'half',hand:'right',finger:3},{note:'D4',duration:'half',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  {id:12,title:'Do Ré Mi la perdrix',composer:'Traditionnel',world:1,difficulty:1,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:50,normal:72,rabbit:90,rocket:108},
+   funFact:'Cette chanson est parfaite pour apprendre les noms des notes de musique !',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'half',hand:'right',finger:5}
+   ]},
+  {id:13,title:'Ainsi font font font',composer:'Traditionnel',world:1,difficulty:1,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:52,normal:76,rabbit:95,rocket:112},
+   funFact:'Les marionnettes de cette chanson étaient un divertissement populaire dans les foires françaises.',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'half',hand:'right',finger:2},{note:'D4',duration:'half',hand:'right',finger:2},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  {id:14,title:'Savez-vous planter les choux',composer:'Traditionnel',world:1,difficulty:1,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:50,normal:72,rabbit:90,rocket:110},
+   funFact:'Cette chanson est accompagnée de gestes : on plante les choux avec le doigt, le coude, le nez...',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'half',hand:'right',finger:1}
+   ]},
+  // ── World 2 extras ──
+  {id:15,title:'Il était un petit navire',composer:'Traditionnel',world:2,difficulty:2,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:50,normal:72,rabbit:90,rocket:110},
+   funFact:'Cette chanson raconte l\'histoire d\'un marin qui n\'avait jamais navigué — un peu comme toi au piano !',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'eighth',hand:'right',finger:1},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'E4',duration:'eighth',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'F4',duration:'half',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'eighth',hand:'right',finger:3},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'A4',duration:'half',hand:'right',finger:5}
+   ]},
+  {id:16,title:'Maman les petits bateaux',composer:'Traditionnel',world:2,difficulty:2,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:48,normal:68,rabbit:86,rocket:104},
+   funFact:'Les bateaux de cette chanson ont des jambes — tu imagines ?',
+   notes:[
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'A4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'F4',duration:'half',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  {id:17,title:'Pomme de reinette',composer:'Traditionnel',world:2,difficulty:2,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:52,normal:76,rabbit:95,rocket:115},
+   funFact:'La pomme de reinette est une vraie variété de pomme, très sucrée !',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'half',hand:'right',finger:5},{note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  {id:18,title:'Un éléphant qui se balançait',composer:'Traditionnel',world:2,difficulty:2,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:50,normal:70,rabbit:88,rocket:106},
+   funFact:'Cette chanson est un "cumulative song" — on ajoute un éléphant à chaque couplet !',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  // ── World 3 extras ──
+  {id:19,title:'Promenons-nous dans les bois',composer:'Traditionnel',world:3,difficulty:3,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:52,normal:76,rabbit:95,rocket:115},
+   funFact:'Le loup de cette chanson n\'est jamais prêt — il est toujours en train de s\'habiller !',
+   notes:[
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'half',hand:'right',finger:5},{note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  {id:20,title:'La Mère Michel',composer:'Traditionnel',world:3,difficulty:3,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:50,normal:72,rabbit:90,rocket:110},
+   funFact:'Le compère Lustucru de la chanson est un personnage de légende française qui recuit les femmes !',
+   notes:[
+     {note:'C4',duration:'eighth',hand:'right',finger:1},{note:'E4',duration:'eighth',hand:'right',finger:3},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'A4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  // ── World 4: Classiques ──
+  {id:21,title:'Für Elise (simplifié)',composer:'L. van Beethoven',world:4,difficulty:4,key:'A',scale:'Minor',
+   rightHandOnly:true,bpm:{turtle:45,normal:65,rabbit:82,rocket:100},
+   funFact:'Beethoven a composé cette pièce en 1810. On ne sait toujours pas qui était Élise !',
+   notes:[
+     {note:'E5',duration:'eighth',hand:'right',finger:5},{note:'D#5',duration:'eighth',hand:'right',finger:4},
+     {note:'E5',duration:'eighth',hand:'right',finger:5},{note:'D#5',duration:'eighth',hand:'right',finger:4},
+     {note:'E5',duration:'eighth',hand:'right',finger:5},{note:'B4',duration:'eighth',hand:'right',finger:2},
+     {note:'D5',duration:'eighth',hand:'right',finger:4},{note:'C5',duration:'eighth',hand:'right',finger:3},
+     {note:'A4',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'eighth',hand:'right',finger:1},{note:'E4',duration:'eighth',hand:'right',finger:3},
+     {note:'A4',duration:'eighth',hand:'right',finger:5},{note:'B4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'eighth',hand:'right',finger:1},{note:'G#4',duration:'eighth',hand:'right',finger:4},
+     {note:'B4',duration:'eighth',hand:'right',finger:5},{note:'C5',duration:'quarter',hand:'right',finger:3}
+   ]},
+  {id:22,title:'Canon (simplifié)',composer:'J. Pachelbel',world:4,difficulty:4,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:48,normal:68,rabbit:86,rocket:104},
+   funFact:'Ce Canon a été composé vers 1680. Aujourd\'hui il est joué dans presque tous les mariages !',
+   notes:[
+     {note:'E5',duration:'quarter',hand:'right',finger:5},{note:'D5',duration:'quarter',hand:'right',finger:4},
+     {note:'C5',duration:'quarter',hand:'right',finger:3},{note:'B4',duration:'quarter',hand:'right',finger:2},
+     {note:'A4',duration:'quarter',hand:'right',finger:1},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'A4',duration:'quarter',hand:'right',finger:1},{note:'B4',duration:'quarter',hand:'right',finger:2},
+     {note:'C5',duration:'quarter',hand:'right',finger:3},{note:'B4',duration:'quarter',hand:'right',finger:2},
+     {note:'A4',duration:'quarter',hand:'right',finger:1},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'G4',duration:'quarter',hand:'right',finger:5}
+   ]},
+  {id:23,title:'Prélude en Do',composer:'J.S. Bach',world:4,difficulty:4,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:40,normal:58,rabbit:72,rocket:88},
+   funFact:'Ce Prélude est le tout premier morceau du Clavier bien tempéré de Bach, composé en 1722.',
+   notes:[
+     {note:'C4',duration:'eighth',hand:'right',finger:1},{note:'E4',duration:'eighth',hand:'right',finger:3},
+     {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'C5',duration:'eighth',hand:'right',finger:5},
+     {note:'E5',duration:'eighth',hand:'right',finger:5},{note:'G4',duration:'eighth',hand:'right',finger:5},
+     {note:'C5',duration:'eighth',hand:'right',finger:5},{note:'E5',duration:'eighth',hand:'right',finger:5},
+     {note:'C4',duration:'eighth',hand:'right',finger:1},{note:'D4',duration:'eighth',hand:'right',finger:2},
+     {note:'A4',duration:'eighth',hand:'right',finger:5},{note:'D5',duration:'eighth',hand:'right',finger:5},
+     {note:'F5',duration:'eighth',hand:'right',finger:5},{note:'A4',duration:'eighth',hand:'right',finger:5},
+     {note:'D5',duration:'eighth',hand:'right',finger:5},{note:'F5',duration:'eighth',hand:'right',finger:5}
    ]}
 ];
-const WORLDS=[{id:1,name:'world1',icon:'🌳',starsReq:0,cls:'world-1'},{id:2,name:'world2',icon:'🌊',starsReq:6,cls:'world-2'},{id:3,name:'world3',icon:'🏰',starsReq:14,cls:'world-3'}];
+const WORLDS=[
+  {id:1,name:'world1',icon:'🌳',starsReq:0,cls:'world-1'},
+  {id:2,name:'world2',icon:'🌊',starsReq:10,cls:'world-2'},
+  {id:3,name:'world3',icon:'🏰',starsReq:20,cls:'world-3'},
+  {id:4,name:'world4',icon:'🎼',starsReq:30,cls:'world-3'}
+];
 
 /* ================================================================
    PART 5 — STORAGE (IndexedDB + fallback)

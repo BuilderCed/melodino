@@ -76,27 +76,17 @@
 
 ## 🎶 Song List
 
-### 🌳 World 1: Enchanted Forest (Right Hand)
-| Song | Origin | Difficulty |
-|------|--------|-----------|
-| Ah Vous Dirai-Je Maman / Twinkle Twinkle | FR/EN | ⭐ |
-| Frere Jacques / Are You Sleeping | FR/EN | ⭐ |
-| Au Clair de la Lune | FR | ⭐ |
-| Mary Had a Little Lamb | EN | ⭐ |
-| Hot Cross Buns | EN | ⭐ |
+### 🌳 Monde 1 : Premiers pas (main droite, 9 morceaux)
+Au clair de la lune, Frere Jacques, Ah vous dirai-je maman, J'ai du bon tabac, Dodo l'enfant do, Une souris verte, Do Re Mi la perdrix, Ainsi font font font, Savez-vous planter les choux
 
-### 🌊 World 2: Magic Ocean
-| Song | Origin | Difficulty |
-|------|--------|-----------|
-| Row Row Row Your Boat | EN | ⭐⭐ |
-| London Bridge | EN | ⭐⭐ |
-| Alouette | FR | ⭐⭐ |
+### 🌊 Monde 2 : Deux mains (8 morceaux)
+Sur le pont d'Avignon, Alouette, A la claire fontaine, Il etait un petit navire, Maman les petits bateaux, Pomme de reinette, Un elephant qui se balancait
 
-### 🏰 World 3: Musical Castle (Both Hands)
-| Song | Origin | Difficulty |
-|------|--------|-----------|
-| Jingle Bells (Vive le Vent) | Universal | ⭐⭐⭐ |
-| Ode to Joy (Hymne a la Joie) | Beethoven | ⭐⭐⭐ |
+### 🏰 Monde 3 : Plus de notes (4 morceaux)
+Vive le vent, Ode a la joie, Promenons-nous dans les bois, La Mere Michel
+
+### 🎼 Monde 4 : Classiques (3 morceaux)
+Fur Elise (Beethoven), Canon (Pachelbel), Prelude en Do (Bach)
 
 ---
 
