@@ -4,2290 +4,911 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Melodino 🎹</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="_assets/manifest.json">
+  <meta name="description" content="Apprends le piano en t'amusant ! App gratuite pour enfants 4-10 ans. Compatible ROLI LUMI.">
   <meta name="theme-color" content="#7C3AED">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Melodino">
+  <link rel="manifest" href="_assets/manifest.json">
   <link rel="apple-touch-icon" href="_assets/icon-192.svg">
-
-  <!-- SEO + Open Graph -->
-  <meta name="description" content="Apprends le piano en t'amusant ! App gratuite, open-source, multilingue, adaptee aux enfants 3-12 ans. Compatible ROLI LUMI.">
   <meta property="og:title" content="Melodino — Apprends le piano en t'amusant !">
-  <meta property="og:description" content="App piano gamifiee pour enfants. Gratuite, open-source, multilingue, offline, compatible ROLI LUMI.">
+  <meta property="og:description" content="App piano gamifiee pour enfants. Gratuite, open-source, compatible ROLI LUMI.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="_assets/icon-512.svg">
-
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Melodino",
-    "applicationCategory": "EducationalApplication",
-    "operatingSystem": "Any",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-    "description": "App piano gamifiee pour enfants 3-12 ans. Multilingue, adaptative, compatible ROLI LUMI.",
-    "inLanguage": ["fr", "en"]
-  }
-  </script>
-
-  <!-- Fonts -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Melodino","applicationCategory":"EducationalApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
+  <!-- soundfont-player: loads Salamander Grand Piano samples from Gleitz CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.11.0/dist/soundfont-player.min.js"></script>
   <style>
 /* ================================================================
-   PETIT MAESTRO — DESIGN SYSTEM v1.0
+   MELODINO — DESIGN SYSTEM
    ================================================================ */
-
-/* ── 1. CSS CUSTOM PROPERTIES ───────────────────────────────────── */
 :root {
-  /* Colors — Dark theme (default) */
-  --bg: #0F0F1A;
-  --surface: #1A1A2E;
-  --surface-2: #22223C;
-  --border: #2A2A4A;
-  --border-soft: #1E1E38;
+  --bg:#0F0F1A; --surface:#1A1A2E; --surface-2:#22223C;
+  --border:#2A2A4A; --border-soft:#1E1E38;
+  --purple:#7C3AED; --purple-light:#9D6EFF; --purple-dark:#5B21B6;
+  --purple-glow:rgba(124,58,237,0.35); --purple-subtle:rgba(124,58,237,0.12);
+  --gold:#F59E0B; --gold-light:#FBBF24; --gold-glow:rgba(245,158,11,0.35);
+  --green:#10B981; --green-light:#34D399;
+  --red:#EF4444; --red-glow:rgba(239,68,68,0.3);
+  --text:#F8FAFC; --text-muted:#94A3B8; --text-dim:#4A5568;
+  --key-white:#F5F0E8; --key-black:#1A1A1A;
+  --note-C:#FF6B6B; --note-D:#FF9F43; --note-E:#FECA57;
+  --note-F:#48DBFB; --note-G:#1DD1A1; --note-A:#A29BFE; --note-B:#FD79A8;
+  --font-h:'Nunito',system-ui,sans-serif; --font-b:'Inter',system-ui,sans-serif;
+  --r-sm:12px; --r-md:16px; --r-lg:24px; --r-full:9999px;
+  --t-fast:150ms ease-out; --t-std:300ms ease-out;
+  --header-h:56px; --nav-h:60px;
+}
+@media(prefers-color-scheme:light){:root:not(.theme-dark){--bg:#F8F9FC;--surface:#FFF;--surface-2:#F1F3F9;--border:#E2E8F0;--text:#1A202C;--text-muted:#4A5568;--key-white:#FFF;--key-black:#2D3748;}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.colorblind-mode{--green:#009E73;--red:#D55E00;--gold:#F0E442;--purple:#0072B2}
+.dyslexia-mode{--font-b:'OpenDyslexic',sans-serif;--font-h:'OpenDyslexic',sans-serif}
+.dyslexia-mode *{letter-spacing:.05em;word-spacing:.1em;line-height:1.8}
+.focus-mode .celeb-overlay,.focus-mode .badge{display:none!important}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%} body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-h);font-weight:700;font-size:16px;border:none;border-radius:var(--r-full);cursor:pointer;padding:13px 28px;user-select:none;transition:transform var(--t-fast),box-shadow var(--t-std);touch-action:manipulation}
+.btn:active{transform:scale(.97)} .btn:focus-visible{outline:2px solid var(--purple-light);outline-offset:3px}
+.btn-primary{background:var(--purple);color:#fff;box-shadow:0 4px 16px var(--purple-glow)}
+.btn-primary:hover{background:var(--purple-light);transform:translateY(-1px)}
+.btn-secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border)}
+.btn-ghost{background:transparent;color:var(--text-muted)}
+.btn-gold{background:var(--gold);color:#1A1005;box-shadow:0 4px 16px var(--gold-glow)}
+.btn-sm{font-size:13px;padding:8px 18px} .btn-lg{font-size:18px;padding:16px 36px}
+.btn-icon{padding:10px;border-radius:var(--r-sm);min-width:48px;min-height:48px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:24px;transition:border-color var(--t-std),box-shadow var(--t-std)}
+.card:hover{border-color:var(--purple);box-shadow:0 0 0 1px var(--purple),0 8px 32px rgba(0,0,0,.3)}
+.progress-bar{height:8px;background:var(--border);border-radius:var(--r-full);overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple-light));border-radius:var(--r-full);transition:width var(--t-std)}
 
-  --purple: #7C3AED;
-  --purple-light: #9D6EFF;
-  --purple-dark: #5B21B6;
-  --purple-glow: rgba(124,58,237,0.35);
-  --purple-subtle: rgba(124,58,237,0.12);
+/* ── APP SHELL ── */
+.app-header{height:var(--header-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;z-index:10}
+.hdr-avatar{width:36px;height:36px;border-radius:50%;background:var(--purple-subtle);display:flex;align-items:center;justify-content:center;font-size:20px}
+.hdr-name{font-family:var(--font-h);font-weight:700;font-size:15px}
+.hdr-spacer{flex:1}
+.hdr-streak{display:flex;align-items:center;gap:4px;color:var(--gold);font-family:var(--font-h);font-weight:700;font-size:14px}
+.midi-pill{padding:4px 12px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:var(--font-h)}
+.midi-off{background:var(--surface-2);color:var(--text-dim);border:1px solid var(--border)}
+.midi-on{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.app-content{flex:1;overflow:hidden;position:relative}
+.app-nav{height:var(--nav-h);background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;z-index:10}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-family:var(--font-h);font-size:11px;font-weight:600;padding:6px 12px;border-radius:var(--r-sm);min-width:48px;min-height:48px;justify-content:center}
+.nav-btn .nav-icon{font-size:22px} .nav-btn.active{color:var(--purple)}
 
-  --gold: #F59E0B;
-  --gold-light: #FBBF24;
-  --gold-glow: rgba(245,158,11,0.35);
+/* ── SCREENS ── */
+.screen{display:none;position:absolute;inset:0;overflow-y:auto;padding:24px}
+.screen.active{display:flex;flex-direction:column}
 
-  --green: #10B981;
-  --green-light: #34D399;
+/* ── SPLASH ── */
+#splash{position:fixed;inset:0;z-index:999;background:linear-gradient(145deg,#1a0a2e,#0d1a2e,#0a1a0e);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;cursor:pointer;transition:opacity .5s}
+#splash h1{font-family:var(--font-h);font-weight:900;font-size:clamp(32px,8vw,56px);background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+#splash .icon{font-size:80px;animation:bounce 2s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 
-  --red: #EF4444;
-  --red-glow: rgba(239,68,68,0.3);
+/* ── LOGIN ── */
+#screen-login{justify-content:center;align-items:center;gap:24px;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(124,58,237,.15) 0%,transparent 60%),var(--bg)}
+.avatar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;width:100%;max-width:620px}
+.avatar-card{background:linear-gradient(145deg,var(--surface),var(--surface-2));border:2px solid var(--border);border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer;transition:all .2s}
+.avatar-card:hover{border-color:var(--purple);transform:translateY(-4px);box-shadow:0 12px 32px rgba(124,58,237,.25)}
+.ava-emoji{font-size:52px;display:block;margin-bottom:8px} .ava-name{font-family:var(--font-h);font-weight:800;font-size:16px}
+.ava-stars{font-size:13px;color:var(--gold);margin-top:6px}
+.add-card{border-style:dashed} .add-card .ava-emoji{opacity:.4}
 
-  /* Color-blind safe (Okabe-Ito) */
-  --cb-correct: #009E73;
-  --cb-incorrect: #D55E00;
-  --cb-next: #F0E442;
-  --cb-active: #0072B2;
+/* ── HOME ── */
+#screen-home{gap:24px;align-items:center}
+.world-banner{display:flex;align-items:center;gap:16px;padding:16px 24px;border-radius:var(--r-md);margin-bottom:12px;font-family:var(--font-h);font-weight:800;font-size:18px}
+.world-banner.locked{opacity:.4;filter:grayscale(.8)}
+.world-1{background:linear-gradient(135deg,#3D5A3E,#2A3F2B);border:1px solid #5A7C5B}
+.world-2{background:linear-gradient(135deg,#1E2E4A,#0F1A2E);border:1px solid #2D4A7A}
+.world-3{background:linear-gradient(135deg,#3D1E3D,#261226);border:1px solid #6B2D6B}
+.song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.song-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:16px;cursor:pointer;transition:all var(--t-fast)}
+.song-card:hover{border-color:var(--purple);transform:translateY(-1px)}
+.song-card.locked{opacity:.35;pointer-events:none}
+.song-title{font-family:var(--font-h);font-weight:700;font-size:14px;margin-bottom:4px}
+.song-meta{font-size:12px;color:var(--text-muted)} .song-stars{margin-top:6px}
 
-  /* Semantic aliases */
-  --note-correct: var(--green);
-  --note-incorrect: var(--red);
-  --note-next: var(--gold);
-  --note-active: var(--purple);
+/* ── LESSON ── */
+#screen-lesson{padding:0;flex-direction:column}
+.lesson-hud{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.hud-score{font-family:var(--font-h);font-weight:800;font-size:18px}
+.hud-streak{color:var(--gold);font-family:var(--font-h);font-weight:700}
+.hud-progress{flex:1;margin:0 16px}
+.lesson-canvas-wrap{flex:1;position:relative;background:var(--bg);overflow:hidden}
+.lesson-canvas-wrap canvas{width:100%;height:100%;display:block}
+.speed-selector{display:flex;gap:4px;position:absolute;top:8px;right:8px;z-index:5}
+.speed-btn{font-size:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:6px 10px;cursor:pointer}
+.speed-btn.active{border-color:var(--purple);background:var(--purple-subtle)}
 
-  --text: #F8FAFC;
-  --text-muted: #94A3B8;
-  --text-dim: #4A5568;
+/* ── PIANO ── */
+.piano-wrap{container-type:inline-size;width:100%;flex-shrink:0}
+.piano{display:flex;position:relative;height:180px;background:linear-gradient(180deg,var(--surface),var(--surface-2));border-top:2px solid var(--purple);user-select:none;touch-action:manipulation;box-shadow:0 -4px 20px rgba(124,58,237,.15)}
+.p-key{flex:1;border-right:1px solid rgba(0,0,0,.08);background:linear-gradient(180deg,#FFF 0%,#F5F0E8 60%,#E8E0D4 100%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:10px;font-family:var(--font-h);font-size:12px;color:#999;font-weight:700;cursor:pointer;transition:background .1s,transform .05s;position:relative;z-index:1;border-radius:0 0 6px 6px;box-shadow:inset 0 -3px 6px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.1)}
+.p-key:active,.p-key.pressed{background:var(--purple);color:#fff;transform:translateY(2px);box-shadow:0 0 16px var(--purple-glow)}
+.p-key.correct{background:var(--green);color:#fff;box-shadow:0 0 20px rgba(16,185,129,.5)}
+.p-key.wrong{background:var(--red);color:#fff;animation:shake .3s}
+.p-key.next{background:var(--gold);color:#333;box-shadow:0 0 16px var(--gold-glow);animation:pulseGlow 1.5s ease-in-out infinite}
+.p-key .finger-num{width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.15);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.p-key-black{position:absolute;top:0;width:8%;height:62%;background:linear-gradient(180deg,#2D2D2D,#1A1A1A 70%,#111);z-index:2;border-radius:0 0 5px 5px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:10px;color:#666;font-weight:600;box-shadow:0 4px 8px rgba(0,0,0,.4);transition:background .1s,transform .05s}
+.p-key-black:active,.p-key-black.pressed{background:var(--purple);transform:translateY(2px)}
+.p-key-black.correct{background:var(--green)} .p-key-black.wrong{background:var(--red);animation:shake .3s}
+.p-key-black.next{background:var(--gold);animation:pulseGlow 1.5s ease-in-out infinite}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 8px var(--gold-glow)}50%{box-shadow:0 0 24px var(--gold-glow)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@container(max-width:500px){.piano{height:130px}.p-key{font-size:10px}}
+@container(min-width:800px){.piano{height:220px}.p-key{font-size:14px}}
 
-  --key-white: #F5F0E8;
-  --key-black: #1A1A1A;
+/* ── FREE PLAY ── */
+#screen-freeplay{padding:0;flex-direction:column}
+.freeplay-controls{display:flex;align-items:center;gap:16px;padding:8px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.octave-display{font-family:var(--font-h);font-weight:800;font-size:20px}
 
-  /* Spacing */
-  --sp-xs: 4px; --sp-sm: 8px; --sp-md: 16px; --sp-lg: 24px; --sp-xl: 48px;
+/* ── SETTINGS ── */
+#screen-settings{gap:24px;align-items:center}
+.settings-group{width:100%;max-width:500px}
+.settings-title{font-family:var(--font-h);font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:8px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:8px}
+.setting-label{font-weight:600}
+.toggle{position:relative;width:48px;height:28px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;inset:0;background:var(--border);border-radius:var(--r-full);cursor:pointer;transition:background var(--t-fast)}
+.toggle-track::after{content:'';position:absolute;left:3px;top:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:transform var(--t-fast)}
+.toggle input:checked+.toggle-track{background:var(--purple)}
+.toggle input:checked+.toggle-track::after{transform:translateX(20px)}
+input[type="range"]{-webkit-appearance:none;width:120px;height:6px;background:var(--border);border-radius:var(--r-full);outline:none}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--purple);border-radius:50%;cursor:pointer}
+.setting-select{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:var(--r-sm);padding:8px 12px;font-family:var(--font-b);font-size:14px}
 
-  /* Typography */
-  --font-h: 'Nunito', 'Arial Rounded MT Bold', system-ui, sans-serif;
-  --font-b: 'Inter', 'Helvetica Neue', system-ui, sans-serif;
+/* ── PARENT ── */
+#screen-parent{gap:24px;align-items:center}
+.pin-overlay{position:absolute;inset:0;background:var(--bg);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px}
+.pin-digit{width:52px;height:60px;text-align:center;font-size:28px;font-family:var(--font-h);font-weight:800;background:var(--surface);border:2px solid var(--border);border-radius:var(--r-sm);color:var(--text)}
+.pin-digit:focus{border-color:var(--purple);outline:none}
+.stat-num{font-family:var(--font-h);font-weight:900;font-size:36px;color:var(--purple)}
+.stat-label{font-size:13px;color:var(--text-muted)}
 
-  /* Radius */
-  --r-xs: 6px; --r-sm: 12px; --r-md: 16px; --r-lg: 24px; --r-full: 9999px;
-
-  /* Transitions */
-  --t-fast: 150ms ease-out;
-  --t-std: 300ms ease-out;
-
-  /* Layout */
-  --header-h: 56px;
-  --nav-h: 60px;
-}
-
-/* ── Light theme ────────────────────────────────────────────────── */
-@media (prefers-color-scheme: light) {
-  :root:not(.theme-dark) {
-    --bg: #F8F9FC; --surface: #FFFFFF; --surface-2: #F1F3F9;
-    --border: #E2E8F0; --border-soft: #EDF2F7;
-    --text: #1A202C; --text-muted: #4A5568; --text-dim: #A0AEC0;
-    --key-white: #FFFFFF; --key-black: #2D3748;
-  }
-}
-.theme-light {
-  --bg: #F8F9FC; --surface: #FFFFFF; --surface-2: #F1F3F9;
-  --border: #E2E8F0; --border-soft: #EDF2F7;
-  --text: #1A202C; --text-muted: #4A5568; --text-dim: #A0AEC0;
-  --key-white: #FFFFFF; --key-black: #2D3748;
-}
-
-/* ── Color-blind mode ───────────────────────────────────────────── */
-.colorblind-mode {
-  --note-correct: var(--cb-correct);
-  --note-incorrect: var(--cb-incorrect);
-  --note-next: var(--cb-next);
-  --note-active: var(--cb-active);
-}
-
-/* ── Reduced motion ─────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-}
-.reduced-motion *, .reduced-motion *::before, .reduced-motion *::after {
-  animation-duration: 0.01ms !important; transition-duration: 0.01ms !important;
-}
-
-/* ── Dyslexia font ──────────────────────────────────────────────── */
-@font-face {
-  font-family: 'OpenDyslexic';
-  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff') format('woff');
-  font-weight: 400; font-display: swap;
-}
-.dyslexia-mode { --font-b: 'OpenDyslexic', sans-serif; --font-h: 'OpenDyslexic', sans-serif; }
-.dyslexia-mode * { letter-spacing: 0.05em; word-spacing: 0.1em; line-height: 1.8; }
-
-/* ── Focus mode (ADHD) ──────────────────────────────────────────── */
-.focus-mode .celebration-overlay,
-.focus-mode .badge,
-.focus-mode .streak-badge,
-.focus-mode .confetti { display: none !important; }
-.focus-mode { --bg: #0a0a12; }
-
-/* ── 2. RESET + BASE ───────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; font-size: 16px; scroll-behavior: smooth; }
-body {
-  height: 100%; width: 100%; overflow: hidden;
-  background: var(--bg); color: var(--text);
-  font-family: var(--font-b); font-size: 16px; line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  display: flex; flex-direction: column;
-}
-
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--r-full); }
-
-/* ── 3. TYPOGRAPHY ──────────────────────────────────────────────── */
-.t-h { font-family: var(--font-h); font-weight: 800; line-height: 1.2; }
-.t-label { font-family: var(--font-h); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); }
-
-/* ── 4. BUTTONS ─────────────────────────────────────────────────── */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-sm);
-  font-family: var(--font-h); font-weight: 700; font-size: 16px; line-height: 1;
-  border: none; border-radius: var(--r-full); cursor: pointer;
-  padding: 13px 28px; text-decoration: none; white-space: nowrap; user-select: none;
-  transition: transform var(--t-fast), box-shadow var(--t-std), background var(--t-fast);
-  touch-action: manipulation;
-}
-.btn:active { transform: scale(0.97); }
-.btn:focus-visible { outline: 2px solid var(--purple-light); outline-offset: 3px; }
-.btn-primary { background: var(--purple); color: #fff; box-shadow: 0 4px 16px var(--purple-glow); }
-.btn-primary:hover { background: var(--purple-light); transform: translateY(-1px); }
-.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
-.btn-secondary:hover { border-color: var(--purple); background: var(--purple-subtle); }
-.btn-ghost { background: transparent; color: var(--text-muted); }
-.btn-ghost:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-.btn-gold { background: var(--gold); color: #1A1005; box-shadow: 0 4px 16px var(--gold-glow); }
-.btn-sm { font-size: 13px; padding: 8px 18px; }
-.btn-lg { font-size: 18px; padding: 16px 36px; }
-.btn-icon { padding: 10px; border-radius: var(--r-sm); min-width: 48px; min-height: 48px; }
-
-/* ── 5. CARDS & SURFACES ────────────────────────────────────────── */
-.card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
-  padding: var(--sp-lg); transition: border-color var(--t-std), box-shadow var(--t-std);
-}
-.card:hover { border-color: var(--purple); box-shadow: 0 0 0 1px var(--purple), 0 8px 32px rgba(0,0,0,0.3); }
-
-/* ── 6. PROGRESS & STARS ────────────────────────────────────────── */
-.progress-bar { height: 8px; background: var(--border); border-radius: var(--r-full); overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, var(--purple), var(--purple-light)); border-radius: var(--r-full); transition: width var(--t-std); }
-.stars { display: flex; gap: 3px; }
-.star-on { color: var(--gold); }
-.star-off { color: var(--border); }
-
-/* ── 7. APP SHELL ───────────────────────────────────────────────── */
-.app-header {
-  height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 var(--sp-md); gap: var(--sp-md); flex-shrink: 0; z-index: 10;
-}
-.hdr-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--purple-subtle); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-.hdr-name { font-family: var(--font-h); font-weight: 700; font-size: 15px; }
-.hdr-spacer { flex: 1; }
-.hdr-streak { display: flex; align-items: center; gap: 4px; color: var(--gold); font-family: var(--font-h); font-weight: 700; font-size: 14px; }
-.hdr-midi { padding: 4px 12px; border-radius: var(--r-full); font-size: 12px; font-weight: 700; cursor: pointer; }
-.midi-off { background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border); }
-.midi-on { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
-
-.app-content { flex: 1; overflow: hidden; position: relative; }
-
-.app-nav {
-  height: var(--nav-h); background: var(--surface); border-top: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-around; flex-shrink: 0; z-index: 10;
-}
-.nav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  background: none; border: none; color: var(--text-muted); cursor: pointer;
-  font-family: var(--font-h); font-size: 11px; font-weight: 600;
-  padding: 6px 12px; border-radius: var(--r-sm); transition: color var(--t-fast);
-  min-width: 48px; min-height: 48px; justify-content: center;
-}
-.nav-btn .nav-icon { font-size: 22px; }
-.nav-btn.active { color: var(--purple); }
-.nav-btn:hover { color: var(--text); }
-
-/* ── 8. SCREENS ─────────────────────────────────────────────────── */
-.screen { display: none; position: absolute; inset: 0; overflow-y: auto; padding: var(--sp-lg); }
-.screen.active { display: flex; flex-direction: column; }
-
-/* ── Login Screen ─── */
-#screen-login {
-  justify-content: center; align-items: center; gap: var(--sp-lg);
-  background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(124,58,237,0.15) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(96,165,250,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(52,211,153,0.08) 0%, transparent 50%),
-    var(--bg);
-}
-.login-title {
-  font-family: var(--font-h); font-weight: 900; font-size: clamp(28px, 6vw, 52px); text-align: center;
-  background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  letter-spacing: -1px; text-shadow: 0 0 40px rgba(124,58,237,0.3);
-}
-.login-subtitle {
-  color: var(--text-muted); font-size: 18px; text-align: center; max-width: 400px; line-height: 1.6;
-}
-.avatar-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: var(--sp-md); width: 100%; max-width: 620px;
-}
-.avatar-card {
-  background: linear-gradient(145deg, var(--surface), var(--surface-2));
-  border: 2px solid var(--border); border-radius: var(--r-lg);
-  padding: var(--sp-lg); text-align: center; cursor: pointer;
-  transition: border-color var(--t-std), box-shadow var(--t-std), transform 0.2s ease-out;
-  position: relative; overflow: hidden;
-}
-.avatar-card::before {
-  content: ''; position: absolute; inset: 0; opacity: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--purple-glow) 0%, transparent 70%);
-  transition: opacity var(--t-std);
-}
-.avatar-card:hover::before { opacity: 1; }
-.avatar-card:hover {
-  border-color: var(--purple); transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 12px 32px rgba(124,58,237,0.25);
-}
-.avatar-card:active { transform: translateY(-1px) scale(0.99); }
-.ava-emoji {
-  font-size: 52px; display: block; margin-bottom: var(--sp-sm);
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-  position: relative; z-index: 1;
-}
-.ava-name { font-family: var(--font-h); font-weight: 800; font-size: 16px; position: relative; z-index: 1; }
-.ava-stars { font-size: 13px; color: var(--gold); margin-top: 6px; position: relative; z-index: 1; }
-.add-card { border-style: dashed; border-color: var(--border-soft); }
-.add-card:hover { border-color: var(--purple); border-style: solid; }
-.add-card .ava-emoji { opacity: 0.4; }
-.add-card:hover .ava-emoji { opacity: 0.8; }
-
-/* ── Home Screen ─── */
-#screen-home { gap: var(--sp-lg); align-items: center; }
-.world-section { width: 100%; max-width: 600px; }
-.world-banner {
-  display: flex; align-items: center; gap: var(--sp-md); padding: var(--sp-md) var(--sp-lg);
-  border-radius: var(--r-md); margin-bottom: var(--sp-md); font-family: var(--font-h); font-weight: 800;
-}
-.world-banner.locked { opacity: 0.4; filter: grayscale(0.8); }
-.world-1 { background: linear-gradient(135deg, #3D5A3E, #2A3F2B); border: 1px solid #5A7C5B; }
-.world-2 { background: linear-gradient(135deg, #1E2E4A, #0F1A2E); border: 1px solid #2D4A7A; }
-.world-3 { background: linear-gradient(135deg, #3D1E3D, #261226); border: 1px solid #6B2D6B; }
-.song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--sp-sm); }
-.song-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm);
-  padding: var(--sp-md); cursor: pointer; transition: border-color var(--t-fast), transform var(--t-fast);
-}
-.song-card:hover { border-color: var(--purple); transform: translateY(-1px); }
-.song-card.locked { opacity: 0.35; pointer-events: none; }
-.song-title { font-family: var(--font-h); font-weight: 700; font-size: 14px; margin-bottom: 4px; }
-.song-meta { font-size: 12px; color: var(--text-muted); }
-.song-stars { margin-top: 6px; }
-
-/* ── Lesson Screen ─── */
-#screen-lesson { padding: 0; flex-direction: column; }
-.lesson-hud {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: var(--sp-sm) var(--sp-md); background: var(--surface); border-bottom: 1px solid var(--border);
-}
-.hud-score { font-family: var(--font-h); font-weight: 800; font-size: 18px; }
-.hud-streak { color: var(--gold); font-family: var(--font-h); font-weight: 700; }
-.hud-progress { flex: 1; margin: 0 var(--sp-md); }
-.lesson-canvas-wrap { flex: 1; position: relative; background: var(--bg); overflow: hidden; }
-.lesson-canvas-wrap canvas { width: 100%; height: 100%; display: block; }
-.speed-selector {
-  display: flex; gap: var(--sp-xs); position: absolute; top: var(--sp-sm); right: var(--sp-sm); z-index: 5;
-}
-.speed-btn { font-size: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 6px 10px; cursor: pointer; }
-.speed-btn.active { border-color: var(--purple); background: var(--purple-subtle); }
-
-/* ── Piano Keyboard ─── */
-.piano-wrap { container-type: inline-size; width: 100%; flex-shrink: 0; }
-.piano {
-  display: flex; position: relative; height: 180px; background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
-  border-top: 2px solid var(--purple); user-select: none; touch-action: manipulation;
-  box-shadow: 0 -4px 20px rgba(124,58,237,0.15);
-}
-.p-key {
-  flex: 1; border-right: 1px solid rgba(0,0,0,0.08);
-  background: linear-gradient(180deg, #FFFFFF 0%, #F5F0E8 60%, #E8E0D4 100%);
-  display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px;
-  font-family: var(--font-h); font-size: 12px; color: #999; font-weight: 700;
-  cursor: pointer; transition: background 0.1s, box-shadow 0.1s, transform 0.05s;
-  position: relative; z-index: 1; border-radius: 0 0 6px 6px;
-  box-shadow: inset 0 -3px 6px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.1);
-}
-.p-key:hover { background: linear-gradient(180deg, #FFFFFF 0%, #F0EBE2 60%, #E0D8CC 100%); }
-.p-key:active, .p-key.pressed {
-  background: var(--note-active); color: #fff; transform: translateY(2px);
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.2), 0 0 16px var(--purple-glow);
-}
-.p-key.correct {
-  background: var(--note-correct); color: #fff;
-  box-shadow: 0 0 20px rgba(16,185,129,0.5);
-}
-.p-key.incorrect {
-  background: var(--note-incorrect); color: #fff;
-  box-shadow: 0 0 20px rgba(239,68,68,0.5);
-  animation: shake 0.3s ease-in-out;
-}
-.p-key.next {
-  background: linear-gradient(180deg, var(--note-next) 0%, #E8A008 100%); color: #333;
-  box-shadow: 0 0 16px var(--gold-glow);
-  animation: pulseGlow 1.5s ease-in-out infinite;
-}
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 8px var(--gold-glow); }
-  50% { box-shadow: 0 0 24px var(--gold-glow); }
-}
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
-}
-.p-key-black {
-  position: absolute; top: 0; width: 8%; height: 62%;
-  background: linear-gradient(180deg, #2D2D2D 0%, #1A1A1A 70%, #111 100%);
-  z-index: 2; border-radius: 0 0 5px 5px; cursor: pointer;
-  display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px;
-  font-size: 10px; color: #666; font-weight: 600;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 -2px 4px rgba(255,255,255,0.05);
-  transition: background 0.1s, transform 0.05s;
-}
-.p-key-black:hover { background: linear-gradient(180deg, #3A3A3A 0%, #222 100%); }
-.p-key-black:active, .p-key-black.pressed {
-  background: var(--note-active); transform: translateY(2px);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3), 0 0 12px var(--purple-glow);
-}
-.p-key-black.correct { background: var(--note-correct); box-shadow: 0 0 16px rgba(16,185,129,0.5); }
-.p-key-black.incorrect { background: var(--note-incorrect); animation: shake 0.3s ease-in-out; }
-.p-key-black.next { background: var(--note-next); animation: pulseGlow 1.5s ease-in-out infinite; }
-
-@container (max-width: 500px) {
-  .piano { height: 140px; }
-  .p-key { font-size: 10px; padding-bottom: 6px; }
-}
-@container (min-width: 800px) {
-  .piano { height: 220px; }
-  .p-key { font-size: 14px; }
-}
-
-/* ── Free Play ─── */
-#screen-freeplay { padding: 0; flex-direction: column; }
-.freeplay-controls {
-  display: flex; align-items: center; gap: var(--sp-md); padding: var(--sp-sm) var(--sp-md);
-  background: var(--surface); border-bottom: 1px solid var(--border);
-}
-.octave-display { font-family: var(--font-h); font-weight: 800; font-size: 20px; }
-.freeplay-piano-wrap { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
-
-/* ── Settings Screen ─── */
-#screen-settings { gap: var(--sp-lg); align-items: center; }
-.settings-group { width: 100%; max-width: 500px; }
-.settings-title { font-family: var(--font-h); font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: var(--sp-sm); }
-.setting-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: var(--sp-md); background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-sm); margin-bottom: var(--sp-sm);
-}
-.setting-label { font-weight: 600; }
-.setting-desc { font-size: 13px; color: var(--text-muted); }
-/* Toggle switch */
-.toggle { position: relative; width: 48px; height: 28px; flex-shrink: 0; }
-.toggle input { opacity: 0; width: 0; height: 0; }
-.toggle-track {
-  position: absolute; inset: 0; background: var(--border); border-radius: var(--r-full);
-  cursor: pointer; transition: background var(--t-fast);
-}
-.toggle-track::after {
-  content: ''; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px;
-  background: #fff; border-radius: 50%; transition: transform var(--t-fast);
-}
-.toggle input:checked + .toggle-track { background: var(--purple); }
-.toggle input:checked + .toggle-track::after { transform: translateX(20px); }
-/* Slider */
-input[type="range"] {
-  -webkit-appearance: none; width: 120px; height: 6px; background: var(--border);
-  border-radius: var(--r-full); outline: none;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 20px; height: 20px; background: var(--purple);
-  border-radius: 50%; cursor: pointer;
-}
-/* Select */
-.setting-select {
-  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
-  border-radius: var(--r-sm); padding: 8px 12px; font-family: var(--font-b);
-  font-size: 14px; cursor: pointer;
-}
-
-/* ── Parent Dashboard ─── */
-#screen-parent { gap: var(--sp-lg); align-items: center; }
-.pin-overlay {
-  position: absolute; inset: 0; background: var(--bg); z-index: 20;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-lg);
-}
-.pin-input {
-  display: flex; gap: var(--sp-sm);
-}
-.pin-digit {
-  width: 52px; height: 60px; text-align: center; font-size: 28px; font-family: var(--font-h);
-  font-weight: 800; background: var(--surface); border: 2px solid var(--border);
-  border-radius: var(--r-sm); color: var(--text);
-}
-.pin-digit:focus { border-color: var(--purple); outline: none; }
-.stat-card { text-align: center; }
-.stat-num { font-family: var(--font-h); font-weight: 900; font-size: 36px; color: var(--purple); }
-.stat-label { font-size: 13px; color: var(--text-muted); }
-.parent-actions { display: flex; flex-wrap: wrap; gap: var(--sp-sm); justify-content: center; }
-
-/* ── Celebration Overlay ─── */
-.celebration-overlay {
-  position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7);
-  display: none; align-items: center; justify-content: center;
-  backdrop-filter: blur(4px);
-}
-.celebration-overlay.active { display: flex; }
-.celebration-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
-  padding: var(--sp-xl) var(--sp-lg); text-align: center; max-width: 400px; width: 90%;
-  animation: celebPop 0.5s ease-out;
-}
-@keyframes celebPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.celeb-emoji { font-size: 64px; margin-bottom: var(--sp-md); }
-.celeb-title { font-family: var(--font-h); font-weight: 900; font-size: 28px; margin-bottom: var(--sp-sm); }
-.celeb-sub { color: var(--text-muted); margin-bottom: var(--sp-lg); }
-.celeb-stars { font-size: 40px; margin-bottom: var(--sp-lg); }
-
-/* ── Utilities ──────────────────────────────────────────────────── */
-.hidden { display: none !important; }
-.flex-center { display: flex; align-items: center; justify-content: center; }
-.gap-sm { gap: var(--sp-sm); }
-.gap-md { gap: var(--sp-md); }
-.mb-md { margin-bottom: var(--sp-md); }
-.mb-lg { margin-bottom: var(--sp-lg); }
-.w-full { width: 100%; }
-.max-w-md { max-width: 500px; }
+/* ── CELEBRATION ── */
+.celeb-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.celeb-overlay.active{display:flex}
+.celeb-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:48px 24px;text-align:center;max-width:400px;width:90%;animation:celebPop .5s ease-out}
+@keyframes celebPop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.celeb-emoji{font-size:64px;margin-bottom:16px} .celeb-title{font-family:var(--font-h);font-weight:900;font-size:28px;margin-bottom:8px}
+.celeb-sub{color:var(--text-muted);margin-bottom:24px} .celeb-stars{font-size:40px;margin-bottom:24px}
+.hidden{display:none!important}
   </style>
 </head>
 <body>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       SPLASH SCREEN — Required for AudioContext user gesture
-       ════════════════════════════════════════════════════════════════ -->
-  <div id="splash" style="
-    position:fixed;inset:0;z-index:999;background:linear-gradient(145deg,#1a0a2e,#0d1a2e,#0a1a0e);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;cursor:pointer;
-    transition:opacity 0.5s ease-out;
-  ">
-    <div style="font-size:80px;animation:bounce 2s ease-in-out infinite">🎹</div>
-    <h1 style="font-family:Nunito,sans-serif;font-weight:900;font-size:clamp(32px,8vw,56px);
-      background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;background-clip:text;text-align:center">
-      Melodino
-    </h1>
-    <p style="color:#9090b0;font-size:18px;text-align:center;max-width:400px">
-      Apprends le piano en t'amusant !
-    </p>
-    <button id="splash-start" style="
-      font-family:Nunito,sans-serif;font-weight:800;font-size:20px;
-      padding:18px 48px;border:none;border-radius:9999px;cursor:pointer;
-      background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;
-      box-shadow:0 6px 24px rgba(124,58,237,0.4);
-      transition:transform 0.15s,box-shadow 0.3s;
-    " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-      ▶ Commencer
-    </button>
-    <p style="color:#4A5568;font-size:13px;margin-top:16px">
-      🎹 Compatible ROLI LUMI &amp; claviers MIDI USB
-    </p>
+  <!-- SPLASH -->
+  <div id="splash">
+    <div class="icon">🎹</div>
+    <h1>Melodino</h1>
+    <p style="color:#9090b0;font-size:18px;text-align:center;max-width:400px">Apprends le piano en t'amusant !</p>
+    <button class="btn btn-primary btn-lg" id="splash-btn">▶ Commencer</button>
+    <p style="color:#4A5568;font-size:13px;margin-top:16px">🎹 Compatible ROLI LUMI &amp; claviers MIDI</p>
   </div>
-  <style>
-    @keyframes bounce {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-  </style>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       APP HEADER
-       ════════════════════════════════════════════════════════════════ -->
-  <header class="app-header" id="app-header">
+  <header class="app-header" id="app-header" style="display:none">
     <div class="hdr-avatar" id="hdr-avatar">🎹</div>
     <span class="hdr-name" id="hdr-name">Melodino</span>
     <div class="hdr-spacer"></div>
-    <div class="hdr-streak" id="hdr-streak" title="Jours consecutifs">🔥 <span id="hdr-streak-num">0</span></div>
-    <button class="hdr-midi midi-off" id="hdr-midi" aria-label="Statut MIDI">🎹 —</button>
-    <button class="btn-icon btn-ghost" id="hdr-parent" aria-label="Espace parent" title="Espace parent">🔒</button>
+    <div class="hdr-streak" id="hdr-streak">🔥 <span id="hdr-streak-num">0</span></div>
+    <button class="midi-pill midi-off" id="midi-pill">🎹 —</button>
+    <button class="btn-icon btn-ghost" id="hdr-parent" aria-label="Espace parent">🔒</button>
   </header>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       SCREENS
-       ════════════════════════════════════════════════════════════════ -->
   <main class="app-content">
-
-    <!-- ── Login ─── -->
-    <section class="screen active" id="screen-login">
+    <section class="screen" id="screen-login">
       <span style="font-size:64px">🎹</span>
-      <h1 class="login-title">Melodino</h1>
-      <p class="login-subtitle" id="login-subtitle">Qui joue aujourd'hui ?</p>
+      <h1 style="font-family:var(--font-h);font-weight:900;font-size:clamp(28px,6vw,52px);background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Melodino</h1>
+      <p style="color:var(--text-muted);font-size:18px" id="login-sub">Qui joue aujourd'hui ?</p>
       <div class="avatar-grid" id="avatar-grid"></div>
     </section>
-
-    <!-- ── Home ─── -->
-    <section class="screen" id="screen-home">
-      <div id="worlds-container"></div>
-    </section>
-
-    <!-- ── Lesson ─── -->
+    <section class="screen" id="screen-home"><div id="worlds-wrap"></div></section>
     <section class="screen" id="screen-lesson">
       <div class="lesson-hud">
-        <button class="btn btn-ghost btn-sm" id="lesson-back" aria-label="Retour">← <span data-t="back">Retour</span></button>
+        <button class="btn btn-ghost btn-sm" id="lesson-back">←</button>
         <span class="hud-score" id="hud-score">0</span>
-        <div class="hud-progress"><div class="progress-bar"><div class="progress-fill" id="hud-progress-fill" style="width:0%"></div></div></div>
-        <span class="hud-streak" id="hud-streak">🔥 0</span>
+        <div class="hud-progress"><div class="progress-bar"><div class="progress-fill" id="hud-fill" style="width:0%"></div></div></div>
+        <span class="hud-streak" id="hud-streak-game">🔥 0</span>
       </div>
-      <div class="lesson-canvas-wrap">
-        <canvas id="game-canvas"></canvas>
-        <div class="speed-selector" id="speed-selector">
-          <button class="speed-btn" data-speed="turtle" title="Lent">🐢</button>
-          <button class="speed-btn active" data-speed="normal" title="Normal">🎵</button>
-          <button class="speed-btn" data-speed="rabbit" title="Rapide">🐇</button>
-          <button class="speed-btn" data-speed="rocket" title="Fusee">🚀</button>
+      <div class="lesson-canvas-wrap"><canvas id="game-canvas"></canvas>
+        <div class="speed-selector">
+          <button class="speed-btn" data-speed="turtle">🐢</button>
+          <button class="speed-btn active" data-speed="normal">🎵</button>
+          <button class="speed-btn" data-speed="rabbit">🐇</button>
+          <button class="speed-btn" data-speed="rocket">🚀</button>
         </div>
       </div>
       <div class="piano-wrap"><div class="piano" id="lesson-piano"></div></div>
     </section>
-
-    <!-- ── Free Play ─── -->
     <section class="screen" id="screen-freeplay">
       <div class="freeplay-controls">
-        <button class="btn btn-ghost btn-sm" id="freeplay-back" aria-label="Retour">← <span data-t="back">Retour</span></button>
+        <button class="btn btn-ghost btn-sm" id="fp-back">←</button>
         <div class="hdr-spacer"></div>
-        <button class="btn btn-ghost btn-icon" id="oct-down" aria-label="Octave -">◀</button>
-        <span class="octave-display" id="oct-display">C4</span>
-        <button class="btn btn-ghost btn-icon" id="oct-up" aria-label="Octave +">▶</button>
+        <button class="btn btn-ghost btn-icon" id="oct-down">◀</button>
+        <span class="octave-display" id="oct-disp">Do4</span>
+        <button class="btn btn-ghost btn-icon" id="oct-up">▶</button>
       </div>
-      <div class="freeplay-piano-wrap">
-        <div class="piano-wrap"><div class="piano" id="freeplay-piano"></div></div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end">
+        <div class="piano-wrap"><div class="piano" id="fp-piano"></div></div>
       </div>
     </section>
-
-    <!-- ── Settings ─── -->
     <section class="screen" id="screen-settings">
-      <h2 class="t-h mb-lg" style="font-size:24px" data-t="settings">Parametres</h2>
-      <div class="settings-group" id="settings-container"></div>
+      <h2 style="font-family:var(--font-h);font-weight:900;font-size:24px;margin-bottom:16px">Réglages</h2>
+      <div class="settings-group" id="settings-wrap"></div>
     </section>
-
-    <!-- ── Parent Dashboard ─── -->
     <section class="screen" id="screen-parent">
       <div class="pin-overlay" id="pin-overlay">
         <span style="font-size:48px">🔒</span>
-        <h2 class="t-h" data-t="parent_pin">Code parent</h2>
-        <div class="pin-input" id="pin-input"></div>
-        <p id="pin-error" style="color:var(--red);font-size:14px" class="hidden"></p>
+        <h2 style="font-family:var(--font-h);font-weight:800">Code parent</h2>
+        <div style="display:flex;gap:8px" id="pin-wrap"></div>
+        <p id="pin-err" style="color:var(--red);font-size:14px" class="hidden"></p>
       </div>
-      <div id="parent-content" class="hidden" style="width:100%;max-width:500px;display:flex;flex-direction:column;gap:var(--sp-lg);align-items:center">
-        <h2 class="t-h" style="font-size:24px" data-t="parent_dashboard">Espace Parent</h2>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-md);width:100%">
-          <div class="card stat-card"><div class="stat-num" id="stat-songs">0</div><div class="stat-label" data-t="songs_played">Morceaux</div></div>
-          <div class="card stat-card"><div class="stat-num" id="stat-stars">0</div><div class="stat-label" data-t="total_stars">Etoiles</div></div>
-          <div class="card stat-card"><div class="stat-num" id="stat-accuracy">0%</div><div class="stat-label" data-t="avg_accuracy">Precision</div></div>
+      <div id="parent-content" class="hidden" style="width:100%;max-width:500px;display:flex;flex-direction:column;gap:24px;align-items:center">
+        <h2 style="font-family:var(--font-h);font-weight:900;font-size:24px">Espace Parent</h2>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%">
+          <div class="card" style="text-align:center"><div class="stat-num" id="st-songs">0</div><div class="stat-label">Morceaux</div></div>
+          <div class="card" style="text-align:center"><div class="stat-num" id="st-stars">0</div><div class="stat-label">Étoiles</div></div>
+          <div class="card" style="text-align:center"><div class="stat-num" id="st-acc">0%</div><div class="stat-label">Précision</div></div>
         </div>
-        <div class="parent-actions">
-          <button class="btn btn-secondary btn-sm" id="btn-export">📥 <span data-t="export_data">Exporter</span></button>
-          <button class="btn btn-secondary btn-sm" id="btn-import">📤 <span data-t="import_data">Importer</span></button>
-          <button class="btn btn-secondary btn-sm" id="btn-print">🖨️ <span data-t="print_report">Imprimer</span></button>
-          <button class="btn btn-ghost btn-sm" id="btn-parent-back">← <span data-t="back">Retour</span></button>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">
+          <button class="btn btn-secondary btn-sm" id="btn-export">📥 Exporter</button>
+          <button class="btn btn-secondary btn-sm" id="btn-import">📤 Importer</button>
+          <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Imprimer</button>
+          <button class="btn btn-ghost btn-sm" id="btn-pback">← Retour</button>
         </div>
         <input type="file" id="import-file" accept=".json" class="hidden">
       </div>
     </section>
-
   </main>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       NAVIGATION
-       ════════════════════════════════════════════════════════════════ -->
-  <nav class="app-nav" id="app-nav">
-    <button class="nav-btn active" data-screen="screen-home"><span class="nav-icon">🏠</span><span data-t="home">Accueil</span></button>
-    <button class="nav-btn" data-screen="screen-freeplay"><span class="nav-icon">🎹</span><span data-t="free_play">Libre</span></button>
-    <button class="nav-btn" data-screen="screen-settings"><span class="nav-icon">⚙️</span><span data-t="settings">Reglages</span></button>
+  <nav class="app-nav" id="app-nav" style="display:none">
+    <button class="nav-btn active" data-screen="screen-home"><span class="nav-icon">🏠</span>Accueil</button>
+    <button class="nav-btn" data-screen="screen-freeplay"><span class="nav-icon">🎹</span>Libre</button>
+    <button class="nav-btn" data-screen="screen-settings"><span class="nav-icon">⚙️</span>Réglages</button>
   </nav>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       CELEBRATION OVERLAY
-       ════════════════════════════════════════════════════════════════ -->
-  <div class="celebration-overlay" id="celebration" role="dialog" aria-modal="true">
-    <div class="celebration-card">
-      <div class="celeb-emoji" id="celeb-emoji">🎉</div>
-      <h2 class="celeb-title" id="celeb-title"></h2>
-      <p class="celeb-sub" id="celeb-sub"></p>
-      <div class="celeb-stars" id="celeb-stars"></div>
-      <button class="btn btn-primary btn-lg" id="celeb-btn">Continuer</button>
-    </div>
-  </div>
+  <div class="celeb-overlay" id="celeb"><div class="celeb-card">
+    <div class="celeb-emoji" id="c-emoji">🎉</div>
+    <h2 class="celeb-title" id="c-title"></h2>
+    <p class="celeb-sub" id="c-sub"></p>
+    <div class="celeb-stars" id="c-stars"></div>
+    <button class="btn btn-primary btn-lg" id="c-btn">Continuer</button>
+  </div></div>
 
-  <!-- ════════════════════════════════════════════════════════════════
-       JAVASCRIPT — ALL APPLICATION LOGIC
-       ════════════════════════════════════════════════════════════════ -->
-  <script>
+<script>
 'use strict';
-const DEBUG = false;
-const log = (...a) => { if (DEBUG) console.log('[PM]', ...a); };
 
 /* ================================================================
    PART 0 — i18n
    ================================================================ */
-const I18N = {
+const T = {
   fr: {
-    app_name: 'Melodino', who_plays: 'Qui joue aujourd\'hui ?',
-    add_profile: 'Ajouter', home: 'Accueil', free_play: 'Libre',
-    settings: 'Parametres', back: 'Retour', play: 'Jouer', stop: 'Stop',
-    stars: 'etoiles', score: 'Score', streak: 'Serie', correct: 'Correct',
-    incorrect: 'Faux', next_note: 'Suivante', speed: 'Vitesse',
-    turtle: 'Tortue', normal: 'Normal', rabbit: 'Lapin', rocket: 'Fusee',
-    world: 'Monde', locked: 'Verrouille', unlock_need: 'Il faut {n} etoiles',
-    parent_pin: 'Code parent', parent_dashboard: 'Espace Parent',
-    songs_played: 'Morceaux', total_stars: 'Etoiles', avg_accuracy: 'Precision',
-    export_data: 'Exporter', import_data: 'Importer', print_report: 'Imprimer',
-    language: 'Langue', volume: 'Volume', theme: 'Theme',
-    theme_auto: 'Auto', theme_dark: 'Sombre', theme_light: 'Clair',
-    notation: 'Notation', notation_auto: 'Auto', notation_solfege: 'Do-Re-Mi',
-    notation_letters: 'C-D-E',
-    colorblind: 'Mode daltonien', dyslexia: 'Police dyslexie',
-    reduced_motion: 'Animations reduites', focus_mode: 'Mode concentration',
-    midi_status: 'Clavier MIDI', connected: 'Connecte', disconnected: 'Non connecte',
-    new_profile: 'Nouveau profil', enter_name: 'Prenom', enter_age: 'Age',
-    create: 'Creer', cancel: 'Annuler', delete_confirm: 'Supprimer ce profil ?',
-    bravo: 'Bravo !', continue: 'Continuer', try_again: 'Rejouer',
-    song_complete: 'Morceau termine !', new_record: 'Nouveau record !',
-    world_1: 'Foret Enchantee', world_2: 'Ocean Magique', world_3: 'Chateau Musical',
-    right_hand: 'Main droite', left_hand: 'Main gauche', both_hands: 'Deux mains',
-    // Solfege
-    Do: 'Do', Re: 'Re', Mi: 'Mi', Fa: 'Fa', Sol: 'Sol', La: 'La', Si: 'Si',
-    age: 'Age', profile: 'Profil',
-    session_timer: 'Minuteur de session', minutes: 'minutes',
-    times_up: 'C\'est l\'heure de la pause !',
-    pin_wrong: 'Code incorrect',
-    fullscreen: 'Plein ecran',
-    accessibility: 'Accessibilite',
+    appName:'Melodino', who:'Qui joue aujourd\'hui ?', add:'Ajouter',
+    home:'Accueil', freePlay:'Libre', settings:'Réglages', back:'Retour',
+    bravo:'Bravo !', tryAgain:'Essaie encore !', almost:'Presque !', fantastic:'Fantastique !',
+    ready:'Prêt ?', pause:'On fait une pause ?', stars:'étoiles', score:'Score',
+    world:'Monde', locked:'Verrouillé', needStars:'Il faut {n} étoiles',
+    speed:{turtle:'Tortue',normal:'Normal',rabbit:'Lapin',rocket:'Fusée'},
+    notes:{C:'Do',D:'Ré',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'},
+    midi:{connected:'Connecté',disconnected:'Non connecté'},
+    parent:{pin:'Code parent',export:'Exporter',import:'Importer',stats:'Statistiques'},
+    enterName:'Prénom ?', enterAge:'Âge ?', pinWrong:'Code incorrect',
+    lang:'Langue', volume:'Volume', notation:'Notation', accessibility:'Accessibilité',
+    colorblind:'Mode daltonien', dyslexia:'Police dyslexie', reducedMotion:'Animations réduites',
+    focusMode:'Mode concentration', fullscreen:'Plein écran',
+    world1:'Premiers pas', world2:'Deux mains', world3:'Plus de notes',
+    correct:'correct', notesPlayed:'notes jouées',
   },
   en: {
-    app_name: 'Melodino', who_plays: 'Who\'s playing today?',
-    add_profile: 'Add', home: 'Home', free_play: 'Free Play',
-    settings: 'Settings', back: 'Back', play: 'Play', stop: 'Stop',
-    stars: 'stars', score: 'Score', streak: 'Streak', correct: 'Correct',
-    incorrect: 'Wrong', next_note: 'Next', speed: 'Speed',
-    turtle: 'Turtle', normal: 'Normal', rabbit: 'Rabbit', rocket: 'Rocket',
-    world: 'World', locked: 'Locked', unlock_need: 'Need {n} stars',
-    parent_pin: 'Parent PIN', parent_dashboard: 'Parent Dashboard',
-    songs_played: 'Songs', total_stars: 'Stars', avg_accuracy: 'Accuracy',
-    export_data: 'Export', import_data: 'Import', print_report: 'Print',
-    language: 'Language', volume: 'Volume', theme: 'Theme',
-    theme_auto: 'Auto', theme_dark: 'Dark', theme_light: 'Light',
-    notation: 'Notation', notation_auto: 'Auto', notation_solfege: 'Do-Re-Mi',
-    notation_letters: 'C-D-E',
-    colorblind: 'Color-blind mode', dyslexia: 'Dyslexia font',
-    reduced_motion: 'Reduced motion', focus_mode: 'Focus mode',
-    midi_status: 'MIDI Keyboard', connected: 'Connected', disconnected: 'Disconnected',
-    new_profile: 'New Profile', enter_name: 'First name', enter_age: 'Age',
-    create: 'Create', cancel: 'Cancel', delete_confirm: 'Delete this profile?',
-    bravo: 'Bravo!', continue: 'Continue', try_again: 'Try Again',
-    song_complete: 'Song complete!', new_record: 'New record!',
-    world_1: 'Enchanted Forest', world_2: 'Magic Ocean', world_3: 'Musical Castle',
-    right_hand: 'Right hand', left_hand: 'Left hand', both_hands: 'Both hands',
-    Do: 'C', Re: 'D', Mi: 'E', Fa: 'F', Sol: 'G', La: 'A', Si: 'B',
-    age: 'Age', profile: 'Profile',
-    session_timer: 'Session timer', minutes: 'minutes',
-    times_up: 'Time for a break!',
-    pin_wrong: 'Wrong PIN',
-    fullscreen: 'Fullscreen',
-    accessibility: 'Accessibility',
+    appName:'Melodino', who:'Who\'s playing today?', add:'Add',
+    home:'Home', freePlay:'Free Play', settings:'Settings', back:'Back',
+    bravo:'Bravo!', tryAgain:'Try again!', almost:'Almost!', fantastic:'Fantastic!',
+    ready:'Ready?', pause:'Take a break?', stars:'stars', score:'Score',
+    world:'World', locked:'Locked', needStars:'Need {n} stars',
+    speed:{turtle:'Turtle',normal:'Normal',rabbit:'Rabbit',rocket:'Rocket'},
+    notes:{C:'C',D:'D',E:'E',F:'F',G:'G',A:'A',B:'B'},
+    midi:{connected:'Connected',disconnected:'Disconnected'},
+    parent:{pin:'Parent PIN',export:'Export',import:'Import',stats:'Statistics'},
+    enterName:'First name?', enterAge:'Age?', pinWrong:'Wrong PIN',
+    lang:'Language', volume:'Volume', notation:'Notation', accessibility:'Accessibility',
+    colorblind:'Color-blind mode', dyslexia:'Dyslexia font', reducedMotion:'Reduced motion',
+    focusMode:'Focus mode', fullscreen:'Fullscreen',
+    world1:'First steps', world2:'Two hands', world3:'More notes',
+    correct:'correct', notesPlayed:'notes played',
   }
 };
-
-let currentLang = 'fr';
-function t(key, vars) {
-  let s = I18N[currentLang]?.[key] || I18N.en[key] || key;
-  if (vars) Object.entries(vars).forEach(([k, v]) => { s = s.replace(`{${k}}`, v); });
-  return s;
-}
-function setLang(lang) {
-  currentLang = lang;
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
-}
-
-// Solfege mapping
-const SOLFEGE = { C: 'Do', D: 'Re', E: 'Mi', F: 'Fa', G: 'Sol', A: 'La', B: 'Si' };
-let notationMode = 'auto'; // auto, solfege, letters
-function noteDisplay(noteName) {
-  const letter = noteName.replace(/[0-9#b]/g, '');
-  const rest = noteName.replace(letter, '');
-  const useSolfege = notationMode === 'solfege' || (notationMode === 'auto' && ['fr','es','it','pt','ar'].includes(currentLang));
-  return useSolfege && SOLFEGE[letter] ? SOLFEGE[letter] + rest : noteName;
-}
+let LANG = navigator.language.startsWith('en') ? 'en' : 'fr';
+function t(k,v) { let s=T[LANG]?.[k]||T.fr[k]||k; if(v) Object.entries(v).forEach(([a,b])=>{s=s.replace(`{${a}}`,b)}); return s; }
+const SOLFEGE = {C:'Do',D:'Ré',E:'Mi',F:'Fa',G:'Sol',A:'La',B:'Si'};
+function noteDisp(n) { const l=n.replace(/[0-9#b]/g,''),r=n.replace(l,''); return LANG==='fr'&&SOLFEGE[l]?SOLFEGE[l]+r:n; }
 
 /* ================================================================
-   PART 1 — STORAGE MANAGER (IndexedDB)
+   PART 1 — LUMI SYSEX LIBRARY (from xivilay/lumi-web-control)
    ================================================================ */
-const Storage = (() => {
-  const DB = 'melodino';
-  const VER = 1;
-  let db = null;
-
-  function init() {
-    return new Promise((resolve, reject) => {
-      if (!window.indexedDB) { log('IndexedDB unavailable, using localStorage fallback'); resolve(); return; }
-      const req = indexedDB.open(DB, VER);
-      req.onupgradeneeded = (e) => {
-        const d = e.target.result;
-        if (!d.objectStoreNames.contains('profiles')) d.createObjectStore('profiles', { keyPath: 'id' });
-        if (!d.objectStoreNames.contains('progress')) d.createObjectStore('progress', { keyPath: 'key' });
-        if (!d.objectStoreNames.contains('settings')) d.createObjectStore('settings', { keyPath: 'key' });
-      };
-      req.onsuccess = (e) => { db = e.target.result; resolve(); };
-      req.onerror = () => { log('IndexedDB error'); resolve(); };
-    });
-  }
-
-  function _tx(store, mode) { return db.transaction(store, mode).objectStore(store); }
-
-  function get(store, key) {
-    if (!db) return Promise.resolve(JSON.parse(localStorage.getItem(`pm_${store}_${key}`) || 'null'));
-    return new Promise((res) => {
-      const r = _tx(store, 'readonly').get(key);
-      r.onsuccess = () => res(r.result || null);
-      r.onerror = () => res(null);
-    });
-  }
-
-  function put(store, value) {
-    if (!db) { localStorage.setItem(`pm_${store}_${value.id || value.key}`, JSON.stringify(value)); return Promise.resolve(); }
-    return new Promise((res) => {
-      const r = _tx(store, 'readwrite').put(value);
-      r.onsuccess = () => res();
-      r.onerror = () => res();
-    });
-  }
-
-  function getAll(store) {
-    if (!db) {
-      const items = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k.startsWith(`pm_${store}_`)) try { items.push(JSON.parse(localStorage.getItem(k))); } catch {}
-      }
-      return Promise.resolve(items);
-    }
-    return new Promise((res) => {
-      const r = _tx(store, 'readonly').getAll();
-      r.onsuccess = () => res(r.result || []);
-      r.onerror = () => res([]);
-    });
-  }
-
-  function del(store, key) {
-    if (!db) { localStorage.removeItem(`pm_${store}_${key}`); return Promise.resolve(); }
-    return new Promise((res) => {
-      const r = _tx(store, 'readwrite').delete(key);
-      r.onsuccess = () => res();
-      r.onerror = () => res();
-    });
-  }
-
-  return { init, get, put, getAll, del };
+const LumiSysex = (() => {
+  const ck = (v) => { let s=v.length; for(let i=0;i<v.length;i++) s=(s*3+v[i])&0xff; return s&0x7f; };
+  function BA(){this.values=[];this.num_bits=0;
+    this.append=function(value,size=7){let u=parseInt(this.num_bits%7),p=0;if(u>0){p=this.values[this.values.length-1];this.values.pop()}this.num_bits+=size;while(size>0){p|=(value<<u)&127;size-=(7-u);value>>=(7-u);this.values.push(p);p=0;u=0}};
+    this.get=function(){while(this.values.length<8)this.values.push(0);return this.values}}
+  const HDR=[0xF0,0x00,0x21,0x10], DEV=0x37;
+  function send(out,cmd){if(!out)return;try{out.send([...HDR,0x77,DEV,...cmd,ck(cmd),0xF7])}catch(e){}}
+  function getColor(id,hex){const c=parseInt(hex.replace('#',''),16),r=(c>>16)&0xFF,g=(c>>8)&0xFF,b=c&0xFF;const bits=new BA();bits.append(0x10,7);bits.append(0x20+0x10*(id&1),7);bits.append(0b00100,5);bits.append(b,8);bits.append(g,8);bits.append(r,8);bits.append(0xFF,8);return bits.get()}
+  function getBrightness(v){const b=new BA();b.append(0x10,7);b.append(0x40,7);b.append(0b00100,5);b.append(v,7);return b.get()}
+  function getOctave(v){const b=new BA();b.append(0x10,7);b.append(0x40,7);b.append(0b00000,5);b.append(v,32);return b.get()}
+  function getColorMode(v){const b=new BA();b.append(0x10,7);b.append(0x40,7);b.append(0b00010,5);b.append(v&3,2);return b.get()}
+  const scales={'Major':[0x02,0x00],'Minor':[0x22,0x00],'Harmonic Minor':[0x42,0x00],'Pentatonic Major':[0x02,0x01],'Blues':[0x42,0x01],'Chromatic':[0x42,0x04]};
+  function getScale(n){return[0x10,0x60,...(scales[n]||scales.Major),0,0,0,0]}
+  const keyMap={'C':[0x03,0x00],'C#':[0x23,0x00],'D':[0x43,0x00],'D#':[0x63,0x00],'E':[0x03,0x01],'F':[0x23,0x01],'F#':[0x43,0x01],'G':[0x63,0x01],'G#':[0x03,0x02],'A':[0x23,0x02],'A#':[0x43,0x02],'B':[0x63,0x02]};
+  function getKey(n){return[0x10,0x30,...(keyMap[n]||keyMap.C),0,0,0,0]}
+  return{send,getColor,getBrightness,getOctave,getColorMode,getScale,getKey};
 })();
 
 /* ================================================================
-   PART 2 — AUDIO ENGINE
+   PART 2 — AUDIO ENGINE (soundfont-player + fallback)
    ================================================================ */
-const Audio = (() => {
-  let ctx = null;
-  let masterGain = null;
-  const active = [];
-  const MAX_VOICES = 10;
+const AudioEng = (() => {
+  let ctx=null, piano=null, loading=false, ready=false;
+  const FREQ={};
+  ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'].forEach((n,i)=>{for(let o=2;o<=7;o++){FREQ[n+o]=440*Math.pow(2,((o+1)*12+i-69)/12)}});
 
-  // Sample cache: real piano samples from CDN
-  const sampleCache = {};
-  let samplesLoading = false;
-  let samplesReady = false;
-
-  // CDN for Salamander Grand Piano MP3 samples (velocity layer 4 = medium touch)
-  const SAMPLE_CDN = 'https://unpkg.com/@audio-samples/piano-mp3-velocity4@1.0.5/audio/';
-  // Priority samples first (C3-C5 = LUMI range + computer keyboard range)
-  const PRIORITY_SAMPLES = ['C3v4.mp3','C4v4.mp3','C5v4.mp3'];
-  // Extended samples (loaded after priority)
-  const EXTRA_SAMPLES = [
-    'C2v4.mp3','D%234v4.mp3','F%234v4.mp3','A4v4.mp3',
-    'D%235v4.mp3','F%235v4.mp3','A5v4.mp3','C6v4.mp3','C7v4.mp3'
-  ];
-  // Map sample filename → MIDI note number
-  const SAMPLE_MIDI = {
-    'C2': 36, 'C3': 48, 'D#4': 63, 'C4': 60, 'D#5': 75,
-    'F#4': 66, 'A4': 69, 'C5': 72, 'D#5b': 75,
-    'F#5': 78, 'A5': 81, 'C6': 84, 'C7': 96
-  };
-
-  const FREQ = {};
-  const NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-  for (let oct = 2; oct <= 7; oct++) {
-    NOTES.forEach((n, i) => {
-      const midi = (oct + 1) * 12 + i;
-      FREQ[n + oct] = 440 * Math.pow(2, (midi - 69) / 12);
-    });
+  async function init(){
+    ctx=new(window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'});
+    if(ctx.state==='suspended') await ctx.resume();
+    loadSoundfont();
   }
-
-  function init() {
-    if (ctx) return;
-    ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
-    masterGain = ctx.createGain();
-    masterGain.gain.value = 0.7;
-    masterGain.connect(ctx.destination);
-    loadSamples(); // Start loading real piano samples in background
+  async function loadSoundfont(){
+    if(loading||ready)return;loading=true;
+    try{
+      piano=await Soundfont.instrument(ctx,'acoustic_grand_piano',{soundfont:'MusyngKite',format:'mp3'});
+      ready=true;
+    }catch(e){ready=false}
+    loading=false;
   }
-
-  function resume() {
-    if (ctx && ctx.state === 'suspended') ctx.resume();
+  function resume(){if(ctx&&ctx.state==='suspended')ctx.resume()}
+  function play(note,dur=800,vel=80){
+    if(!ctx){init();return}resume();
+    if(ready&&piano){piano.play(note,ctx.currentTime,{gain:vel/127,duration:dur/1000});return}
+    // Fallback: triangle wave
+    const f=FREQ[note];if(!f)return;const v=(vel/127)*.4,now=ctx.currentTime;
+    const o=ctx.createOscillator(),e=ctx.createGain();o.type='triangle';o.frequency.value=f;
+    e.gain.setValueAtTime(0,now);e.gain.linearRampToValueAtTime(v,now+.02);e.gain.exponentialRampToValueAtTime(.001,now+dur/1000);
+    o.connect(e);e.connect(ctx.destination);o.start(now);o.stop(now+dur/1000+.1);
   }
-
-  // Load a single sample from CDN
-  async function loadOneSample(file) {
-    try {
-      const resp = await fetch(SAMPLE_CDN + file);
-      if (!resp.ok) return;
-      const buf = await resp.arrayBuffer();
-      const audio = await ctx.decodeAudioData(buf);
-      const name = decodeURIComponent(file).replace('v4.mp3', '');
-      sampleCache[name] = audio;
-    } catch {}
-  }
-
-  // Load real piano samples from CDN — priority first, then extended
-  async function loadSamples() {
-    if (samplesLoading || samplesReady) return;
-    samplesLoading = true;
-
-    // Phase 1: Load priority samples FAST (C3, C4, C5 = covers LUMI + keyboard)
-    await Promise.allSettled(PRIORITY_SAMPLES.map(loadOneSample));
-    samplesReady = Object.keys(sampleCache).length >= 2;
-    if (samplesReady) log('Priority piano samples ready:', Object.keys(sampleCache).join(', '));
-
-    // Phase 2: Load extended samples in background (non-blocking)
-    Promise.allSettled(EXTRA_SAMPLES.map(loadOneSample)).then(() => {
-      log('All piano samples loaded:', Object.keys(sampleCache).length);
-    });
-
-    samplesLoading = false;
-  }
-
-  // Find closest base sample for a note (minimize pitch-shift for best quality)
-  function findClosestSample(noteName) {
-    const noteNum = noteToMidi(noteName);
-    let closest = null; let minDist = 999;
-    for (const [name, buf] of Object.entries(sampleCache)) {
-      const sampleMidi = noteToMidi(name);
-      const dist = Math.abs(noteNum - sampleMidi);
-      if (dist < minDist) { minDist = dist; closest = { buf, midi: sampleMidi }; }
-    }
-    if (!closest) return null;
-    return { sample: closest.buf, detune: (noteNum - closest.midi) * 100 };
-  }
-
-  function noteToMidi(name) {
-    const m = name.match(/^([A-G]#?)(\d)$/);
-    if (!m) return 60;
-    const semis = { C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11 };
-    return (parseInt(m[2]) + 1) * 12 + (semis[m[1]] || 0);
-  }
-
-  function playNote(noteName, durMs = 500, velocity = 80) {
-    if (!ctx) init();
-    resume();
-
-    const vol = (velocity / 127) * 0.7;
-    const now = ctx.currentTime;
-
-    // Voice stealing
-    while (active.length >= MAX_VOICES) {
-      const old = active.shift();
-      try { if (old.stop) old.stop(); } catch {}
-    }
-
-    // Spatial pan
-    const pan = ctx.createStereoPanner();
-    const midiNum = noteToMidi(noteName);
-    pan.pan.value = Math.max(-0.7, Math.min(0.7, (midiNum - 60) / 36));
-    pan.connect(masterGain);
-
-    // Envelope
-    const env = ctx.createGain();
-    env.connect(pan);
-
-    if (samplesReady) {
-      // REAL PIANO: sampled playback with pitch-shift
-      const { sample, detune } = findClosestSample(noteName);
-      if (sample) {
-        const src = ctx.createBufferSource();
-        src.buffer = sample;
-        src.detune.value = detune;
-        env.gain.setValueAtTime(vol, now);
-        env.gain.setValueAtTime(vol, now + durMs / 1000 - 0.05);
-        env.gain.exponentialRampToValueAtTime(0.001, now + durMs / 1000 + 0.3);
-        src.connect(env);
-        src.start(now);
-        src.stop(now + durMs / 1000 + 0.5);
-        active.push(src);
-        setTimeout(() => { const i = active.indexOf(src); if (i > -1) active.splice(i, 1); }, durMs + 600);
-        return;
-      }
-    }
-
-    // FALLBACK: Triangle wave synth (still sounds decent)
-    const freq = FREQ[noteName];
-    if (!freq) return;
-
-    const osc1 = ctx.createOscillator();
-    osc1.type = 'triangle';
-    osc1.frequency.value = freq;
-
-    const osc2 = ctx.createOscillator();
-    osc2.type = 'triangle';
-    osc2.frequency.value = freq * 1.003;
-
-    env.gain.setValueAtTime(0, now);
-    env.gain.linearRampToValueAtTime(vol * 0.5, now + 0.015);
-    env.gain.exponentialRampToValueAtTime(vol * 0.3, now + 0.12);
-    const release = now + durMs / 1000;
-    env.gain.setValueAtTime(vol * 0.3, release - 0.04);
-    env.gain.exponentialRampToValueAtTime(0.001, release + 0.15);
-
-    osc1.connect(env); osc2.connect(env);
-    osc1.start(now); osc2.start(now);
-    osc1.stop(release + 0.2); osc2.stop(release + 0.2);
-
-    const voice = { stop: () => { try { osc1.stop(); osc2.stop(); } catch {} } };
-    active.push(voice);
-    setTimeout(() => { const i = active.indexOf(voice); if (i > -1) active.splice(i, 1); }, durMs + 300);
-  }
-
-  function playNoteInstant(noteName, velocity = 80) {
-    playNote(noteName, 1200, velocity);
-  }
-
-  function setVolume(v) { if (masterGain) masterGain.gain.value = Math.max(0, Math.min(1, v)); }
-
-  function tick(accent = false) {
-    if (!ctx) return;
-    resume();
-    const osc = ctx.createOscillator();
-    const env = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = accent ? 1000 : 800;
-    env.gain.setValueAtTime(0.3, ctx.currentTime);
-    env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-    osc.connect(env); env.connect(masterGain);
-    osc.start(); osc.stop(ctx.currentTime + 0.1);
-  }
-
-  return { init, resume, playNote, playNoteInstant, setVolume, tick, FREQ };
+  function playInstant(note,vel=90){play(note,1200,vel)}
+  function setVol(v){/* volume via gain node if needed */}
+  return{init,resume,play,playInstant,setVol,isReady:()=>ready};
 })();
 
 /* ================================================================
    PART 3 — MIDI MANAGER
    ================================================================ */
 const MIDI = (() => {
-  let access = null;
-  let activeInput = null;
-  let activeOutput = null;
-  let deviceName = null;
-  let status = 'disconnected';
-  const onNoteOn = [];
-  const onNoteOff = [];
-
-  const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-
-  function midiToNote(num) {
-    const oct = Math.floor(num / 12) - 1;
-    return { note: NOTE_NAMES[num % 12], octave: oct, full: NOTE_NAMES[num % 12] + oct, midi: num };
+  let access=null,input=null,output=null,devName=null,isLumi=false;
+  const onOn=[],onOff=[];
+  const NN=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  function m2n(n){return{note:NN[n%12],octave:Math.floor(n/12)-1,full:NN[n%12]+(Math.floor(n/12)-1),midi:n}}
+  function handle(e){
+    const[st,n,v]=e.data,cmd=st&0xF0,info=m2n(n);
+    if(cmd===0x90&&v>0)onOn.forEach(cb=>cb({...info,velocity:v}));
+    else if(cmd===0x80||(cmd===0x90&&v===0))onOff.forEach(cb=>cb({...info,velocity:0}));
   }
-
-  function handleMsg(e) {
-    const [st, num, vel] = e.data;
-    const cmd = st & 0xF0;
-    const info = midiToNote(num);
-    if (cmd === 0x90 && vel > 0) {
-      onNoteOn.forEach(cb => cb({ ...info, velocity: vel }));
-    } else if (cmd === 0x80 || (cmd === 0x90 && vel === 0)) {
-      onNoteOff.forEach(cb => cb({ ...info, velocity: 0 }));
-    }
+  async function init(){
+    if(!navigator.requestMIDIAccess)return;
+    try{access=await navigator.requestMIDIAccess({sysex:true})}
+    catch{try{access=await navigator.requestMIDIAccess({sysex:false})}catch{return}}
+    access.onstatechange=()=>scan();scan();
   }
-
-  function findBest(inputs) {
-    for (const inp of inputs.values()) {
-      if (inp.name.toLowerCase().includes('lumi')) return inp;
-    }
-    return inputs.values().next().value || null;
+  function scan(){
+    if(!access)return;
+    // Find best input (LUMI priority)
+    let best=null;isLumi=false;output=null;
+    for(const inp of access.inputs.values()){if(inp.name.toLowerCase().includes('lumi')){best=inp;isLumi=true;break}}
+    if(!best){const f=access.inputs.values().next().value;if(f)best=f}
+    for(const out of access.outputs.values()){if(out.name.toLowerCase().includes('lumi')){output=out;break}}
+    if(best){
+      if(input)input.onmidimessage=null;
+      input=best;input.onmidimessage=handle;devName=best.name;
+      if(isLumi&&output){setTimeout(()=>{
+        LumiSysex.send(output,LumiSysex.getOctave(0));
+        LumiSysex.send(output,LumiSysex.getColorMode(1));
+        LumiSysex.send(output,LumiSysex.getColor(0,'#7C3AED'));
+        LumiSysex.send(output,LumiSysex.getBrightness(80));
+        LumiSysex.send(output,LumiSysex.getScale('Major'));
+        LumiSysex.send(output,LumiSysex.getKey('C'));
+      },300)}
+    }else{input=null;devName=null}
+    updatePill();
   }
-
-  function findOutput(outputs) {
-    for (const out of outputs.values()) {
-      if (out.name.toLowerCase().includes('lumi')) return out;
-    }
-    return null;
+  function updatePill(){
+    const p=document.getElementById('midi-pill');if(!p)return;
+    if(devName){p.className='midi-pill midi-on';p.textContent='🎹 '+(isLumi?'LUMI':devName)}
+    else{p.className='midi-pill midi-off';p.textContent='🎹 '+t('midi').disconnected}
   }
-
-  function connect(inp) {
-    if (activeInput) activeInput.onmidimessage = null;
-    activeInput = inp;
-    activeInput.onmidimessage = handleMsg;
-    deviceName = inp.name;
-    status = 'connected';
-    updateUI();
-  }
-
-  function scan() {
-    if (!access) return;
-    const best = findBest(access.inputs);
-    activeOutput = findOutput(access.outputs);
-    if (best) {
-      connect(best);
-      // If LUMI detected, reset its octave to default range (C3-B4)
-      if (isLumi()) {
-        setTimeout(() => {
-          Lumi.resetOctave();
-          Lumi.setPianoMode();
-          Lumi.setBrightness(80);
-        }, 500); // Small delay to ensure LUMI is ready to receive SysEx
-      }
-    } else {
-      activeInput = null; deviceName = null; status = 'disconnected'; updateUI();
-    }
-  }
-
-  function updateUI() {
-    const pill = document.getElementById('hdr-midi');
-    if (!pill) return;
-    if (status === 'connected') {
-      pill.className = 'hdr-midi midi-on';
-      pill.textContent = '🎹 ' + (deviceName || t('connected'));
-    } else {
-      pill.className = 'hdr-midi midi-off';
-      pill.textContent = '🎹 ' + t('disconnected');
-    }
-  }
-
-  async function init() {
-    if (!navigator.requestMIDIAccess) { log('Web MIDI not supported'); updateUI(); return; }
-    try {
-      access = await navigator.requestMIDIAccess({ sysex: true });
-      access.onstatechange = () => scan();
-      scan();
-    } catch (err) {
-      log('MIDI access denied:', err);
-      updateUI();
-    }
-  }
-
-  function getOutput() { return activeOutput; }
-  function isConnected() { return status === 'connected'; }
-  function isLumi() { return deviceName && deviceName.toLowerCase().includes('lumi'); }
-
-  return { init, onNoteOn, onNoteOff, getOutput, isConnected, isLumi, updateUI };
+  return{init,onOn,onOff,getOutput:()=>output,isLumi:()=>isLumi,updatePill};
 })();
 
 /* ================================================================
-   PART 4 — LUMI LED CONTROLLER
-   ================================================================ */
-const Lumi = (() => {
-  const MFR = [0x00, 0x21, 0x10]; // ROLI
-  const DEV = 0x37; // LUMI
-
-  function checksum(bytes) {
-    let c = bytes.length;
-    for (const b of bytes) c = (c * 3 + b) & 0xFF;
-    return c & 0x7F;
-  }
-
-  function send(cmdBytes) {
-    const out = MIDI.getOutput();
-    if (!out || !MIDI.isLumi()) return;
-    const msg = [0xF0, ...MFR, 0x77, DEV, ...cmdBytes, checksum(cmdBytes), 0xF7];
-    try { out.send(msg); } catch {}
-  }
-
-  function rgbToSysex(r, g, b) {
-    return [
-      ((b & 0x3) << 5) | 0x04,
-      ((b >> 2) & 0x3F) | (g & 1),
-      g >> 1,
-      r & 0x7F,
-      (r >> 7) | 0x7E
-    ];
-  }
-
-  function setGlobalColor(r, g, b) { send([0x10, 0x20, ...rgbToSysex(r, g, b), 0x03]); }
-  function setRootColor(r, g, b) { send([0x10, 0x30, ...rgbToSysex(r, g, b), 0x03]); }
-
-  function setBrightness(pct) {
-    const v = Math.round((pct / 100) * 25);
-    send([0x10, 0x40, ((v & 0x1F) << 2) | 0x04, (v >> 3) & 0x7F, 0, 0, 0, 0]);
-  }
-
-  // Reset LUMI to octave 0 (C3-B4 range, which is the default and best for learning)
-  function resetOctave() {
-    // SysEx: set octave = 0 → 10 40 00 00 00 00 00 00
-    send([0x10, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
-    log('LUMI octave reset to 0 (C3-B4)');
-  }
-
-  // Set color mode to "piano" (white keys = white, black keys = dark)
-  function setPianoMode() {
-    send([0x10, 0x40, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00]);
-  }
-
-  function highlightNext() { setGlobalColor(0xF0, 0xE4, 0x42); } // Yellow
-  function highlightCorrect() { setGlobalColor(0x00, 0x9E, 0x73); } // Teal
-  function highlightIncorrect() { setGlobalColor(0xD5, 0x5E, 0x00); } // Orange
-  function clearLEDs() { setGlobalColor(0x7C, 0x3A, 0xED); } // Default purple
-
-  return { setGlobalColor, setRootColor, setBrightness, highlightNext, highlightCorrect, highlightIncorrect, clearLEDs, resetOctave, setPianoMode };
-})();
-
-/* ================================================================
-   PART 5 — SONG DATABASE
+   PART 4 — SONGS DATA (French nursery rhymes, musically correct)
    ================================================================ */
 const SONGS = [
-  // ── World 1: Foret Enchantee (right hand, C4-G4) ──
-  {
-    id: 1, title: { fr: 'Ah Vous Dirai-Je Maman', en: 'Twinkle Twinkle Little Star' },
-    composer: 'Traditionnel', world: 1, difficulty: 1, ageMin: 3, rightHandOnly: true,
-    bpm: { turtle: 50, normal: 72, rabbit: 90, rocket: 110 },
-    notes: [
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
-      {note:'A4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
-      {note:'G4',duration:'half',hand:'right',finger:5},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'half',hand:'right',finger:1},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'half',hand:'right',finger:2},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'half',hand:'right',finger:2},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
-      {note:'A4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
-      {note:'G4',duration:'half',hand:'right',finger:5},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'whole',hand:'right',finger:1}
-    ]
-  },
-  {
-    id: 2, title: { fr: 'Frere Jacques', en: 'Are You Sleeping' },
-    composer: 'Traditionnel', world: 1, difficulty: 1, ageMin: 3, rightHandOnly: true,
-    bpm: { turtle: 55, normal: 80, rabbit: 100, rocket: 120 },
-    notes: [
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'G4',duration:'half',hand:'right',finger:5},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'G4',duration:'half',hand:'right',finger:5},
-      {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'A4',duration:'eighth',hand:'right',finger:5},
-      {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'F4',duration:'eighth',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'A4',duration:'eighth',hand:'right',finger:5},
-      {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'F4',duration:'eighth',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'G3',duration:'quarter',hand:'right',finger:1},
-      {note:'C4',duration:'half',hand:'right',finger:1},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'G3',duration:'quarter',hand:'right',finger:1},
-      {note:'C4',duration:'half',hand:'right',finger:1}
-    ]
-  },
-  {
-    id: 3, title: { fr: 'Au Clair de la Lune', en: 'Au Clair de la Lune' },
-    composer: 'Traditionnel', world: 1, difficulty: 1, ageMin: 3, rightHandOnly: true,
-    bpm: { turtle: 50, normal: 70, rabbit: 88, rocket: 105 },
-    notes: [
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'E4',duration:'half',hand:'right',finger:3},{note:'D4',duration:'half',hand:'right',finger:2},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'whole',hand:'right',finger:1},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'E4',duration:'half',hand:'right',finger:3},{note:'D4',duration:'half',hand:'right',finger:2},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'whole',hand:'right',finger:1}
-    ]
-  },
-  {
-    id: 4, title: { fr: 'Mary avait un petit agneau', en: 'Mary Had a Little Lamb' },
-    composer: 'Traditional', world: 1, difficulty: 1, ageMin: 3, rightHandOnly: true,
-    bpm: { turtle: 55, normal: 76, rabbit: 95, rocket: 115 },
-    notes: [
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'E4',duration:'half',hand:'right',finger:3},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'D4',duration:'half',hand:'right',finger:2},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'G4',duration:'quarter',hand:'right',finger:5},
-      {note:'G4',duration:'half',hand:'right',finger:5},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'whole',hand:'right',finger:1}
-    ]
-  },
-  {
-    id: 5, title: { fr: 'Petits pains chauds', en: 'Hot Cross Buns' },
-    composer: 'Traditional', world: 1, difficulty: 1, ageMin: 3, rightHandOnly: true,
-    bpm: { turtle: 50, normal: 72, rabbit: 90, rocket: 110 },
-    notes: [
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'half',hand:'right',finger:1},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'half',hand:'right',finger:1},
-      {note:'C4',duration:'eighth',hand:'right',finger:1},{note:'C4',duration:'eighth',hand:'right',finger:1},
-      {note:'C4',duration:'eighth',hand:'right',finger:1},{note:'C4',duration:'eighth',hand:'right',finger:1},
-      {note:'D4',duration:'eighth',hand:'right',finger:2},{note:'D4',duration:'eighth',hand:'right',finger:2},
-      {note:'D4',duration:'eighth',hand:'right',finger:2},{note:'D4',duration:'eighth',hand:'right',finger:2},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'half',hand:'right',finger:1}
-    ]
-  },
-  // ── World 2: Ocean Magique (introducing left hand) ──
-  {
-    id: 6, title: { fr: 'Rame, Rame', en: 'Row Your Boat' },
-    composer: 'Traditional', world: 2, difficulty: 2, ageMin: 5, rightHandOnly: true,
-    bpm: { turtle: 48, normal: 66, rabbit: 84, rocket: 100 },
-    notes: [
-      {note:'C4',duration:'dotted-half',hand:'right',finger:1},
-      {note:'C4',duration:'dotted-half',hand:'right',finger:1},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'eighth',hand:'right',finger:2},
-      {note:'E4',duration:'dotted-half',hand:'right',finger:3},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'eighth',hand:'right',finger:2},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'eighth',hand:'right',finger:4},
-      {note:'G4',duration:'dotted-half',hand:'right',finger:5}
-    ]
-  },
-  {
-    id: 7, title: { fr: 'Le Pont de Londres', en: 'London Bridge' },
-    composer: 'Traditional', world: 2, difficulty: 2, ageMin: 5, rightHandOnly: true,
-    bpm: { turtle: 52, normal: 74, rabbit: 92, rocket: 112 },
-    notes: [
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'G4',duration:'half',hand:'right',finger:5},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'F4',duration:'half',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'G4',duration:'half',hand:'right',finger:5},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'G4',duration:'half',hand:'right',finger:5},
-      {note:'D4',duration:'half',hand:'right',finger:2},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'C4',duration:'whole',hand:'right',finger:1}
-    ]
-  },
-  {
-    id: 8, title: { fr: 'Alouette', en: 'Alouette' },
-    composer: 'Traditionnel', world: 2, difficulty: 2, ageMin: 5, rightHandOnly: true,
-    bpm: { turtle: 52, normal: 76, rabbit: 95, rocket: 115 },
-    notes: [
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'E4',duration:'half',hand:'right',finger:3},{note:'D4',duration:'half',hand:'right',finger:2},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'F4',duration:'half',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'whole',hand:'right',finger:1}
-    ]
-  },
-  // ── World 3: Chateau Musical (both hands) ──
-  {
-    id: 9, title: { fr: 'Vive le Vent', en: 'Jingle Bells' },
-    composer: 'J. Pierpont', world: 3, difficulty: 3, ageMin: 7, rightHandOnly: true,
-    bpm: { turtle: 55, normal: 80, rabbit: 100, rocket: 120 },
-    notes: [
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'E4',duration:'half',hand:'right',finger:3},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'E4',duration:'half',hand:'right',finger:3},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'G4',duration:'quarter',hand:'right',finger:5},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'E4',duration:'whole',hand:'right',finger:3},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'half',hand:'right',finger:2},{note:'G4',duration:'half',hand:'right',finger:5}
-    ]
-  },
-  {
-    id: 10, title: { fr: 'Hymne a la Joie', en: 'Ode to Joy' },
-    composer: 'L. van Beethoven', world: 3, difficulty: 3, ageMin: 7, rightHandOnly: true,
-    bpm: { turtle: 52, normal: 72, rabbit: 90, rocket: 108 },
-    notes: [
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'G4',duration:'quarter',hand:'right',finger:5},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'E4',duration:'dotted-quarter',hand:'right',finger:3},{note:'D4',duration:'eighth',hand:'right',finger:2},
-      {note:'D4',duration:'half',hand:'right',finger:2},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'G4',duration:'quarter',hand:'right',finger:5},
-      {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
-      {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
-      {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
-      {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
-      {note:'D4',duration:'dotted-quarter',hand:'right',finger:2},{note:'C4',duration:'eighth',hand:'right',finger:1},
-      {note:'C4',duration:'half',hand:'right',finger:1}
-    ]
-  }
+  {id:1,title:'Au clair de la lune',composer:'Traditionnel',world:1,difficulty:1,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:50,normal:72,rabbit:90,rocket:108},
+   funFact:'Cette chanson date du XVIIIe siècle. En 1860, on a enregistré quelqu\'un la chanter — c\'est le plus ancien enregistrement sonore au monde !',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'half',hand:'right',finger:3},{note:'D4',duration:'half',hand:'right',finger:2},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'half',hand:'right',finger:3},{note:'D4',duration:'half',hand:'right',finger:2},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'A3',duration:'half',hand:'right',finger:1},{note:'A3',duration:'half',hand:'right',finger:1},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'B3',duration:'quarter',hand:'right',finger:1},{note:'A3',duration:'quarter',hand:'right',finger:1},
+     {note:'G3',duration:'whole',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'half',hand:'right',finger:3},{note:'D4',duration:'half',hand:'right',finger:2},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  {id:2,title:'Frère Jacques',composer:'Traditionnel',world:1,difficulty:1,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:55,normal:80,rabbit:100,rocket:120},
+   funFact:'Cette chanson est connue dans le monde entier ! En chinois, elle s\'appelle "Deux Tigres".',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'A4',duration:'eighth',hand:'right',finger:5},
+     {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'F4',duration:'eighth',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'A4',duration:'eighth',hand:'right',finger:5},
+     {note:'G4',duration:'eighth',hand:'right',finger:5},{note:'F4',duration:'eighth',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'G3',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'half',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'G3',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'half',hand:'right',finger:1}
+   ]},
+  {id:3,title:'Ah ! vous dirai-je maman',composer:'Traditionnel',world:1,difficulty:1,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:50,normal:72,rabbit:90,rocket:110},
+   funFact:'C\'est la même mélodie que "Twinkle Twinkle Little Star" en anglais ! Mozart en a fait 12 variations.',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'A4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'half',hand:'right',finger:1},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'half',hand:'right',finger:2}
+   ]},
+  {id:4,title:'J\'ai du bon tabac',composer:'Traditionnel',world:1,difficulty:1,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:52,normal:76,rabbit:95,rocket:115},
+   funFact:'Cette chanson date de 1750. Le "tabac" dont elle parle était en fait du tabac à priser, pas à fumer !',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'half',hand:'right',finger:5}
+   ]},
+  {id:5,title:'Dodo l\'enfant do',composer:'Traditionnel',world:1,difficulty:1,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:45,normal:65,rabbit:82,rocket:100},
+   funFact:'Cette berceuse est chantée aux enfants français depuis des siècles pour les endormir.',
+   notes:[
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'half',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  // World 2
+  {id:6,title:'Sur le pont d\'Avignon',composer:'Traditionnel',world:2,difficulty:2,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:50,normal:72,rabbit:90,rocket:110},
+   funFact:'Le vrai pont d\'Avignon (pont Saint-Bénézet) n\'a plus que 4 arches sur 22 !',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'half',hand:'right',finger:5},{note:'G4',duration:'half',hand:'right',finger:5},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'A4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'half',hand:'right',finger:5},{note:'F4',duration:'half',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  {id:7,title:'Alouette',composer:'Traditionnel',world:2,difficulty:2,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:52,normal:76,rabbit:95,rocket:115},
+   funFact:'Cette chanson est devenue un symbole de la culture franco-canadienne dans le monde entier.',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'half',hand:'right',finger:3},{note:'D4',duration:'half',hand:'right',finger:2},
+     {note:'C4',duration:'whole',hand:'right',finger:1}
+   ]},
+  {id:8,title:'À la claire fontaine',composer:'Traditionnel',world:2,difficulty:2,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:48,normal:68,rabbit:86,rocket:104},
+   funFact:'Cette chanson est une des plus anciennes chansons françaises, datant du XVe siècle.',
+   notes:[
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'half',hand:'right',finger:3},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'half',hand:'right',finger:3},{note:'C4',duration:'half',hand:'right',finger:1}
+   ]},
+  // World 3
+  {id:9,title:'Vive le vent',composer:'J. Pierpont',world:3,difficulty:3,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:55,normal:80,rabbit:100,rocket:120},
+   funFact:'Cette chanson s\'appelle "Jingle Bells" en anglais. Elle a été écrite en 1857, à l\'origine pour Thanksgiving !',
+   notes:[
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'E4',duration:'half',hand:'right',finger:3},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'E4',duration:'half',hand:'right',finger:3},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'E4',duration:'whole',hand:'right',finger:3},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'half',hand:'right',finger:2},{note:'G4',duration:'half',hand:'right',finger:5}
+   ]},
+  {id:10,title:'Ode à la joie',composer:'L. van Beethoven',world:3,difficulty:3,key:'C',scale:'Major',
+   rightHandOnly:true,bpm:{turtle:52,normal:72,rabbit:90,rocket:108},
+   funFact:'Ce thème est tiré de la 9e Symphonie de Beethoven. C\'est l\'hymne officiel de l\'Union européenne !',
+   notes:[
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'eighth',hand:'right',finger:2},
+     {note:'D4',duration:'half',hand:'right',finger:2},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'F4',duration:'quarter',hand:'right',finger:4},{note:'G4',duration:'quarter',hand:'right',finger:5},
+     {note:'G4',duration:'quarter',hand:'right',finger:5},{note:'F4',duration:'quarter',hand:'right',finger:4},
+     {note:'E4',duration:'quarter',hand:'right',finger:3},{note:'D4',duration:'quarter',hand:'right',finger:2},
+     {note:'C4',duration:'quarter',hand:'right',finger:1},{note:'C4',duration:'quarter',hand:'right',finger:1},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'E4',duration:'quarter',hand:'right',finger:3},
+     {note:'D4',duration:'quarter',hand:'right',finger:2},{note:'C4',duration:'eighth',hand:'right',finger:1},
+     {note:'C4',duration:'half',hand:'right',finger:1}
+   ]}
 ];
-
-const WORLDS = [
-  { id: 1, name: 'world_1', icon: '🌳', starsToUnlock: 0, color: 'world-1' },
-  { id: 2, name: 'world_2', icon: '🌊', starsToUnlock: 8, color: 'world-2' },
-  { id: 3, name: 'world_3', icon: '🏰', starsToUnlock: 18, color: 'world-3' },
-];
+const WORLDS=[{id:1,name:'world1',icon:'🌳',starsReq:0,cls:'world-1'},{id:2,name:'world2',icon:'🌊',starsReq:6,cls:'world-2'},{id:3,name:'world3',icon:'🏰',starsReq:14,cls:'world-3'}];
 
 /* ================================================================
-   PART 6 — GAME ENGINE (Falling Notes + Scoring)
+   PART 5 — STORAGE (IndexedDB + fallback)
    ================================================================ */
-const Game = (() => {
-  let canvas, ctx2d;
-  let currentSong = null;
-  let speed = 'normal';
-  let noteIndex = 0;
-  let score = 0;
-  let streak = 0;
-  let maxStreak = 0;
-  let correct = 0;
-  let total = 0;
-  let running = false;
-  let waitingForNote = false;
-  let fallingNotes = [];
-  let lastFrame = 0;
-  const FALL_SPEED = 150; // px per second at normal
-  const HIT_Y = 0.85; // fraction of canvas height
-
-  function init() {
-    canvas = document.getElementById('game-canvas');
-    ctx2d = canvas.getContext('2d');
-  }
-
-  function startSong(song, spd = 'normal') {
-    currentSong = song;
-    speed = spd;
-    noteIndex = 0; score = 0; streak = 0; maxStreak = 0; correct = 0; total = 0;
-    fallingNotes = [];
-    running = true;
-    waitingForNote = true;
-
-    resizeCanvas();
-    scheduleNotes();
-    updateHUD();
-    Lumi.highlightNext();
-    lastFrame = performance.now();
-    requestAnimationFrame(gameLoop);
-  }
-
-  function resizeCanvas() {
-    const wrap = canvas.parentElement;
-    canvas.width = wrap.clientWidth * devicePixelRatio;
-    canvas.height = wrap.clientHeight * devicePixelRatio;
-    ctx2d.scale(devicePixelRatio, devicePixelRatio);
-  }
-
-  function scheduleNotes() {
-    const notes = currentSong.notes;
-    const bpm = currentSong.bpm[speed] || currentSong.bpm.normal;
-    const beatMs = 60000 / bpm;
-    let elapsed = 0;
-
-    const durMap = { whole: 4, half: 2, 'dotted-half': 3, quarter: 1, 'dotted-quarter': 1.5, eighth: 0.5, sixteenth: 0.25 };
-
-    notes.forEach((n, i) => {
-      const dur = (durMap[n.duration] || 1) * beatMs;
-      fallingNotes.push({
-        note: n.note, hand: n.hand, finger: n.finger,
-        y: -(elapsed / 1000) * FALL_SPEED - 100, // Start above canvas
-        targetTime: elapsed, dur, hit: false, missed: false, index: i
-      });
-      elapsed += dur;
-    });
-  }
-
-  function gameLoop(ts) {
-    if (!running) return;
-    const dt = Math.min(ts - lastFrame, 50) / 1000; // cap at 50ms
-    lastFrame = ts;
-
-    const w = canvas.width / devicePixelRatio;
-    const h = canvas.height / devicePixelRatio;
-    const hitLine = h * HIT_Y;
-
-    // Clear
-    ctx2d.clearRect(0, 0, w, h);
-
-    // Draw hit line
-    ctx2d.strokeStyle = 'rgba(124,58,237,0.4)';
-    ctx2d.lineWidth = 2;
-    ctx2d.beginPath();
-    ctx2d.moveTo(0, hitLine);
-    ctx2d.lineTo(w, hitLine);
-    ctx2d.stroke();
-
-    // Update and draw falling notes
-    const speedMul = { turtle: 0.6, normal: 1, rabbit: 1.4, rocket: 1.8 }[speed] || 1;
-    let currentTarget = null;
-
-    fallingNotes.forEach(fn => {
-      if (!fn.hit && !fn.missed) {
-        fn.y += FALL_SPEED * speedMul * dt;
-      }
-
-      // Draw note
-      const noteW = Math.max(w / 14, 30);
-      const noteH = 24;
-      const keyIndex = getKeyPosition(fn.note);
-      const x = (keyIndex / 14) * w;
-
-      if (fn.y > -noteH && fn.y < h + noteH) {
-        ctx2d.fillStyle = fn.hit ? 'rgba(0,158,115,0.6)' : fn.missed ? 'rgba(213,94,0,0.4)' : 'rgba(124,58,237,0.8)';
-        ctx2d.beginPath();
-        ctx2d.roundRect(x + 2, fn.y, noteW - 4, noteH, 6);
-        ctx2d.fill();
-
-        // Note label
-        ctx2d.fillStyle = '#fff';
-        ctx2d.font = '12px Nunito';
-        ctx2d.textAlign = 'center';
-        ctx2d.fillText(noteDisplay(fn.note), x + noteW / 2, fn.y + 16);
-      }
-
-      // Wait mode: find current target
-      if (!fn.hit && !fn.missed && fn.index === noteIndex) {
-        currentTarget = fn;
-      }
-
-      // Missed detection (only in timed mode)
-      if (!waitingForNote && !fn.hit && !fn.missed && fn.y > hitLine + 50) {
-        fn.missed = true;
-        total++;
-        streak = 0;
-        updateHUD();
-      }
-    });
-
-    // In wait mode, position current note at hit line
-    if (waitingForNote && currentTarget) {
-      currentTarget.y = hitLine - 12;
-    }
-
-    // Check if all notes done
-    if (noteIndex >= currentSong.notes.length) {
-      running = false;
-      endSong();
-      return;
-    }
-
-    requestAnimationFrame(gameLoop);
-  }
-
-  function getKeyPosition(noteName) {
-    const map = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-    const letter = noteName.replace(/[0-9]/g, '');
-    return map[letter] || 0;
-  }
-
-  function handleNoteInput(noteName) {
-    if (!running || noteIndex >= currentSong.notes.length) return;
-
-    const expected = currentSong.notes[noteIndex];
-    const fn = fallingNotes[noteIndex];
-
-    if (noteName === expected.note) {
-      // Correct!
-      fn.hit = true;
-      correct++;
-      total++;
-      streak++;
-      if (streak > maxStreak) maxStreak = streak;
-      score += 10 + streak;
-      noteIndex++;
-      Lumi.highlightCorrect();
-      highlightKey(noteName, 'correct');
-
-      Audio.playNoteInstant(noteName, 90);
-
-      setTimeout(() => {
-        clearKeyHighlights();
-        if (noteIndex < currentSong.notes.length) {
-          Lumi.highlightNext();
-          highlightKey(currentSong.notes[noteIndex].note, 'next');
-        }
-      }, 200);
-    } else {
-      // Incorrect
-      total++;
-      streak = 0;
-      Lumi.highlightIncorrect();
-      highlightKey(noteName, 'incorrect');
-      Audio.playNoteInstant(noteName, 60);
-      setTimeout(() => { clearKeyHighlights(); Lumi.highlightNext(); }, 300);
-    }
-
-    updateHUD();
-  }
-
-  function updateHUD() {
-    const el = (id) => document.getElementById(id);
-    el('hud-score').textContent = score;
-    el('hud-streak').textContent = '🔥 ' + streak;
-    if (currentSong) {
-      const pct = Math.round((noteIndex / currentSong.notes.length) * 100);
-      el('hud-progress-fill').style.width = pct + '%';
-    }
-  }
-
-  function endSong() {
-    Lumi.clearLEDs();
-    clearKeyHighlights();
-    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
-    const stars = accuracy >= 90 ? 3 : accuracy >= 80 ? 2 : accuracy >= 70 ? 1 : 0;
-
-    // Save progress
-    saveProgress(currentSong.id, stars, accuracy, score);
-
-    // Show celebration
-    showCelebration(stars, accuracy, score);
-  }
-
-  function setSpeed(s) { speed = s; }
-  function stop() { running = false; Lumi.clearLEDs(); clearKeyHighlights(); }
-
-  return { init, startSong, handleNoteInput, setSpeed, stop };
+const Store = (() => {
+  let db=null;const DB='melodino',V=1;
+  function init(){return new Promise(r=>{if(!window.indexedDB){r();return}const q=indexedDB.open(DB,V);q.onupgradeneeded=e=>{const d=e.target.result;['profiles','progress','settings'].forEach(s=>{if(!d.objectStoreNames.contains(s))d.createObjectStore(s,{keyPath:s==='progress'?'key':'id'})})};q.onsuccess=e=>{db=e.target.result;r()};q.onerror=()=>r()})}
+  function tx(s,m){return db.transaction(s,m).objectStore(s)}
+  function get(s,k){if(!db)return Promise.resolve(JSON.parse(localStorage.getItem(`m_${s}_${k}`)||'null'));return new Promise(r=>{const q=tx(s,'readonly').get(k);q.onsuccess=()=>r(q.result||null);q.onerror=()=>r(null)})}
+  function put(s,v){if(!db){localStorage.setItem(`m_${s}_${v.id||v.key}`,JSON.stringify(v));return Promise.resolve()}return new Promise(r=>{const q=tx(s,'readwrite').put(v);q.onsuccess=()=>r();q.onerror=()=>r()})}
+  function all(s){if(!db){const items=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith(`m_${s}_`))try{items.push(JSON.parse(localStorage.getItem(k)))}catch{}}return Promise.resolve(items)}return new Promise(r=>{const q=tx(s,'readonly').getAll();q.onsuccess=()=>r(q.result||[]);q.onerror=()=>r([])})}
+  function del(s,k){if(!db){localStorage.removeItem(`m_${s}_${k}`);return Promise.resolve()}return new Promise(r=>{const q=tx(s,'readwrite').delete(k);q.onsuccess=()=>r();q.onerror=()=>r()})}
+  return{init,get,put,all,del};
 })();
 
 /* ================================================================
-   PART 7 — PIANO KEYBOARD BUILDER
+   PART 6 — GAME ENGINE (Canvas falling notes + scoring)
    ================================================================ */
-function buildPiano(containerId, octaveStart = 4, numOctaves = 2) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = '';
-
-  const whiteNotes = ['C','D','E','F','G','A','B'];
-  const blackNotes = { C: 'C#', D: 'D#', F: 'F#', G: 'G#', A: 'A#' };
-  const blackOffsets = { C: 0.65, D: 1.75, F: 3.6, G: 4.7, A: 5.8 };
-
-  for (let oct = octaveStart; oct < octaveStart + numOctaves; oct++) {
-    const octOffset = (oct - octaveStart) * 7;
-
-    whiteNotes.forEach((n, i) => {
-      const key = document.createElement('div');
-      key.className = 'p-key';
-      key.dataset.note = n + oct;
-      key.textContent = noteDisplay(n + oct);
-      key.setAttribute('role', 'button');
-      key.setAttribute('aria-label', noteDisplay(n + oct));
-
-      key.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        onKeyPress(n + oct);
-      });
-      key.addEventListener('pointerup', () => onKeyRelease(n + oct));
-
-      container.appendChild(key);
-
-      // Black key
-      if (blackNotes[n]) {
-        const bk = document.createElement('div');
-        bk.className = 'p-key-black';
-        bk.dataset.note = blackNotes[n] + oct;
-        const totalWhites = numOctaves * 7;
-        const leftPct = ((octOffset + blackOffsets[n]) / totalWhites) * 100;
-        bk.style.left = leftPct + '%';
-        bk.setAttribute('role', 'button');
-        bk.setAttribute('aria-label', noteDisplay(blackNotes[n] + oct));
-
-        bk.addEventListener('pointerdown', (e) => {
-          e.preventDefault();
-          onKeyPress(blackNotes[n] + oct);
-        });
-        bk.addEventListener('pointerup', () => onKeyRelease(blackNotes[n] + oct));
-
-        container.appendChild(bk);
+const Game = (() => {
+  let canvas,ctx2d,song=null,speed='normal',ni=0,score=0,streak=0,maxStreak=0,correct=0,total=0,running=false,notes=[];
+  const FALL=150,HIT=0.85;
+  function init(){canvas=document.getElementById('game-canvas');ctx2d=canvas.getContext('2d')}
+  function start(s,spd='normal'){
+    song=s;speed=spd;ni=0;score=0;streak=0;maxStreak=0;correct=0;total=0;notes=[];running=true;
+    resize();schedule();updateHUD();
+    // Configure LUMI for this song
+    if(MIDI.isLumi()){const o=MIDI.getOutput();LumiSysex.send(o,LumiSysex.getKey(s.key||'C'));LumiSysex.send(o,LumiSysex.getScale(s.scale||'Major'));LumiSysex.send(o,LumiSysex.getColorMode(1));LumiSysex.send(o,LumiSysex.getColor(0,'#7C3AED'))}
+    requestAnimationFrame(loop);
+  }
+  function resize(){const w=canvas.parentElement;canvas.width=w.clientWidth*devicePixelRatio;canvas.height=w.clientHeight*devicePixelRatio;ctx2d.scale(devicePixelRatio,devicePixelRatio)}
+  function schedule(){
+    const bpm=song.bpm[speed]||song.bpm.normal,beat=60000/bpm;
+    const dm={whole:4,half:2,'dotted-half':3,quarter:1,'dotted-quarter':1.5,eighth:.5,sixteenth:.25};
+    let t=0;song.notes.forEach((n,i)=>{const d=(dm[n.duration]||1)*beat;notes.push({note:n.note,hand:n.hand,finger:n.finger,y:-(t/1000)*FALL-80,dur:d,hit:false,missed:false,idx:i});t+=d});
+  }
+  let lastT=0;
+  function loop(ts){
+    if(!running)return;const dt=Math.min(ts-(lastT||ts),50)/1000;lastT=ts;
+    const w=canvas.width/devicePixelRatio,h=canvas.height/devicePixelRatio,hitY=h*HIT;
+    ctx2d.clearRect(0,0,w,h);
+    // Hit line
+    ctx2d.strokeStyle='rgba(124,58,237,.3)';ctx2d.lineWidth=2;ctx2d.beginPath();ctx2d.moveTo(0,hitY);ctx2d.lineTo(w,hitY);ctx2d.stroke();
+    const sm={turtle:.6,normal:1,rabbit:1.4,rocket:1.8}[speed]||1;
+    // Get note color
+    function noteColor(n){const l=n.replace(/[0-9#b]/g,'');const colors={C:'#FF6B6B',D:'#FF9F43',E:'#FECA57',F:'#48DBFB',G:'#1DD1A1',A:'#A29BFE',B:'#FD79A8'};return colors[l]||'#7C3AED'}
+    notes.forEach(fn=>{
+      if(!fn.hit&&!fn.missed)fn.y+=FALL*sm*dt;
+      // Wait mode: current note stays at hit line
+      if(!fn.hit&&!fn.missed&&fn.idx===ni)fn.y=hitY-12;
+      const nw=Math.max(w/14,30),nh=24;
+      const kp={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[fn.note.replace(/[0-9#b]/g,'')]||0;
+      const x=(kp/14)*w;
+      if(fn.y>-nh&&fn.y<h+nh){
+        ctx2d.fillStyle=fn.hit?'rgba(16,185,129,.5)':fn.missed?'rgba(239,68,68,.3)':noteColor(fn.note)+'cc';
+        ctx2d.beginPath();ctx2d.roundRect(x+2,fn.y,nw-4,nh,6);ctx2d.fill();
+        ctx2d.fillStyle='#fff';ctx2d.font='bold 11px Nunito';ctx2d.textAlign='center';
+        ctx2d.fillText(noteDisp(fn.note),x+nw/2,fn.y+16);
       }
     });
+    if(ni>=song.notes.length){running=false;endSong();return}
+    requestAnimationFrame(loop);
   }
-}
-
-function onKeyPress(note) {
-  Audio.init();
-  Audio.resume();
-  Audio.playNoteInstant(note);
-
-  const activeScreen = document.querySelector('.screen.active');
-  if (activeScreen && activeScreen.id === 'screen-lesson') {
-    Game.handleNoteInput(note);
+  function input(noteName){
+    if(!running||ni>=song.notes.length)return;
+    const exp=song.notes[ni],fn=notes[ni];
+    if(noteName===exp.note){
+      fn.hit=true;correct++;total++;streak++;if(streak>maxStreak)maxStreak=streak;score+=10+streak;ni++;
+      highlightKey(noteName,'correct');
+      // LUMI color based on streak
+      if(MIDI.isLumi()){const o=MIDI.getOutput();if(streak>10)LumiSysex.send(o,LumiSysex.getColor(0,'#10B981'));if(streak>20)LumiSysex.send(o,LumiSysex.getColor(0,'#F59E0B'))}
+      setTimeout(()=>{clearHL();if(ni<song.notes.length)highlightKey(song.notes[ni].note,'next')},200);
+    }else{
+      total++;streak=0;highlightKey(noteName,'wrong');
+      if(MIDI.isLumi()){const o=MIDI.getOutput();LumiSysex.send(o,LumiSysex.getColor(0,'#EF4444'));setTimeout(()=>LumiSysex.send(o,LumiSysex.getColor(0,'#7C3AED')),200)}
+      setTimeout(()=>clearHL(),300);
+    }
+    updateHUD();
   }
-}
-
-function onKeyRelease(note) {
-  // Future: sustain handling
-}
-
-function highlightKey(note, state) {
-  document.querySelectorAll(`.p-key[data-note="${note}"], .p-key-black[data-note="${note}"]`).forEach(k => {
-    k.classList.remove('correct', 'incorrect', 'next', 'pressed');
-    if (state) k.classList.add(state);
-  });
-}
-
-function clearKeyHighlights() {
-  document.querySelectorAll('.p-key, .p-key-black').forEach(k => {
-    k.classList.remove('correct', 'incorrect', 'next', 'pressed');
-  });
-}
+  function updateHUD(){
+    const el=id=>document.getElementById(id);
+    el('hud-score').textContent=score;el('hud-streak-game').textContent='🔥 '+streak;
+    if(song)el('hud-fill').style.width=Math.round(ni/song.notes.length*100)+'%';
+  }
+  function endSong(){
+    if(MIDI.isLumi()){const o=MIDI.getOutput();LumiSysex.send(o,LumiSysex.getColorMode(0));setTimeout(()=>LumiSysex.send(o,LumiSysex.getColorMode(1)),3000)}
+    clearHL();const acc=total>0?Math.round(correct/total*100):0;
+    const stars=acc>=95?3:acc>=80?2:1;
+    saveProg(song.id,stars,acc,score);showCeleb(stars,acc,score);
+  }
+  function setSpeed(s){speed=s}
+  function stop(){running=false;if(MIDI.isLumi()){const o=MIDI.getOutput();LumiSysex.send(o,LumiSysex.getColor(0,'#7C3AED'))}clearHL()}
+  return{init,start,input,setSpeed,stop};
+})();
 
 /* ================================================================
-   PART 8 — COMPUTER KEYBOARD MAPPING
+   PART 7 — PIANO BUILDER
    ================================================================ */
-const KEY_MAP = {
-  'a': 'C4', 'w': 'C#4', 's': 'D4', 'e': 'D#4', 'd': 'E4',
-  'f': 'F4', 't': 'F#4', 'g': 'G4', 'y': 'G#4', 'h': 'A4',
-  'u': 'A#4', 'j': 'B4', 'k': 'C5', 'o': 'C#5', 'l': 'D5',
-};
-const keysDown = new Set();
-
-document.addEventListener('keydown', (e) => {
-  if (e.repeat || e.target.tagName === 'INPUT') return;
-  const note = KEY_MAP[e.key.toLowerCase()];
-  if (note && !keysDown.has(e.key)) {
-    keysDown.add(e.key);
-    onKeyPress(note);
-    highlightKey(note, 'pressed');
-  }
-  // Shortcuts
-  if (e.key === 'Escape') {
-    const active = document.querySelector('.screen.active');
-    if (active && active.id !== 'screen-login' && active.id !== 'screen-home') {
-      showScreen('screen-home');
-    }
-  }
-  if (e.key === 'F11' || (e.key === 'f' && e.metaKey)) {
-    e.preventDefault();
-    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
-  }
-});
-
-document.addEventListener('keyup', (e) => {
-  keysDown.delete(e.key);
-  const note = KEY_MAP[e.key.toLowerCase()];
-  if (note) {
-    onKeyRelease(note);
-    highlightKey(note, null);
-  }
-});
+function buildPiano(id,startOct=4,numOct=2){
+  const el=document.getElementById(id);if(!el)return;el.innerHTML='';
+  const whites=['C','D','E','F','G','A','B'],blacks={C:'C#',D:'D#',F:'F#',G:'G#',A:'A#'},boff={C:.65,D:1.75,F:3.6,G:4.7,A:5.8};
+  for(let o=startOct;o<startOct+numOct;o++){const oo=(o-startOct)*7;
+    whites.forEach((n,i)=>{
+      const k=document.createElement('div');k.className='p-key';k.dataset.note=n+o;
+      k.innerHTML=`<span class="finger-num" style="display:none"></span><span>${noteDisp(n+o)}</span>`;
+      k.setAttribute('role','button');k.setAttribute('aria-label',noteDisp(n+o));
+      k.addEventListener('pointerdown',e=>{e.preventDefault();onKey(n+o)});
+      k.addEventListener('pointerup',()=>offKey(n+o));
+      el.appendChild(k);
+      if(blacks[n]){const bk=document.createElement('div');bk.className='p-key-black';bk.dataset.note=blacks[n]+o;
+        bk.style.left=((oo+boff[n])/(numOct*7))*100+'%';
+        bk.setAttribute('role','button');bk.setAttribute('aria-label',noteDisp(blacks[n]+o));
+        bk.addEventListener('pointerdown',e=>{e.preventDefault();onKey(blacks[n]+o)});
+        bk.addEventListener('pointerup',()=>offKey(blacks[n]+o));
+        el.appendChild(bk)}
+    })}
+}
+function onKey(n){AudioEng.resume();AudioEng.playInstant(n);const s=document.querySelector('.screen.active');if(s&&s.id==='screen-lesson')Game.input(n)}
+function offKey(n){}
+function highlightKey(n,state){document.querySelectorAll(`[data-note="${n}"]`).forEach(k=>{k.classList.remove('correct','wrong','next','pressed');if(state)k.classList.add(state)})}
+function clearHL(){document.querySelectorAll('.p-key,.p-key-black').forEach(k=>k.classList.remove('correct','wrong','next','pressed'))}
 
 /* ================================================================
-   PART 9 — PROFILES & PROGRESSION
+   PART 8 — KEYBOARD MAPPING (AZERTY French)
    ================================================================ */
-let currentProfile = null;
-let profiles = [];
-let progress = {};
-
-async function loadProfiles() {
-  profiles = await Storage.getAll('profiles');
-  renderLogin();
-}
-
-function renderLogin() {
-  const grid = document.getElementById('avatar-grid');
-  grid.innerHTML = '';
-
-  profiles.forEach(p => {
-    const card = document.createElement('div');
-    card.className = 'avatar-card';
-    card.innerHTML = `<span class="ava-emoji">${p.avatar}</span><span class="ava-name">${escapeHtml(p.name)}</span><div class="ava-stars">⭐ ${p.totalStars || 0}</div>`;
-    card.addEventListener('click', () => selectProfile(p));
-    grid.appendChild(card);
-  });
-
-  // Add card
-  if (profiles.length < 6) {
-    const add = document.createElement('div');
-    add.className = 'avatar-card add-card';
-    add.innerHTML = `<span class="ava-emoji">➕</span><span class="ava-name">${t('add_profile')}</span>`;
-    add.addEventListener('click', showNewProfileDialog);
-    grid.appendChild(add);
-  }
-}
-
-const AVATARS = ['🐱','🐶','🐰','🦊','🐻','🐼','🐨','🦁','🐸','🦄','🐙','🦋','🐢','🦜','🐬','🦉','🐝','🦩','🐳','🦘'];
-
-function showNewProfileDialog() {
-  const name = prompt(t('enter_name'));
-  if (!name || !name.trim()) return;
-  const ageStr = prompt(t('enter_age'));
-  const age = parseInt(ageStr) || 6;
-  const avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
-
-  const profile = {
-    id: Date.now().toString(),
-    name: name.trim().substring(0, 20),
-    avatar, age: Math.max(3, Math.min(12, age)),
-    color: '#7C3AED',
-    createdAt: new Date().toISOString(),
-    totalStars: 0, streakDays: 0, lastPlayedDate: null
-  };
-
-  Storage.put('profiles', profile).then(() => {
-    profiles.push(profile);
-    renderLogin();
-  });
-}
-
-async function selectProfile(p) {
-  currentProfile = p;
-  progress = {};
-  const allProgress = await Storage.getAll('progress');
-  allProgress.filter(pr => pr.key.startsWith(p.id + '_')).forEach(pr => {
-    progress[pr.songId] = pr;
-  });
-
-  // Update header
-  document.getElementById('hdr-avatar').textContent = p.avatar;
-  document.getElementById('hdr-name').textContent = p.name;
-  document.getElementById('hdr-streak-num').textContent = p.streakDays || 0;
-
-  // Update streak
-  const today = new Date().toISOString().slice(0, 10);
-  if (p.lastPlayedDate !== today) {
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-    p.streakDays = p.lastPlayedDate === yesterday ? (p.streakDays || 0) + 1 : 1;
-    p.lastPlayedDate = today;
-    await Storage.put('profiles', p);
-    document.getElementById('hdr-streak-num').textContent = p.streakDays;
-  }
-
-  showScreen('screen-home');
-  renderHome();
-}
-
-async function saveProgress(songId, stars, accuracy, score) {
-  if (!currentProfile) return;
-  const key = currentProfile.id + '_' + songId;
-  const existing = progress[songId];
-  const best = existing ? Math.max(existing.stars, stars) : stars;
-
-  const rec = { key, songId, profileId: currentProfile.id, stars: best, accuracy, score, date: new Date().toISOString() };
-  progress[songId] = rec;
-  await Storage.put('progress', rec);
-
-  // Update total stars
-  let total = 0;
-  Object.values(progress).forEach(p => { total += p.stars; });
-  currentProfile.totalStars = total;
-  await Storage.put('profiles', currentProfile);
-}
+const AZERTY={'w':'C3','x':'D3','c':'E3','v':'F3','b':'G3','n':'A3',',':'B3',
+  'q':'C4','s':'D4','d':'E4','f':'F4','g':'G4','h':'A4','j':'B4','k':'C5','l':'D5','m':'E5',
+  'z':'C#3','e':'D#3','t':'F#3','y':'G#3','u':'A#3','a':'C#4'};
+const down=new Set();
+document.addEventListener('keydown',e=>{if(e.repeat||e.target.tagName==='INPUT')return;const n=AZERTY[e.key.toLowerCase()];if(n&&!down.has(e.key)){down.add(e.key);onKey(n);highlightKey(n,'pressed')}
+  if(e.key==='Escape'){const a=document.querySelector('.screen.active');if(a&&a.id!=='screen-login'&&a.id!=='screen-home')showScreen('screen-home')}});
+document.addEventListener('keyup',e=>{down.delete(e.key);const n=AZERTY[e.key.toLowerCase()];if(n)highlightKey(n,null)});
 
 /* ================================================================
-   PART 10 — HOME SCREEN (Worlds + Songs)
+   PART 9 — PROFILES + PROGRESSION
    ================================================================ */
-function renderHome() {
-  const container = document.getElementById('worlds-container');
-  container.innerHTML = '';
-
-  const totalStars = currentProfile ? currentProfile.totalStars || 0 : 0;
-
-  WORLDS.forEach(w => {
-    const unlocked = totalStars >= w.starsToUnlock;
-    const section = document.createElement('div');
-    section.className = 'world-section mb-lg';
-
-    const banner = document.createElement('div');
-    banner.className = `world-banner ${w.color} ${unlocked ? '' : 'locked'}`;
-    banner.innerHTML = `<span style="font-size:24px">${w.icon}</span> <span>${t(w.name)}</span>`;
-
-    if (!unlocked) {
-      banner.innerHTML += ` <span style="font-size:12px;margin-left:auto;opacity:0.7">${t('unlock_need', { n: w.starsToUnlock })}</span>`;
-    }
-
-    section.appendChild(banner);
-
-    if (unlocked) {
-      const grid = document.createElement('div');
-      grid.className = 'song-grid';
-
-      SONGS.filter(s => s.world === w.id).forEach(song => {
-        const songProgress = progress[song.id];
-        const card = document.createElement('div');
-        card.className = 'song-card';
-
-        const title = song.title[currentLang] || song.title.en || song.title.fr;
-        const starsHtml = songProgress
-          ? '⭐'.repeat(songProgress.stars) + '☆'.repeat(3 - songProgress.stars)
-          : '☆☆☆';
-
-        card.innerHTML = `<div class="song-title">${escapeHtml(title)}</div><div class="song-meta">${song.composer}</div><div class="song-stars">${starsHtml}</div>`;
-        card.addEventListener('click', () => startLesson(song));
-        grid.appendChild(card);
-      });
-
-      section.appendChild(grid);
-    }
-
-    container.appendChild(section);
-  });
+let curProfile=null,profiles=[],progress={};
+async function loadProfiles(){profiles=await Store.all('profiles');renderLogin()}
+function renderLogin(){
+  const g=document.getElementById('avatar-grid');g.innerHTML='';
+  profiles.forEach(p=>{const c=document.createElement('div');c.className='avatar-card';
+    c.innerHTML=`<span class="ava-emoji">${p.avatar}</span><span class="ava-name">${esc(p.name)}</span><div class="ava-stars">⭐ ${p.totalStars||0}</div>`;
+    c.addEventListener('click',()=>selectProfile(p));g.appendChild(c)});
+  if(profiles.length<6){const a=document.createElement('div');a.className='avatar-card add-card';
+    a.innerHTML=`<span class="ava-emoji">➕</span><span class="ava-name">${t('add')}</span>`;
+    a.addEventListener('click',newProfile);g.appendChild(a)}
 }
+const AVATARS=['🐱','🐶','🐰','🦊','🐻','🐼','🐨','🦁','🐸','🦄','🐙','🦋','🐢','🦜','🐬','🦉','🐝','🦩','🐳','🦘'];
+function newProfile(){const n=prompt(t('enterName'));if(!n||!n.trim())return;const age=parseInt(prompt(t('enterAge')))||6;
+  const p={id:Date.now().toString(),name:n.trim().substring(0,20),avatar:AVATARS[Math.floor(Math.random()*AVATARS.length)],age:Math.max(3,Math.min(12,age)),totalStars:0,streakDays:0,lastDate:null};
+  Store.put('profiles',p).then(()=>{profiles.push(p);renderLogin()})}
+async function selectProfile(p){
+  curProfile=p;progress={};const all=await Store.all('progress');
+  all.filter(r=>r.key.startsWith(p.id+'_')).forEach(r=>{progress[r.songId]=r});
+  document.getElementById('hdr-avatar').textContent=p.avatar;document.getElementById('hdr-name').textContent=p.name;
+  document.getElementById('hdr-streak-num').textContent=p.streakDays||0;
+  const today=new Date().toISOString().slice(0,10);
+  if(p.lastDate!==today){const yest=new Date(Date.now()-864e5).toISOString().slice(0,10);p.streakDays=p.lastDate===yest?(p.streakDays||0)+1:1;p.lastDate=today;await Store.put('profiles',p)}
+  showScreen('screen-home');renderHome()}
+async function saveProg(sid,stars,acc,sc){
+  if(!curProfile)return;const k=curProfile.id+'_'+sid,ex=progress[sid],best=ex?Math.max(ex.stars,stars):stars;
+  const r={key:k,songId:sid,stars:best,accuracy:acc,score:sc,date:new Date().toISOString()};
+  progress[sid]=r;await Store.put('progress',r);
+  let tot=0;Object.values(progress).forEach(p=>tot+=p.stars);curProfile.totalStars=tot;await Store.put('profiles',curProfile)}
 
-function startLesson(song) {
-  showScreen('screen-lesson');
-  buildPiano('lesson-piano', 4, 2);
-  Game.init();
-  Game.startSong(song, 'normal');
-
-  // Highlight first note
-  if (song.notes.length > 0) {
-    highlightKey(song.notes[0].note, 'next');
-  }
-
-  // Speak song name
-  speak(song.title[currentLang] || song.title.fr);
+/* ================================================================
+   PART 10 — HOME SCREEN
+   ================================================================ */
+function renderHome(){
+  const w=document.getElementById('worlds-wrap');w.innerHTML='';
+  const ts=curProfile?curProfile.totalStars||0:0;
+  WORLDS.forEach(world=>{
+    const unlocked=ts>=world.starsReq;
+    const sec=document.createElement('div');sec.style.cssText='width:100%;max-width:600px;margin-bottom:24px';
+    const ban=document.createElement('div');ban.className=`world-banner ${world.cls} ${unlocked?'':'locked'}`;
+    ban.innerHTML=`<span style="font-size:24px">${world.icon}</span> ${t(world.name)}`;
+    if(!unlocked)ban.innerHTML+=` <span style="font-size:12px;margin-left:auto;opacity:.7">${t('needStars',{n:world.starsReq})}</span>`;
+    sec.appendChild(ban);
+    if(unlocked){const sg=document.createElement('div');sg.className='song-grid';
+      SONGS.filter(s=>s.world===world.id).forEach(song=>{const sp=progress[song.id];
+        const c=document.createElement('div');c.className='song-card';
+        const st=sp?'⭐'.repeat(sp.stars)+'☆'.repeat(3-sp.stars):'☆☆☆';
+        c.innerHTML=`<div class="song-title">${esc(song.title)}</div><div class="song-meta">${song.composer}</div><div class="song-stars">${st}</div>`;
+        c.addEventListener('click',()=>startLesson(song));sg.appendChild(c)});
+      sec.appendChild(sg)}
+    w.appendChild(sec)});
 }
+function startLesson(song){
+  showScreen('screen-lesson');buildPiano('lesson-piano',3,2);Game.init();Game.start(song,speed||'normal');
+  if(song.notes.length>0)highlightKey(song.notes[0].note,'next');
+  speak(song.title)}
 
 /* ================================================================
    PART 11 — CELEBRATION
    ================================================================ */
-function showCelebration(stars, accuracy, score) {
-  const el = (id) => document.getElementById(id);
-  el('celeb-emoji').textContent = stars >= 3 ? '🌟' : stars >= 2 ? '⭐' : stars >= 1 ? '👏' : '💪';
-  el('celeb-title').textContent = t('bravo');
-  el('celeb-sub').textContent = `${accuracy}% ${t('correct')} — Score: ${score}`;
-  el('celeb-stars').textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
-  el('celeb-btn').textContent = t('continue');
-  el('celeb-btn').onclick = () => {
-    el('celebration').classList.remove('active');
-    showScreen('screen-home');
-    renderHome();
-  };
-  el('celebration').classList.add('active');
-  speak(t('bravo'));
+function showCeleb(stars,acc,sc){
+  const el=id=>document.getElementById(id);
+  el('c-emoji').textContent=stars>=3?'🌟':stars>=2?'⭐':'👏';
+  el('c-title').textContent=stars>=3?t('fantastic'):stars>=2?t('bravo'):t('almost');
+  el('c-sub').textContent=`${acc}% ${t('correct')} — ${t('score')}: ${sc}`;
+  el('c-stars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  el('c-btn').textContent=t('back');
+  el('c-btn').onclick=()=>{el('celeb').classList.remove('active');showScreen('screen-home');renderHome()};
+  el('celeb').classList.add('active');speak(stars>=3?t('fantastic'):t('bravo'));
 }
 
 /* ================================================================
    PART 12 — SCREEN MANAGER
    ================================================================ */
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const screen = document.getElementById(id);
-  if (screen) screen.classList.add('active');
-
-  // Nav
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.screen === id);
-  });
-
-  // Header visibility
-  const showHeader = id !== 'screen-login';
-  document.getElementById('app-header').style.display = showHeader ? 'flex' : 'none';
-  document.getElementById('app-nav').style.display = showHeader ? 'flex' : 'none';
-
-  // Stop game if leaving lesson
-  if (id !== 'screen-lesson') Game.stop();
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));
+  const show=id!=='screen-login';
+  document.getElementById('app-header').style.display=show?'flex':'none';
+  document.getElementById('app-nav').style.display=show?'flex':'none';
+  if(id!=='screen-lesson')Game.stop();
 }
 
 /* ================================================================
    PART 13 — SETTINGS
    ================================================================ */
-function renderSettings() {
-  const container = document.getElementById('settings-container');
-  container.innerHTML = '';
-
-  const groups = [
-    {
-      title: t('language'),
-      items: [{
-        type: 'select', key: 'lang', options: [
-          { value: 'fr', label: '🇫🇷 Francais' },
-          { value: 'en', label: '🇬🇧 English' }
-        ], current: currentLang,
-        onChange: (v) => { setLang(v); renderSettings(); renderHome(); }
-      }]
-    },
-    {
-      title: t('volume'),
-      items: [{ type: 'range', key: 'volume', min: 0, max: 100, current: 70, onChange: (v) => Audio.setVolume(v / 100) }]
-    },
-    {
-      title: t('notation'),
-      items: [{
-        type: 'select', key: 'notation', options: [
-          { value: 'auto', label: t('notation_auto') },
-          { value: 'solfege', label: t('notation_solfege') },
-          { value: 'letters', label: t('notation_letters') }
-        ], current: notationMode,
-        onChange: (v) => { notationMode = v; }
-      }]
-    },
-    {
-      title: t('accessibility'),
-      items: [
-        { type: 'toggle', key: 'colorblind', label: t('colorblind'), current: document.body.classList.contains('colorblind-mode'), onChange: (v) => document.body.classList.toggle('colorblind-mode', v) },
-        { type: 'toggle', key: 'dyslexia', label: t('dyslexia'), current: document.body.classList.contains('dyslexia-mode'), onChange: (v) => document.body.classList.toggle('dyslexia-mode', v) },
-        { type: 'toggle', key: 'reducedMotion', label: t('reduced_motion'), current: document.body.classList.contains('reduced-motion'), onChange: (v) => document.body.classList.toggle('reduced-motion', v) },
-        { type: 'toggle', key: 'focusMode', label: t('focus_mode'), current: document.body.classList.contains('focus-mode'), onChange: (v) => document.body.classList.toggle('focus-mode', v) },
-      ]
-    },
-    {
-      title: t('fullscreen'),
-      items: [{ type: 'button', label: t('fullscreen'), onClick: () => { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); } }]
-    }
+function renderSettings(){
+  const w=document.getElementById('settings-wrap');w.innerHTML='';
+  const items=[
+    {type:'select',label:t('lang'),options:[{v:'fr',l:'🇫🇷 Français'},{v:'en',l:'🇬🇧 English'}],cur:LANG,fn:v=>{LANG=v;renderSettings();renderHome()}},
+    {type:'range',label:t('volume'),min:0,max:100,cur:70,fn:v=>AudioEng.setVol(v/100)},
+    {type:'toggle',label:t('colorblind'),cur:document.body.classList.contains('colorblind-mode'),fn:v=>document.body.classList.toggle('colorblind-mode',v)},
+    {type:'toggle',label:t('dyslexia'),cur:document.body.classList.contains('dyslexia-mode'),fn:v=>document.body.classList.toggle('dyslexia-mode',v)},
+    {type:'toggle',label:t('reducedMotion'),cur:document.body.classList.contains('reduced-motion'),fn:v=>document.body.classList.toggle('reduced-motion',v)},
+    {type:'toggle',label:t('focusMode'),cur:document.body.classList.contains('focus-mode'),fn:v=>document.body.classList.toggle('focus-mode',v)},
+    {type:'button',label:t('fullscreen'),fn:()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}}
   ];
-
-  groups.forEach(g => {
-    const title = document.createElement('div');
-    title.className = 'settings-title';
-    title.textContent = g.title;
-    container.appendChild(title);
-
-    g.items.forEach(item => {
-      const row = document.createElement('div');
-      row.className = 'setting-row';
-
-      if (item.type === 'select') {
-        row.innerHTML = `<span class="setting-label">${g.title}</span>`;
-        const sel = document.createElement('select');
-        sel.className = 'setting-select';
-        item.options.forEach(o => {
-          const opt = document.createElement('option');
-          opt.value = o.value; opt.textContent = o.label;
-          if (o.value === item.current) opt.selected = true;
-          sel.appendChild(opt);
-        });
-        sel.addEventListener('change', () => item.onChange(sel.value));
-        row.appendChild(sel);
-      } else if (item.type === 'range') {
-        row.innerHTML = `<span class="setting-label">${g.title}</span>`;
-        const input = document.createElement('input');
-        input.type = 'range'; input.min = item.min; input.max = item.max; input.value = item.current;
-        input.addEventListener('input', () => item.onChange(parseInt(input.value)));
-        row.appendChild(input);
-      } else if (item.type === 'toggle') {
-        row.innerHTML = `<span class="setting-label">${item.label}</span>`;
-        const toggle = document.createElement('label');
-        toggle.className = 'toggle';
-        toggle.innerHTML = `<input type="checkbox" ${item.current ? 'checked' : ''}><span class="toggle-track"></span>`;
-        toggle.querySelector('input').addEventListener('change', (e) => item.onChange(e.target.checked));
-        row.appendChild(toggle);
-      } else if (item.type === 'button') {
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-secondary btn-sm w-full';
-        btn.textContent = item.label;
-        btn.addEventListener('click', item.onClick);
-        row.appendChild(btn);
-      }
-
-      container.appendChild(row);
-    });
-  });
+  items.forEach(it=>{
+    const r=document.createElement('div');r.className='setting-row';
+    r.innerHTML=`<span class="setting-label">${it.label}</span>`;
+    if(it.type==='select'){const s=document.createElement('select');s.className='setting-select';it.options.forEach(o=>{const op=document.createElement('option');op.value=o.v;op.textContent=o.l;if(o.v===it.cur)op.selected=true;s.appendChild(op)});s.onchange=()=>it.fn(s.value);r.appendChild(s)}
+    else if(it.type==='range'){const i=document.createElement('input');i.type='range';i.min=it.min;i.max=it.max;i.value=it.cur;i.oninput=()=>it.fn(+i.value);r.appendChild(i)}
+    else if(it.type==='toggle'){const l=document.createElement('label');l.className='toggle';l.innerHTML=`<input type="checkbox" ${it.cur?'checked':''}><span class="toggle-track"></span>`;l.querySelector('input').onchange=e=>it.fn(e.target.checked);r.appendChild(l)}
+    else if(it.type==='button'){const b=document.createElement('button');b.className='btn btn-secondary btn-sm';b.textContent=it.label;b.onclick=it.fn;r.appendChild(b)}
+    w.appendChild(r)});
 }
 
 /* ================================================================
    PART 14 — PARENT DASHBOARD
    ================================================================ */
-function initParentDashboard() {
-  // PIN input
-  const pinContainer = document.getElementById('pin-input');
-  pinContainer.innerHTML = '';
-  for (let i = 0; i < 4; i++) {
-    const input = document.createElement('input');
-    input.type = 'password'; input.maxLength = 1; input.className = 'pin-digit'; input.inputMode = 'numeric';
-    input.addEventListener('input', (e) => {
-      if (e.target.value && i < 3) pinContainer.children[i + 1].focus();
-      checkPIN();
-    });
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !e.target.value && i > 0) pinContainer.children[i - 1].focus();
-    });
-    pinContainer.appendChild(input);
-  }
+function initParent(){
+  const w=document.getElementById('pin-wrap');w.innerHTML='';
+  for(let i=0;i<4;i++){const inp=document.createElement('input');inp.type='password';inp.maxLength=1;inp.className='pin-digit';inp.inputMode='numeric';
+    inp.oninput=e=>{if(e.target.value&&i<3)w.children[i+1].focus();checkPIN()};
+    inp.onkeydown=e=>{if(e.key==='Backspace'&&!e.target.value&&i>0)w.children[i-1].focus()};w.appendChild(inp)}
 }
+function checkPIN(){const d=[...document.querySelectorAll('.pin-digit')].map(d=>d.value).join('');
+  if(d.length===4){if(d==='1234'){document.getElementById('pin-overlay').classList.add('hidden');
+    const pc=document.getElementById('parent-content');pc.classList.remove('hidden');pc.style.display='flex';renderParentStats()}
+    else{document.getElementById('pin-err').textContent=t('pinWrong');document.getElementById('pin-err').classList.remove('hidden');
+      document.querySelectorAll('.pin-digit').forEach(d=>d.value='');document.querySelector('.pin-digit')?.focus()}}}
+function renderParentStats(){if(!curProfile)return;const s=Object.keys(progress).length,st=curProfile.totalStars||0;
+  const accs=Object.values(progress).map(p=>p.accuracy).filter(Boolean),avg=accs.length?Math.round(accs.reduce((a,b)=>a+b,0)/accs.length):0;
+  document.getElementById('st-songs').textContent=s;document.getElementById('st-stars').textContent=st;document.getElementById('st-acc').textContent=avg+'%'}
 
-function checkPIN() {
-  const digits = [...document.querySelectorAll('.pin-digit')].map(d => d.value).join('');
-  if (digits.length === 4) {
-    // Default PIN: 1234 (no hash for simplicity in v1)
-    if (digits === '1234') {
-      document.getElementById('pin-overlay').classList.add('hidden');
-      document.getElementById('parent-content').classList.remove('hidden');
-      document.getElementById('parent-content').style.display = 'flex';
-      renderParentStats();
-    } else {
-      document.getElementById('pin-error').textContent = t('pin_wrong');
-      document.getElementById('pin-error').classList.remove('hidden');
-      document.querySelectorAll('.pin-digit').forEach(d => { d.value = ''; });
-      document.querySelector('.pin-digit').focus();
-    }
-  }
-}
-
-function renderParentStats() {
-  if (!currentProfile) return;
-  const songs = Object.keys(progress).length;
-  const stars = currentProfile.totalStars || 0;
-  const accs = Object.values(progress).map(p => p.accuracy).filter(Boolean);
-  const avgAcc = accs.length > 0 ? Math.round(accs.reduce((a, b) => a + b, 0) / accs.length) : 0;
-
-  document.getElementById('stat-songs').textContent = songs;
-  document.getElementById('stat-stars').textContent = stars;
-  document.getElementById('stat-accuracy').textContent = avgAcc + '%';
-}
-
-// Export
-document.getElementById('btn-export')?.addEventListener('click', async () => {
-  const data = { profiles: await Storage.getAll('profiles'), progress: await Storage.getAll('progress'), exportDate: new Date().toISOString(), version: '1.0.0' };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'melodino-backup.json'; a.click();
-  URL.revokeObjectURL(url);
-});
-
-// Import
-document.getElementById('btn-import')?.addEventListener('click', () => document.getElementById('import-file').click());
-document.getElementById('import-file')?.addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  try {
-    const text = await file.text();
-    const data = JSON.parse(text);
-    if (data.profiles && Array.isArray(data.profiles)) {
-      for (const p of data.profiles) await Storage.put('profiles', p);
-    }
-    if (data.progress && Array.isArray(data.progress)) {
-      for (const p of data.progress) await Storage.put('progress', p);
-    }
-    await loadProfiles();
-    alert('Import OK!');
-  } catch { alert('Erreur: fichier invalide'); }
-});
-
-// Print
-document.getElementById('btn-print')?.addEventListener('click', () => window.print());
-document.getElementById('btn-parent-back')?.addEventListener('click', () => {
-  document.getElementById('pin-overlay').classList.remove('hidden');
-  document.getElementById('parent-content').classList.add('hidden');
-  showScreen('screen-home');
-});
+/* ════ SPEECH ════ */
+function speak(txt){if(!('speechSynthesis' in window))return;const u=new SpeechSynthesisUtterance(txt);u.lang=LANG==='fr'?'fr-FR':'en-US';u.rate=.85;u.volume=.8;speechSynthesis.speak(u)}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 
 /* ================================================================
-   PART 15 — SPEECH SYNTHESIS
+   PART 15 — EVENT LISTENERS
    ================================================================ */
-function speak(text) {
-  if (!('speechSynthesis' in window)) return;
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = currentLang === 'fr' ? 'fr-FR' : 'en-US';
-  u.rate = 0.85;
-  u.volume = 0.8;
-  speechSynthesis.speak(u);
-}
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{
+  const t=b.dataset.screen;showScreen(t);
+  if(t==='screen-home')renderHome();if(t==='screen-settings')renderSettings();if(t==='screen-freeplay')buildPiano('fp-piano',3,2)}));
+document.getElementById('lesson-back')?.addEventListener('click',()=>{Game.stop();showScreen('screen-home');renderHome()});
+document.getElementById('fp-back')?.addEventListener('click',()=>showScreen('screen-home'));
+document.querySelectorAll('.speed-btn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.speed-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');Game.setSpeed(b.dataset.speed)}));
+let fpOct=3;
+document.getElementById('oct-down')?.addEventListener('click',()=>{fpOct=Math.max(2,fpOct-1);document.getElementById('oct-disp').textContent=noteDisp('C'+fpOct);buildPiano('fp-piano',fpOct,2)});
+document.getElementById('oct-up')?.addEventListener('click',()=>{fpOct=Math.min(6,fpOct+1);document.getElementById('oct-disp').textContent=noteDisp('C'+fpOct);buildPiano('fp-piano',fpOct,2)});
+document.getElementById('hdr-parent')?.addEventListener('click',()=>{showScreen('screen-parent');initParent();document.querySelector('.pin-digit')?.focus()});
+document.getElementById('btn-pback')?.addEventListener('click',()=>{document.getElementById('pin-overlay').classList.remove('hidden');document.getElementById('parent-content').classList.add('hidden');showScreen('screen-home')});
+document.getElementById('btn-export')?.addEventListener('click',async()=>{const d={profiles:await Store.all('profiles'),progress:await Store.all('progress'),v:'1.0'};
+  const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='melodino-backup.json';a.click();URL.revokeObjectURL(u)});
+document.getElementById('btn-import')?.addEventListener('click',()=>document.getElementById('import-file').click());
+document.getElementById('import-file')?.addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.profiles)for(const p of d.profiles)await Store.put('profiles',p);if(d.progress)for(const p of d.progress)await Store.put('progress',p);await loadProfiles();alert('Import OK!')}catch{alert('Fichier invalide')}});
+
+// MIDI integration
+MIDI.onOn.push(info=>{AudioEng.resume();onKey(info.full);highlightKey(info.full,'pressed')});
+MIDI.onOff.push(info=>{offKey(info.full);highlightKey(info.full,null)});
 
 /* ================================================================
-   PART 16 — UTILITIES
+   PART 16 — INIT
    ================================================================ */
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-/* ================================================================
-   PART 17 — EVENT LISTENERS
-   ================================================================ */
-// Navigation
-document.querySelectorAll('.nav-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.screen;
-    showScreen(target);
-    if (target === 'screen-home') renderHome();
-    if (target === 'screen-settings') renderSettings();
-    if (target === 'screen-freeplay') buildPiano('freeplay-piano', 4, 2);
-  });
-});
-
-// Lesson back
-document.getElementById('lesson-back')?.addEventListener('click', () => { Game.stop(); showScreen('screen-home'); renderHome(); });
-document.getElementById('freeplay-back')?.addEventListener('click', () => showScreen('screen-home'));
-
-// Speed selector
-document.querySelectorAll('.speed-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    Game.setSpeed(btn.dataset.speed);
-  });
-});
-
-// Octave controls
-let freeplayOctave = 4;
-document.getElementById('oct-down')?.addEventListener('click', () => {
-  freeplayOctave = Math.max(2, freeplayOctave - 1);
-  document.getElementById('oct-display').textContent = 'C' + freeplayOctave;
-  buildPiano('freeplay-piano', freeplayOctave, 2);
-});
-document.getElementById('oct-up')?.addEventListener('click', () => {
-  freeplayOctave = Math.min(6, freeplayOctave + 1);
-  document.getElementById('oct-display').textContent = 'C' + freeplayOctave;
-  buildPiano('freeplay-piano', freeplayOctave, 2);
-});
-
-// MIDI pill
-document.getElementById('hdr-midi')?.addEventListener('click', () => {
-  if (!MIDI.isConnected()) {
-    speak(currentLang === 'fr' ? 'Connectez un clavier MIDI en USB' : 'Connect a MIDI keyboard via USB');
-  }
-});
-
-// Parent button
-document.getElementById('hdr-parent')?.addEventListener('click', () => {
-  showScreen('screen-parent');
-  initParentDashboard();
-  document.querySelector('.pin-digit')?.focus();
-});
-
-// MIDI input integration
-MIDI.onNoteOn.push((info) => {
-  Audio.init();
-  Audio.resume();
-  onKeyPress(info.full);
-  highlightKey(info.full, 'pressed');
-});
-
-MIDI.onNoteOff.push((info) => {
-  onKeyRelease(info.full);
-  highlightKey(info.full, null);
-});
-
-/* ================================================================
-   PART 18 — APP INITIALIZATION
-   ================================================================ */
-let appReady = false;
-
-async function initApp() {
-  try {
-    await Storage.init();
-    await loadProfiles();
-    setLang(navigator.language?.startsWith('en') ? 'en' : 'fr');
-
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
-
-    log('Melodino initialized — waiting for user gesture');
-  } catch (err) {
-    log('Init error:', err);
-  }
-}
-
-// Splash screen: user gesture required for AudioContext + MIDI
-document.getElementById('splash-start')?.addEventListener('click', async () => {
-  // Init Audio on user gesture (CRITICAL: Chrome requires this)
-  Audio.init();
-  Audio.resume();
-
-  // Play a welcome sound to confirm audio works
-  Audio.playNote('C4', 300, 60);
-  setTimeout(() => Audio.playNote('E4', 300, 60), 150);
-  setTimeout(() => Audio.playNote('G4', 500, 60), 300);
-
-  // Init MIDI (also benefits from user gesture context)
+document.getElementById('splash-btn')?.addEventListener('click',async()=>{
+  await AudioEng.init();AudioEng.play('C4',300,60);setTimeout(()=>AudioEng.play('E4',300,60),150);setTimeout(()=>AudioEng.play('G4',500,60),300);
   await MIDI.init();
+  document.getElementById('splash').style.opacity='0';setTimeout(()=>document.getElementById('splash').style.display='none',500);
+  showScreen('screen-login')});
+document.getElementById('splash')?.addEventListener('touchend',()=>document.getElementById('splash-btn')?.click(),{once:true});
 
-  // Hide splash
-  const splash = document.getElementById('splash');
-  splash.style.opacity = '0';
-  setTimeout(() => { splash.style.display = 'none'; }, 500);
-
-  appReady = true;
-  showScreen('screen-login');
-});
-
-// Also handle touch for mobile
-document.getElementById('splash')?.addEventListener('touchend', () => {
-  document.getElementById('splash-start')?.click();
-}, { once: true });
-
-initApp();
-  </script>
+(async()=>{await Store.init();await loadProfiles();if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
+</script>
 </body>
 </html>
