@@ -851,11 +851,12 @@ const Audio = (() => {
 
   // CDN for Salamander Grand Piano MP3 samples (velocity layer 4 = medium touch)
   const SAMPLE_CDN = 'https://unpkg.com/@audio-samples/piano-mp3-velocity4@1.0.5/audio/';
-  // Samples every minor third for accurate pitch-shifting (max ±3 semitones)
-  const BASE_SAMPLES = [
-    'C2v4.mp3','C3v4.mp3','D%234v4.mp3','C4v4.mp3','D%235v4.mp3',
-    'F%234v4.mp3','A4v4.mp3','C5v4.mp3','D%235v4.mp3',
-    'F%235v4.mp3','A5v4.mp3','C6v4.mp3','C7v4.mp3'
+  // Priority samples first (C3-C5 = LUMI range + computer keyboard range)
+  const PRIORITY_SAMPLES = ['C3v4.mp3','C4v4.mp3','C5v4.mp3'];
+  // Extended samples (loaded after priority)
+  const EXTRA_SAMPLES = [
+    'C2v4.mp3','D%234v4.mp3','F%234v4.mp3','A4v4.mp3',
+    'D%235v4.mp3','F%235v4.mp3','A5v4.mp3','C6v4.mp3','C7v4.mp3'
   ];
   // Map sample filename → MIDI note number
   const SAMPLE_MIDI = {
@@ -886,25 +887,33 @@ const Audio = (() => {
     if (ctx && ctx.state === 'suspended') ctx.resume();
   }
 
-  // Load real piano samples from CDN (background, non-blocking)
+  // Load a single sample from CDN
+  async function loadOneSample(file) {
+    try {
+      const resp = await fetch(SAMPLE_CDN + file);
+      if (!resp.ok) return;
+      const buf = await resp.arrayBuffer();
+      const audio = await ctx.decodeAudioData(buf);
+      const name = decodeURIComponent(file).replace('v4.mp3', '');
+      sampleCache[name] = audio;
+    } catch {}
+  }
+
+  // Load real piano samples from CDN — priority first, then extended
   async function loadSamples() {
     if (samplesLoading || samplesReady) return;
     samplesLoading = true;
-    try {
-      const results = await Promise.allSettled(BASE_SAMPLES.map(async (file) => {
-        const resp = await fetch(SAMPLE_CDN + file);
-        if (!resp.ok) throw new Error(resp.status);
-        const buf = await resp.arrayBuffer();
-        const audio = await ctx.decodeAudioData(buf);
-        // Extract note name from filename: C4v4.mp3 → C4, D%234v4.mp3 → D#4
-        const name = decodeURIComponent(file).replace('v4.mp3', '');
-        sampleCache[name] = audio;
-      }));
-      samplesReady = Object.keys(sampleCache).length >= 3;
-      log('Piano samples loaded:', Object.keys(sampleCache).length, 'samples');
-    } catch (e) {
-      log('Sample loading failed, using synth fallback');
-    }
+
+    // Phase 1: Load priority samples FAST (C3, C4, C5 = covers LUMI + keyboard)
+    await Promise.allSettled(PRIORITY_SAMPLES.map(loadOneSample));
+    samplesReady = Object.keys(sampleCache).length >= 2;
+    if (samplesReady) log('Priority piano samples ready:', Object.keys(sampleCache).join(', '));
+
+    // Phase 2: Load extended samples in background (non-blocking)
+    Promise.allSettled(EXTRA_SAMPLES.map(loadOneSample)).then(() => {
+      log('All piano samples loaded:', Object.keys(sampleCache).length);
+    });
+
     samplesLoading = false;
   }
 
@@ -1077,7 +1086,17 @@ const MIDI = (() => {
     if (!access) return;
     const best = findBest(access.inputs);
     activeOutput = findOutput(access.outputs);
-    if (best) { connect(best); } else {
+    if (best) {
+      connect(best);
+      // If LUMI detected, reset its octave to default range (C3-B4)
+      if (isLumi()) {
+        setTimeout(() => {
+          Lumi.resetOctave();
+          Lumi.setPianoMode();
+          Lumi.setBrightness(80);
+        }, 500); // Small delay to ensure LUMI is ready to receive SysEx
+      }
+    } else {
       activeInput = null; deviceName = null; status = 'disconnected'; updateUI();
     }
   }
@@ -1151,12 +1170,24 @@ const Lumi = (() => {
     send([0x10, 0x40, ((v & 0x1F) << 2) | 0x04, (v >> 3) & 0x7F, 0, 0, 0, 0]);
   }
 
+  // Reset LUMI to octave 0 (C3-B4 range, which is the default and best for learning)
+  function resetOctave() {
+    // SysEx: set octave = 0 → 10 40 00 00 00 00 00 00
+    send([0x10, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    log('LUMI octave reset to 0 (C3-B4)');
+  }
+
+  // Set color mode to "piano" (white keys = white, black keys = dark)
+  function setPianoMode() {
+    send([0x10, 0x40, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00]);
+  }
+
   function highlightNext() { setGlobalColor(0xF0, 0xE4, 0x42); } // Yellow
   function highlightCorrect() { setGlobalColor(0x00, 0x9E, 0x73); } // Teal
   function highlightIncorrect() { setGlobalColor(0xD5, 0x5E, 0x00); } // Orange
   function clearLEDs() { setGlobalColor(0x7C, 0x3A, 0xED); } // Default purple
 
-  return { setGlobalColor, setRootColor, setBrightness, highlightNext, highlightCorrect, highlightIncorrect, clearLEDs };
+  return { setGlobalColor, setRootColor, setBrightness, highlightNext, highlightCorrect, highlightIncorrect, clearLEDs, resetOctave, setPianoMode };
 })();
 
 /* ================================================================
