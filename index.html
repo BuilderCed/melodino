@@ -20,23 +20,34 @@
 
 <style>
 /* ================================================================
-   MELODINO v2 — CLEAN REWRITE
-   Design: Neon Conservatory (readable variant)
+   MELODINO v3 — Little Maestro structure + Neon Conservatory polish
    ================================================================ */
 
+/* ── 1. CUSTOM PROPERTIES (Little Maestro palette, exact) ── */
 :root {
-  --bg: #0d0d18;
-  --surface: #181826;
-  --surface-hi: #1e1e2d;
+  --bg: #0F0F1A;
+  --surface: #1A1A2E;
+  --surface-2: #22223C;
   --border: #2A2A4A;
+  --border-soft: #1E1E38;
 
   --purple: #7C3AED;
   --purple-lt: #9D6EFF;
+  --purple-dk: #5B21B6;
   --purple-glow: rgba(124,58,237,0.35);
+  --purple-sub: rgba(124,58,237,0.12);
+
   --gold: #F59E0B;
+  --gold-lt: #FBBF24;
   --gold-glow: rgba(245,158,11,0.35);
+  --gold-sub: rgba(245,158,11,0.12);
+
   --green: #10B981;
+  --green-lt: #34D399;
+  --green-glow: rgba(16,185,129,0.35);
+
   --red: #EF4444;
+  --red-glow: rgba(239,68,68,0.30);
 
   --text: #F8FAFC;
   --muted: #94A3B8;
@@ -45,14 +56,17 @@
   --note-C: #FF6B6B; --note-D: #FF9F43; --note-E: #FECA57;
   --note-F: #48DBFB; --note-G: #1DD1A1; --note-A: #A29BFE; --note-B: #FD79A8;
 
-  --fh: 'Nunito', system-ui, sans-serif;
-  --fb: 'Inter', system-ui, sans-serif;
-  --r: 9999px;
-  --rm: 16px;
+  --fh: 'Nunito', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --fb: 'Inter', 'Helvetica Neue', system-ui, sans-serif;
+
+  --r-xs: 6px; --r-sm: 12px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px; --r-full: 9999px;
+  --t-fast: 150ms ease-out; --t-std: 300ms ease-out; --t-cel: 600ms ease-out;
+  --header-h: 64px; --nav-h: 68px;
 }
 
+/* ── 2. RESET + BASE ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; }
+html { height: 100%; font-size: 16px; }
 body {
   height: 100%; width: 100%; overflow: hidden;
   background: var(--bg); color: var(--text);
@@ -60,178 +74,200 @@ body {
   -webkit-font-smoothing: antialiased;
   display: flex; flex-direction: column;
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-}
+::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--r-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--purple); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
-/* ── Buttons ── */
+/* ── 3. BUTTONS (Little Maestro sizes + Stitch gradients) ── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  font-family: var(--fh); font-weight: 800; font-size: 16px;
-  border: none; border-radius: var(--r); cursor: pointer;
-  padding: 14px 32px; touch-action: manipulation;
-  transition: transform 0.15s, box-shadow 0.3s;
+  font-family: var(--fh); font-weight: 700; font-size: 16px; line-height: 1;
+  border: none; border-radius: var(--r-full); cursor: pointer;
+  padding: 13px 28px; white-space: nowrap; user-select: none;
+  position: relative; overflow: hidden; touch-action: manipulation;
+  transition: transform var(--t-fast), box-shadow var(--t-std), background var(--t-fast);
 }
-.btn:active { transform: scale(0.96); }
+.btn:active { transform: scale(0.97) translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--purple-lt); outline-offset: 3px; }
 .btn-p {
   background: linear-gradient(135deg, var(--purple), var(--purple-lt));
-  color: #fff;
-  box-shadow: 0 8px 24px -4px var(--purple-glow), inset 0 1px 0 rgba(255,255,255,0.15);
+  color: #fff; box-shadow: 0 4px 16px var(--purple-glow), inset 0 1px 0 rgba(255,255,255,0.15);
 }
-.btn-p:hover { transform: translateY(-2px); box-shadow: 0 12px 32px -4px var(--purple-glow); }
-.btn-s { background: var(--surface-hi); color: var(--text); border: 1px solid var(--border); }
-.btn-g { background: none; color: var(--muted); border: none; }
-.btn-gold { background: var(--gold); color: #1A1005; box-shadow: 0 4px 16px var(--gold-glow); }
+.btn-p:hover { box-shadow: 0 6px 24px var(--purple-glow); transform: translateY(-1px); }
+.btn-s { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.btn-s:hover { border-color: var(--purple); background: var(--purple-sub); transform: translateY(-1px); }
+.btn-g { background: transparent; color: var(--muted); }
+.btn-g:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+.btn-gold { background: var(--gold); color: #1A1005; box-shadow: 0 4px 16px var(--gold-glow); font-size: 17px; }
+.btn-gold:hover { background: var(--gold-lt); box-shadow: 0 6px 24px var(--gold-glow); transform: translateY(-1px); }
+.btn-xl { font-size: 19px; padding: 18px 40px; }
+.btn-lg { font-size: 17px; padding: 15px 34px; }
 .btn-sm { font-size: 13px; padding: 8px 18px; }
-.btn-lg { font-size: 20px; padding: 18px 48px; }
-.btn-icon { padding: 10px; border-radius: var(--rm); min-width: 48px; min-height: 48px; }
+.btn-icon { padding: 10px; border-radius: var(--r-sm); min-width: 48px; min-height: 48px; display: flex; align-items: center; justify-content: center; }
 
-/* ── Shell (Stitch: glassmorphism + purple shadow) ── */
-.hdr {
-  height: 56px; display: flex; align-items: center; padding: 0 24px; gap: 12px;
-  background: rgba(18,18,30,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 4px 20px rgba(189,157,255,0.12);
-  border-bottom: none; flex-shrink: 0; z-index: 10;
+/* ── 4. BADGES (Little Maestro exact) ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: var(--r-full); font-family: var(--fh); font-weight: 700; font-size: 12px; }
+.badge-purple { background: var(--purple-sub); color: var(--purple-lt); border: 1px solid rgba(124,58,237,0.25); }
+.badge-gold { background: var(--gold-sub); color: var(--gold); border: 1px solid rgba(245,158,11,0.25); }
+.badge-green { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+
+/* ── 5. CARD (Little Maestro hover + Stitch glow) ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 24px;
+  transition: border-color var(--t-std), box-shadow var(--t-std);
 }
-.hdr-av { width: 36px; height: 36px; border-radius: 50%; background: rgba(124,58,237,0.12); display: flex; align-items: center; justify-content: center; font-size: 20px; }
-.hdr-name { font-family: var(--fh); font-weight: 700; font-size: 15px; }
-.hdr-sp { flex: 1; }
-.hdr-streak { color: var(--gold); font-family: var(--fh); font-weight: 700; font-size: 14px; }
-.midi-pill { padding: 4px 12px; border-radius: var(--r); font-size: 12px; font-weight: 700; border: none; cursor: pointer; font-family: var(--fh); }
-.midi-off { background: var(--surface-hi); color: var(--dim); }
-.midi-on { background: rgba(16,185,129,0.15); color: var(--green); }
+.card:hover { border-color: var(--purple); box-shadow: 0 0 0 1px var(--purple), 0 8px 32px rgba(0,0,0,0.4); }
 
-.main { flex: 1; overflow: hidden; position: relative; }
+/* ── 6. PROGRESS BAR (Little Maestro exact + gradient) ── */
+.pbar { height: 8px; background: var(--border); border-radius: var(--r-full); overflow: hidden; }
+.pfill { height: 100%; background: linear-gradient(90deg, var(--purple), var(--purple-lt)); border-radius: var(--r-full); transition: width var(--t-std); box-shadow: 0 0 8px var(--purple-glow); }
 
+/* ── 7. HEADER (Little Maestro layout + Stitch glassmorphism) ── */
+.hdr {
+  height: var(--header-h); flex-shrink: 0;
+  background: rgba(26,26,46,0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-soft);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.hdr-left { display: flex; align-items: center; gap: 8px; }
+.hdr-av {
+  width: 34px; height: 34px; border-radius: var(--r-full);
+  background: var(--surface-2); border: 2.5px solid var(--purple);
+  display: flex; align-items: center; justify-content: center; font-size: 17px;
+}
+.hdr-name { font-family: var(--fh); font-weight: 700; font-size: 16px; }
+.hdr-right { display: flex; align-items: center; gap: 16px; }
+.hdr-stat { display: flex; align-items: center; gap: 5px; font-family: var(--fh); font-weight: 800; font-size: 15px; }
+.hdr-stat.streak { color: #FF9500; }
+.midi-pill { padding: 3px 10px; border-radius: var(--r-full); font-size: 12px; font-weight: 700; border: none; cursor: pointer; font-family: var(--fh); }
+.midi-off { background: var(--surface-2); color: var(--dim); border: 1px solid var(--border); }
+.midi-on { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+.hdr-lock { background: none; border: 1px solid var(--border); border-radius: var(--r-xs); color: var(--muted); cursor: pointer; padding: 6px 10px; font-size: 15px; transition: all var(--t-fast); }
+.hdr-lock:hover { border-color: var(--purple); color: var(--purple-lt); background: var(--purple-sub); }
+
+/* ── 8. BOTTOM NAV (Little Maestro exact + active glow) ── */
 .nav {
-  height: 60px; display: flex; align-items: center; justify-content: space-around;
-  background: var(--surface); border-top: 1px solid rgba(42,42,74,0.3);
-  flex-shrink: 0; z-index: 10;
+  height: var(--nav-h); flex-shrink: 0;
+  background: var(--surface); border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 6px 48px; z-index: 100;
 }
 .nav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  background: none; border: none; color: var(--muted); cursor: pointer;
-  font-family: var(--fh); font-size: 11px; font-weight: 600;
-  padding: 8px 16px; border-radius: var(--rm); min-width: 48px; min-height: 48px; justify-content: center;
-  position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 7px 18px; border-radius: var(--r-md); cursor: pointer;
+  background: none; border: none; min-width: 70px;
+  transition: background var(--t-fast);
 }
-.nav-btn .ico { font-size: 22px; }
-.nav-btn.on { color: var(--purple); }
-.nav-btn.on::after {
-  content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
-  width: 20px; height: 3px; background: var(--purple); border-radius: var(--r);
-  box-shadow: 0 0 8px var(--purple-glow);
-}
+.nav-btn .ico { font-size: 22px; transition: transform var(--t-fast); }
+.nav-btn .lbl { font-family: var(--fh); font-weight: 700; font-size: 11px; color: var(--muted); transition: color var(--t-fast); }
+.nav-btn.on { background: rgba(124,58,237,0.14); }
+.nav-btn.on .lbl { color: var(--purple-lt); }
+.nav-btn.on .ico { transform: scale(1.12); }
+.nav-btn:not(.on):hover { background: rgba(255,255,255,0.04); }
+.nav-btn:not(.on):hover .lbl { color: var(--text); }
 
-/* ── Screens ── */
-.scr { display: none; position: absolute; inset: 0; overflow-y: auto; padding: 24px; }
+/* ── 9. SCREENS ── */
+.main { flex: 1; overflow: hidden; position: relative; }
+.scr { display: none; position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding: 24px; min-height: 0; }
 .scr.on { display: flex; flex-direction: column; }
 
-/* ── Splash ── */
+/* ── 10. SPLASH (Little Maestro hero + Stitch particles) ── */
 #splash {
   position: fixed; inset: 0; z-index: 999;
-  background: linear-gradient(145deg, #1a0a2e, #0d1a2e, #0a1a0e);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+  background: linear-gradient(145deg, #1a0a2e 0%, #0d1a2e 50%, #0a1a0e 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
   transition: opacity 0.5s;
 }
-#splash::before { content: '♪'; position: absolute; top: 15%; left: 10%; font-size: 28px; color: rgba(162,155,254,0.3); pointer-events: none; animation: fl 5s ease-in-out infinite; }
-#splash::after { content: '♫'; position: absolute; bottom: 20%; right: 12%; font-size: 36px; color: rgba(72,219,251,0.25); pointer-events: none; animation: fl 6s ease-in-out infinite 1s; }
-@keyframes fl { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-#splash .logo { font-size: 72px; filter: drop-shadow(0 0 24px rgba(124,58,237,0.5)); animation: bob 3s ease-in-out infinite; }
-@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-#splash h1 {
-  font-family: var(--fh); font-weight: 900; font-size: clamp(32px, 8vw, 56px);
-  background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-}
-#splash p { color: #9090b0; font-size: 18px; text-align: center; }
-#splash .sub { color: var(--dim); font-size: 13px; margin-top: 16px; }
+#splash::before { content: '♪'; position: absolute; top: 12%; left: 8%; font-size: 32px; color: rgba(162,155,254,0.35); pointer-events: none; animation: fl 5s ease-in-out infinite; }
+#splash::after { content: '♫'; position: absolute; bottom: 18%; right: 10%; font-size: 40px; color: rgba(72,219,251,0.25); pointer-events: none; animation: fl 6s ease-in-out infinite 1.2s; }
+@keyframes fl { 0%,100%{transform:translateY(0) rotate(0)} 33%{transform:translateY(-8px) rotate(3deg)} 66%{transform:translateY(-4px) rotate(-2deg)} }
+#splash .logo { font-size: 72px; filter: drop-shadow(0 0 24px rgba(124,58,237,0.5)); animation: bob 2.5s ease-in-out infinite; }
+@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+#splash h1 { font-family: var(--fh); font-weight: 900; font-size: clamp(28px, 5vw, 48px); letter-spacing: -1px;
+  background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+#splash .tagline { font-size: 18px; color: #9090b0; max-width: 420px; text-align: center; line-height: 1.6; }
+#splash .sub { color: var(--dim); font-size: 13px; margin-top: 12px; }
 
-/* ── Login ── */
+/* ── 11. LOGIN (Little Maestro avatar cards) ── */
 #login { justify-content: center; align-items: center; gap: 24px;
-  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(124,58,237,0.12), transparent 60%), var(--bg); }
-.av-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px; width: 100%; max-width: 560px; }
+  background: radial-gradient(ellipse 80% 60% at 50% -5%, rgba(124,58,237,0.18), transparent 70%),
+              radial-gradient(ellipse 40% 40% at 10% 90%, rgba(124,58,237,0.06), transparent 60%), var(--bg); }
+.av-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; width: 100%; max-width: 540px; }
 .av-card {
-  background: var(--surface); border-radius: var(--rm); padding: 20px; text-align: center;
-  cursor: pointer; transition: transform 0.2s, box-shadow 0.3s; border: 1px solid rgba(42,42,74,0.2);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+  padding: 24px 16px; text-align: center; cursor: pointer;
+  transition: border-color var(--t-std), box-shadow var(--t-std), transform var(--t-fast);
 }
-.av-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(124,58,237,0.15); border-color: var(--purple); }
-.av-em { font-size: 48px; display: block; margin-bottom: 8px; }
-.av-nm { font-family: var(--fh); font-weight: 800; font-size: 15px; }
+.av-card:hover { border-color: var(--purple); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.av-em { font-size: 40px; display: block; margin-bottom: 8px; }
+.av-nm { font-family: var(--fh); font-weight: 700; font-size: 15px; }
 .av-st { font-size: 12px; color: var(--gold); margin-top: 4px; }
-.av-add { border-style: dashed; border-color: rgba(42,42,74,0.3); }
-.av-add .av-em { opacity: 0.4; }
+.av-add { border-style: dashed; } .av-add .av-em { opacity: 0.5; }
 
-/* ── Home ── */
+/* ── 12. HOME / QUEST MAP ── */
 #home { gap: 24px; align-items: center; }
-.w-sec { width: 100%; max-width: 600px; margin-bottom: 16px; }
-.w-ban {
-  display: flex; align-items: center; gap: 12px; padding: 14px 20px;
-  border-radius: var(--rm); font-family: var(--fh); font-weight: 800; font-size: 17px; margin-bottom: 10px;
-}
-.w-ban.locked { opacity: 0.35; filter: grayscale(0.7); }
-.w1 { background: linear-gradient(135deg, #2d4a30, #1a2e1c); border: 1px solid rgba(90,124,91,0.4); }
-.w2 { background: linear-gradient(135deg, #1a2a42, #0f1a2e); border: 1px solid rgba(45,74,122,0.4); }
-.w3 { background: linear-gradient(135deg, #36183a, #22112a); border: 1px solid rgba(107,45,107,0.4); }
-.w4 { background: linear-gradient(135deg, #332200, #1e1200); border: 1px solid rgba(122,80,0,0.4); }
-.s-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.w-sec { width: 100%; max-width: 600px; }
+.w-ban { display: flex; align-items: center; gap: 16px; padding: 16px 24px; border-radius: var(--r-md); font-family: var(--fh); font-weight: 800; font-size: 18px; margin-bottom: 12px; }
+.w-ban.locked { opacity: 0.4; filter: grayscale(0.8); }
+.w1 { background: linear-gradient(135deg, #3D5A3E, #2A3F2B); border: 1px solid #5A7C5B; }
+.w2 { background: linear-gradient(135deg, #1E2E4A, #0F1A2E); border: 1px solid #2D4A7A; }
+.w3 { background: linear-gradient(135deg, #3D1E3D, #261226); border: 1px solid #6B2D6B; }
+.w4 { background: linear-gradient(135deg, #3A2200, #201200); border: 1px solid #7A5000; }
+.s-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
 .s-card {
-  background: var(--surface); border-radius: 12px; padding: 14px; cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.2s; border: 1px solid rgba(42,42,74,0.15);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm);
+  padding: 16px; cursor: pointer; transition: border-color var(--t-fast), transform var(--t-fast);
 }
-.s-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(124,58,237,0.1); border-color: var(--purple); }
-.s-title { font-family: var(--fh); font-weight: 700; font-size: 14px; margin-bottom: 3px; }
-.s-meta { font-size: 12px; color: var(--muted); }
-.s-stars { margin-top: 5px; font-size: 13px; }
+.s-card:hover { border-color: var(--purple); transform: translateY(-1px); }
+.s-title { font-family: var(--fh); font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.s-meta { font-size: 12px; color: var(--muted); } .s-stars { margin-top: 6px; }
 
-/* ── Lesson ── */
+/* ── 13. LESSON (HUD + Canvas + Piano) ── */
 #lesson { padding: 0; flex-direction: column; }
-.l-hud {
-  display: flex; align-items: center; gap: 12px; padding: 8px 16px;
-  background: var(--surface); border-bottom: 1px solid rgba(42,42,74,0.3);
-}
-.l-score { font-family: var(--fh); font-weight: 900; font-size: 20px; }
+.l-hud { display: flex; align-items: center; gap: 12px; padding: 10px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.l-score { font-family: var(--fh); font-weight: 900; font-size: 20px; min-width: 50px; }
 .l-streak { color: var(--gold); font-family: var(--fh); font-weight: 700; }
-.l-bar { flex: 1; height: 8px; background: rgba(42,42,74,0.3); border-radius: var(--r); overflow: hidden; }
-.l-fill { height: 100%; background: linear-gradient(90deg, var(--purple), var(--purple-lt)); border-radius: var(--r); transition: width 0.3s; }
+.l-bar { flex: 1; }
 .l-canvas { flex: 1; position: relative; background: var(--bg); overflow: hidden; }
 .l-canvas canvas { width: 100%; height: 100%; display: block; }
-/* ── Speed pills (Stitch: glassmorphism capsule) ── */
-.spd { display: flex; gap: 6px; position: absolute; top: 12px; right: 12px; z-index: 5; background: rgba(30,30,45,0.4); backdrop-filter: blur(12px); padding: 6px; border-radius: var(--r); border: 1px solid rgba(71,71,84,0.2); }
-.spd button { font-size: 18px; width: 40px; height: 40px; background: none; border: none; border-radius: 50%; cursor: pointer; color: var(--text); transition: all 0.2s; }
-.spd button:hover { background: rgba(36,36,52,0.6); }
-.spd button.on { background: rgba(124,58,237,0.2); border: 2px solid var(--purple); box-shadow: 0 0 15px rgba(189,157,255,0.4); }
+.spd { display: flex; gap: 6px; position: absolute; top: 12px; right: 12px; z-index: 5;
+  background: rgba(30,30,45,0.5); backdrop-filter: blur(10px); padding: 5px; border-radius: var(--r-full); border: 1px solid rgba(42,42,74,0.25); }
+.spd button { font-size: 18px; width: 38px; height: 38px; background: none; border: none; border-radius: 50%; cursor: pointer; color: var(--text); transition: all 0.15s; }
+.spd button:hover { background: rgba(255,255,255,0.06); }
+.spd button.on { background: rgba(124,58,237,0.2); border: 2px solid var(--purple); box-shadow: 0 0 12px rgba(189,157,255,0.3); }
 
-/* ── Piano ── */
+/* ── 14. PIANO (Stitch "Neon Conservatory" keys) ── */
 .pw { width: 100%; flex-shrink: 0; }
 .piano {
   display: flex; position: relative; height: 160px;
-  background: linear-gradient(180deg, var(--surface), var(--surface-hi));
+  background: linear-gradient(180deg, var(--surface), var(--surface-2));
   border-top: 2px solid var(--purple); user-select: none; touch-action: manipulation;
-  box-shadow: 0 -4px 16px rgba(124,58,237,0.1);
+  box-shadow: 0 -6px 20px rgba(0,0,0,0.4);
 }
-/* ── Piano keys (from Stitch "The Neon Conservatory") ── */
 .wk {
   flex: 1; background: linear-gradient(to bottom, #ffffff 0%, #f3f0e8 80%, #e5e0d4 100%);
   border-right: 1px solid rgba(0,0,0,0.05); border-radius: 0 0 6px 6px;
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
   padding-bottom: 10px; font-family: var(--fh); font-size: 10px; color: #999; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.03em;
-  cursor: pointer; transition: background 0.08s, transform 0.05s; position: relative; z-index: 1;
+  text-transform: uppercase; cursor: pointer; position: relative; z-index: 1;
   box-shadow: inset 0 -4px 4px rgba(0,0,0,0.1), 1px 0 0 rgba(0,0,0,0.05);
+  transition: background 0.08s, transform 0.05s;
 }
 .wk:active, .wk.hit { background: var(--purple); color: #fff; transform: translateY(2px); box-shadow: 0 0 15px var(--purple-glow); }
-.wk.ok { background: var(--green); color: #fff; box-shadow: 0 0 20px rgba(16,185,129,0.5); }
+.wk.ok { background: var(--green); color: #fff; box-shadow: 0 0 20px var(--green-glow); }
 .wk.bad { background: var(--red); color: #fff; animation: shk 0.3s; }
-.wk.nxt { background: rgba(248,160,16,0.1); color: var(--gold); box-shadow: 0 0 0 0 rgba(248,160,16,0.7), inset 0 0 15px rgba(248,160,16,0.3); animation: pgold 2s infinite; }
+.wk.nxt { background: rgba(248,160,16,0.1); color: var(--gold);
+  box-shadow: 0 0 0 0 rgba(248,160,16,0.7), inset 0 0 15px rgba(248,160,16,0.3);
+  animation: pgold 2s infinite; }
 @keyframes pgold {
-  0% { box-shadow: 0 0 0 0 rgba(248,160,16,0.7), inset 0 0 15px rgba(248,160,16,0.3); }
-  70% { box-shadow: 0 0 0 16px rgba(248,160,16,0), inset 0 0 25px rgba(248,160,16,0.6); }
-  100% { box-shadow: 0 0 0 0 rgba(248,160,16,0), inset 0 0 15px rgba(248,160,16,0.3); }
+  0%{box-shadow:0 0 0 0 rgba(248,160,16,0.7),inset 0 0 15px rgba(248,160,16,0.3)}
+  70%{box-shadow:0 0 0 16px rgba(248,160,16,0),inset 0 0 25px rgba(248,160,16,0.6)}
+  100%{box-shadow:0 0 0 0 rgba(248,160,16,0),inset 0 0 15px rgba(248,160,16,0.3)}
 }
-@keyframes pls { 0%,100%{box-shadow:0 0 8px var(--gold-glow)} 50%{box-shadow:0 0 22px var(--gold-glow)} }
 @keyframes shk { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-3px)} 75%{transform:translateX(3px)} }
-/* ── Black keys (Stitch: glossy + highlight strip) ── */
 .bk {
   position: absolute; top: 0; width: 8%; height: 62%;
   background: linear-gradient(180deg, #333 0%, #111 100%);
@@ -242,52 +278,55 @@ body {
 .bk::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px 4px 0 0; }
 .bk:active, .bk.hit { background: var(--purple); transform: translateY(2px); }
 .bk.ok { background: var(--green); } .bk.bad { background: var(--red); animation: shk 0.3s; }
-.bk.nxt { background: var(--gold); animation: pls 1.5s ease-in-out infinite; }
+.bk.nxt { background: var(--gold); animation: pgold 2s infinite; }
 
-/* ── Free Play ── */
+/* ── 15. FREE PLAY ── */
 #freeplay { padding: 0; flex-direction: column; }
-.fp-bar { display: flex; align-items: center; gap: 16px; padding: 8px 16px; background: var(--surface); border-bottom: 1px solid rgba(42,42,74,0.3); }
+.fp-bar { display: flex; align-items: center; gap: 16px; padding: 10px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
 .fp-oct { font-family: var(--fh); font-weight: 800; font-size: 20px; }
 .fp-piano { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
 
-/* ── Settings ── */
+/* ── 16. SETTINGS ── */
 #settings { gap: 20px; align-items: center; }
 .st-grp { width: 100%; max-width: 480px; }
-.st-title { font-family: var(--fh); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
-.st-row { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: var(--surface); border-radius: 12px; margin-bottom: 6px; }
+.st-title { font-family: var(--fh); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--muted); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border-soft); }
+.st-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); margin-bottom: 6px; transition: border-color var(--t-fast); }
+.st-row:hover { border-color: var(--purple); }
 .st-lbl { font-weight: 600; font-size: 14px; }
 .tgl { position: relative; width: 44px; height: 26px; flex-shrink: 0; }
 .tgl input { opacity: 0; width: 0; height: 0; }
-.tgl-t { position: absolute; inset: 0; background: var(--border); border-radius: var(--r); cursor: pointer; transition: background 0.2s; }
+.tgl-t { position: absolute; inset: 0; background: var(--border); border-radius: var(--r-full); cursor: pointer; transition: background 0.2s; }
 .tgl-t::after { content: ''; position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
 .tgl input:checked + .tgl-t { background: var(--purple); }
 .tgl input:checked + .tgl-t::after { transform: translateX(18px); }
-input[type="range"] { -webkit-appearance: none; width: 110px; height: 6px; background: var(--border); border-radius: var(--r); }
+input[type="range"] { -webkit-appearance: none; width: 110px; height: 6px; background: var(--border); border-radius: var(--r-full); }
 input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--purple); border-radius: 50%; cursor: pointer; }
-.st-sel { background: var(--surface-hi); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 7px 12px; font-family: var(--fb); font-size: 14px; }
+.st-sel { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 7px 12px; font-family: var(--fb); font-size: 14px; }
 
-/* ── Parent ── */
+/* ── 17. PARENT ── */
 #parent { gap: 24px; align-items: center; }
 .pin-ov { position: absolute; inset: 0; background: var(--bg); z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-.pin-d { width: 48px; height: 56px; text-align: center; font-size: 26px; font-family: var(--fh); font-weight: 800; background: var(--surface); border: 2px solid var(--border); border-radius: 10px; color: var(--text); }
-.pin-d:focus { border-color: var(--purple); outline: none; }
+.pin-d { width: 48px; height: 56px; text-align: center; font-size: 26px; font-family: var(--fh); font-weight: 800; background: var(--surface); border: 2px solid var(--border); border-radius: var(--r-sm); color: var(--text); }
+.pin-d:focus { border-color: var(--purple); outline: none; box-shadow: 0 0 0 3px var(--purple-sub); }
 .st-num { font-family: var(--fh); font-weight: 900; font-size: 32px; color: var(--purple); }
 .st-lab { font-size: 12px; color: var(--muted); }
 
-/* ── Celebration ── */
+/* ── 18. CELEBRATION (Little Maestro overlay + Stitch pop) ── */
 .cel { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; }
 .cel.on { display: flex; }
-.cel-c { background: var(--surface); border-radius: 24px; padding: 48px 28px; text-align: center; max-width: 380px; width: 90%; animation: pop 0.4s ease-out; }
-@keyframes pop { from{transform:scale(0.85);opacity:0} to{transform:scale(1);opacity:1} }
-.cel-em { font-size: 60px; margin-bottom: 12px; }
-.cel-t { font-family: var(--fh); font-weight: 900; font-size: 26px; margin-bottom: 6px; }
-.cel-s { color: var(--muted); margin-bottom: 20px; }
-.cel-st { font-size: 36px; margin-bottom: 20px; }
+.cel-c { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 48px 24px; text-align: center; max-width: 400px; width: 90%; animation: pop 0.5s ease-out; }
+@keyframes pop { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+.cel-em { font-size: 64px; margin-bottom: 16px; }
+.cel-t { font-family: var(--fh); font-weight: 900; font-size: 28px; margin-bottom: 8px; }
+.cel-s { color: var(--muted); margin-bottom: 24px; }
+.cel-st { font-size: 40px; margin-bottom: 24px; }
 
 .hidden { display: none !important; }
 
-@media (max-width: 600px) { .piano { height: 120px; } .wk { font-size: 9px; } }
+/* ── 19. RESPONSIVE (Little Maestro breakpoints) ── */
+@media (max-width: 600px) { .piano { height: 120px; } .wk { font-size: 9px; padding-bottom: 6px; } :root { --header-h: 52px; --nav-h: 56px; } }
 @media (min-width: 900px) { .piano { height: 200px; } .wk { font-size: 13px; } }
+@media (min-width: 1400px) { .s-grid { max-width: 700px; } }
 </style>
 </head>
 <body>
@@ -296,19 +335,22 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 <div id="splash">
   <div class="logo">🎹</div>
   <h1>Melodino</h1>
-  <p>Apprends le piano en t'amusant !</p>
+  <p class="tagline">Apprends le piano en t'amusant !</p>
   <button class="btn btn-gold btn-lg" id="go">▶ Commencer</button>
   <p class="sub">🎹 Compatible ROLI LUMI &amp; claviers MIDI</p>
 </div>
 
 <!-- ═══ HEADER ═══ -->
 <header class="hdr" id="hdr" style="display:none">
-  <div class="hdr-av" id="hav">🎹</div>
-  <span class="hdr-name" id="hnm">Melodino</span>
-  <div class="hdr-sp"></div>
-  <span class="hdr-streak">🔥 <span id="hsk">0</span></span>
-  <button class="midi-pill midi-off" id="mpill">🎹 —</button>
-  <button class="btn-icon btn-g" id="hpar">🔒</button>
+  <div class="hdr-left">
+    <div class="hdr-av" id="hav">🎹</div>
+    <span class="hdr-name" id="hnm">Melodino</span>
+  </div>
+  <div class="hdr-right">
+    <span class="hdr-stat streak">🔥 <span id="hsk">0</span></span>
+    <button class="midi-pill midi-off" id="mpill">🎹 —</button>
+    <button class="hdr-lock" id="hpar">🔒</button>
+  </div>
 </header>
 
 <!-- ═══ SCREENS ═══ -->
@@ -383,9 +425,9 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 
 <!-- ═══ NAV ═══ -->
 <nav class="nav" id="nav" style="display:none">
-  <button class="nav-btn on" data-s="home"><span class="ico">🏠</span>Accueil</button>
-  <button class="nav-btn" data-s="freeplay"><span class="ico">🎹</span>Libre</button>
-  <button class="nav-btn" data-s="settings"><span class="ico">⚙️</span>Réglages</button>
+  <button class="nav-btn on" data-s="home"><span class="ico">🏠</span><span class="lbl">Accueil</span></button>
+  <button class="nav-btn" data-s="freeplay"><span class="ico">🎹</span><span class="lbl">Libre</span></button>
+  <button class="nav-btn" data-s="settings"><span class="ico">⚙️</span><span class="lbl">Réglages</span></button>
 </nav>
 
 <!-- ═══ CELEBRATION ═══ -->
