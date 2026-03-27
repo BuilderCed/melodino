@@ -1,0 +1,206 @@
+name: CI — Validate & Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+jobs:
+  validate:
+    name: Validate HTML + JS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Validate JS syntax
+        run: |
+          node -e "
+            const fs = require('fs');
+            const html = fs.readFileSync('index.html', 'utf8');
+            const match = html.match(/<script[^>]*>([\s\S]*?)<\/script>/);
+            if (!match) { console.error('No script found'); process.exit(1); }
+            try { new Function(match[1]); console.log('JS syntax OK'); }
+            catch (e) { console.error('JS syntax error:', e.message); process.exit(1); }
+          "
+
+      - name: Validate HTML structure
+        run: |
+          node -e "
+            const fs = require('fs');
+            const html = fs.readFileSync('index.html', 'utf8');
+            const checks = [
+              [/<html[^>]*lang=/, 'Missing lang attribute on <html>'],
+              [/<meta charset/, 'Missing charset meta'],
+              [/<meta name=\"viewport\"/, 'Missing viewport meta'],
+              [/<title>/, 'Missing <title>'],
+              [/<link rel=\"manifest\"/, 'Missing PWA manifest link'],
+              [/service[Ww]orker/, 'No Service Worker registration found'],
+            ];
+            let ok = true;
+            checks.forEach(([re, msg]) => {
+              if (!re.test(html)) { console.error('FAIL:', msg); ok = false; }
+              else console.log('PASS:', msg.replace('Missing ', '').replace('No ', ''));
+            });
+            if (!ok) process.exit(1);
+            console.log('All HTML structure checks passed');
+          "
+
+      - name: Validate manifest.json
+        run: |
+          node -e "
+            const m = require('./_assets/manifest.json');
+            const required = ['name', 'short_name', 'start_url', 'display', 'icons'];
+            let ok = true;
+            required.forEach(k => {
+              if (!m[k]) { console.error('FAIL: Missing manifest key:', k); ok = false; }
+              else console.log('PASS: manifest.' + k);
+            });
+            if (!m.icons || m.icons.length < 2) { console.error('FAIL: Need at least 2 icons'); ok = false; }
+            if (!ok) process.exit(1);
+            console.log('Manifest valid');
+          "
+
+      - name: Validate Service Worker
+        run: |
+          node -e "
+            const fs = require('fs');
+            const sw = fs.readFileSync('sw.js', 'utf8');
+            const checks = [
+              [/addEventListener\('install'/, 'install event handler'],
+              [/addEventListener\('activate'/, 'activate event handler'],
+              [/addEventListener\('fetch'/, 'fetch event handler'],
+              [/skipWaiting/, 'skipWaiting call'],
+              [/clients\.claim/, 'clients.claim call'],
+            ];
+            let ok = true;
+            checks.forEach(([re, label]) => {
+              if (!re.test(sw)) { console.error('FAIL:', label, 'missing'); ok = false; }
+              else console.log('PASS:', label);
+            });
+            if (!ok) process.exit(1);
+            console.log('Service Worker valid');
+          "
+
+      - name: Check file size budget
+        run: |
+          MAX_HTML=150  # KB
+          MAX_SW=5      # KB
+          HTML_SIZE=$(wc -c < index.html | tr -d ' ')
+          SW_SIZE=$(wc -c < sw.js | tr -d ' ')
+          HTML_KB=$((HTML_SIZE / 1024))
+          SW_KB=$((SW_SIZE / 1024))
+          echo "index.html: ${HTML_KB}KB (budget: ${MAX_HTML}KB)"
+          echo "sw.js: ${SW_KB}KB (budget: ${MAX_SW}KB)"
+          if [ "$HTML_KB" -gt "$MAX_HTML" ]; then
+            echo "FAIL: index.html exceeds ${MAX_HTML}KB budget"
+            exit 1
+          fi
+          echo "Size budget OK"
+
+  lighthouse:
+    name: Lighthouse Audit
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.14.x
+
+      - name: Run Lighthouse
+        run: lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/
+          retention-days: 30
+
+  security:
+    name: Security Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check for sensitive patterns
+        run: |
+          echo "Scanning for secrets and sensitive patterns..."
+          PATTERNS=(
+            'api[_-]?key\s*[:=]'
+            'password\s*[:=]'
+            'secret\s*[:=]'
+            'token\s*[:=]\s*["\x27][A-Za-z0-9]'
+            'sk-[a-zA-Z0-9]{20,}'
+            'AKIA[0-9A-Z]{16}'
+          )
+          FOUND=0
+          for p in "${PATTERNS[@]}"; do
+            if grep -rniE "$p" --include="*.html" --include="*.js" --include="*.json" . 2>/dev/null | grep -v node_modules; then
+              echo "WARNING: Pattern match for: $p"
+              FOUND=1
+            fi
+          done
+          if [ "$FOUND" -eq 1 ]; then
+            echo "FAIL: Potential secrets detected"
+            exit 1
+          fi
+          echo "No secrets found"
+
+      - name: Check for unsafe patterns (XSS vectors)
+        run: |
+          echo "Scanning for innerHTML with user data..."
+          UNSAFE=0
+          # innerHTML is OK for static content, flag only if combined with user input
+          if grep -n 'innerHTML.*prompt\|innerHTML.*input\|innerHTML.*location' index.html; then
+            echo "WARNING: innerHTML with user input detected"
+            UNSAFE=1
+          fi
+          # Check for eval/Function with user data
+          if grep -nE 'eval\(|setTimeout\([^,]*\+|setInterval\([^,]*\+' index.html; then
+            echo "WARNING: Potential eval injection"
+            UNSAFE=1
+          fi
+          if [ "$UNSAFE" -eq 1 ]; then
+            echo "FAIL: Unsafe patterns detected"
+            exit 1
+          fi
+          echo "No unsafe patterns found"
+
+      - name: Verify COPPA compliance markers
+        run: |
+          echo "Checking COPPA/privacy compliance markers..."
+          HTML=$(cat index.html)
+          OK=true
+          # No analytics/tracking
+          if echo "$HTML" | grep -qiE 'google-analytics|gtag|facebook.*pixel|hotjar|mixpanel|amplitude'; then
+            echo "FAIL: Analytics/tracking code detected — violates zero-data-collection promise"
+            OK=false
+          fi
+          # No external form submissions
+          if echo "$HTML" | grep -qiE 'action="https?://'; then
+            echo "FAIL: External form submission detected"
+            OK=false
+          fi
+          # No cookies
+          if echo "$HTML" | grep -qi 'document\.cookie'; then
+            echo "FAIL: Cookie usage detected"
+            OK=false
+          fi
+          if [ "$OK" = false ]; then exit 1; fi
+          echo "COPPA compliance markers OK"
