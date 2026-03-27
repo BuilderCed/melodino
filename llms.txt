@@ -7,10 +7,10 @@
 Single HTML file piano learning application with:
 - ROLI LUMI keyboard integration (USB-C, LED control via SysEx)
 - Falling notes "Guitar Hero" style gameplay
-- 30+ multilingual songs (FR, EN, ES, AR, ZH, JA)
+- 23 songs across 4 worlds (French nursery rhymes + classical)
 - Age-adaptive difficulty (3-5, 6-8, 9-12 years)
 - Multi-child profiles with separate progression
-- Stars, worlds, streaks, badges gamification
+- Stars, worlds, streaks gamification
 - Works with any USB MIDI keyboard or computer keyboard
 - 100% offline after first load (PWA)
 - Zero data collection (COPPA/GDPR-K compliant)
@@ -21,8 +21,8 @@ Single HTML file piano learning application with:
 - Web Audio API (SoundFont + triangle wave fallback)
 - Web MIDI API (input + SysEx output for LUMI LEDs)
 - Canvas 2D (falling notes animation at 60fps)
-- IndexedDB (async storage for profiles/progress)
-- Service Worker (cache-first offline PWA)
+- IndexedDB (async storage for profiles/progress/errors)
+- Service Worker (cache-first, fallback CDN for soundfont)
 - GitHub Pages (free HTTPS hosting)
 
 ## How to Use
@@ -33,22 +33,39 @@ Single HTML file piano learning application with:
 
 ## Key Files
 
-- index.html — Complete application (single file)
-- sw.js — Service Worker for offline caching
-- _assets/manifest.json — PWA manifest
+- index.html — Complete application (single file, ~80KB)
+- sw.js — Service Worker with fallback CDN resilience
+- _assets/manifest.json — PWA manifest with shortcuts
+- package.json — Dev dependencies (tests only)
+- tests/e2e/ — Playwright E2E tests (6 spec files)
+- tests/unit/ — Vitest unit tests (songs, scoring, input)
 
 ## Architecture
 
 The app is organized in numbered PART sections within index.html:
-- PART 0: Config, i18n, StorageManager
-- PART 1: Song Database
-- PART 2: Audio Engine
-- PART 3: MIDI Manager
-- PART 4: LUMI LED Controller
-- PART 5-6: Game Engine + Adaptive Difficulty
-- PART 7-8: Profiles + Progression
-- PART 9-10: UI Screens + Parent Dashboard
-- PART 11-12: Accessibility + Service Worker
+- PART 0: i18n + Solfege
+- PART 1: LUMI SysEx (LED control library)
+- PART 2: Audio (soundfont-player + fallback)
+- PART 3: MIDI (Web MIDI input/output)
+- PART 4: Songs (23 songs, 4 worlds, durations)
+- PART 5: Storage (IndexedDB profiles/progress/settings)
+- PART 6: Game Engine (falling notes, scoring, HUD)
+- PART 7: Piano Builder (DOM keyboard + key events)
+- PART 8: Profiles + Progression + UI screens
+
+## Error Logging
+
+Local-only error logger (COPPA-safe):
+- IndexedDB `melodino-errors` database
+- Categories: audio, midi, storage, network, ui
+- Zero PII, auto-purge after 7 days
+- Exportable from Parent Dashboard
+
+## Testing
+
+- `npm run test:unit` — Vitest (songs, scoring, input mapping)
+- `npm run test:e2e` — Playwright (full app flows)
+- CI: GitHub Actions (validate + lighthouse + e2e + security)
 
 ## Contributing
 

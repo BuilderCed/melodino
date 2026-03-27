@@ -38,5 +38,40 @@
       "type": "image/svg+xml",
       "purpose": "maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Jouer",
+      "short_name": "Play",
+      "url": "../index.html#home",
+      "icons": [
+        {
+          "src": "icon-192.svg",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Piano Libre",
+      "short_name": "Freeplay",
+      "url": "../index.html#freeplay",
+      "icons": [
+        {
+          "src": "icon-192.svg",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Paramètres",
+      "short_name": "Settings",
+      "url": "../index.html#settings",
+      "icons": [
+        {
+          "src": "icon-192.svg",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }

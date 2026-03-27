@@ -5,6 +5,25 @@ All notable changes to Melodino will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-03-28
+
+### Added
+- E2E tests with Playwright (splash flow, freeplay, settings, accessibility, offline, parent dashboard)
+- Unit tests with Vitest (songs validation, scoring logic, input mapping)
+- Local error logger (IndexedDB, COPPA-safe, zero PII, 7-day auto-purge)
+- Offline mode banner (visual indicator when disconnected)
+- Service Worker fallback CDN for soundfont (unpkg mirror)
+- PWA shortcuts (Play, Freeplay, Settings) in manifest
+- Version meta tag in HTML head
+- Cross-Origin-Opener-Policy security header
+- 8 new Stitch design screens (parent dashboard, onboarding, MIDI setup, error states, achievement, song detail, settings refresh)
+
+### Changed
+- Service Worker upgraded to v3.0.0 with fallback CDN resilience
+- Cache version bumped to melodino-v6
+- Lighthouse budgets tightened (performance ≥95%, accessibility =100%, PWA ≥90%)
+- CI pipeline extended with E2E test job
+
 ## [1.1.0] - 2026-03-24
 
 ### Added

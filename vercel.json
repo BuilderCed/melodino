@@ -18,6 +18,10 @@
         {
           "key": "Permissions-Policy",
           "value": "midi=(self), microphone=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
         }
       ]
     },
