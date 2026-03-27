@@ -1,7 +1,7 @@
 // Petit Maestro — Service Worker v1.0.0
 // Cache-first strategy for full offline support
 
-const CACHE_NAME = 'melodino-v3';
+const CACHE_NAME = 'melodino-v4';
 const ASSETS = [
   './',
   './index.html',

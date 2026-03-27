@@ -323,7 +323,20 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 
 .hidden { display: none !important; }
 
-/* ── 19. RESPONSIVE (Little Maestro breakpoints) ── */
+/* ── 19. ACCESSIBILITY MODES ── */
+/* Color-blind: Okabe-Ito safe palette */
+body.cb { --note-C: #E69F00; --note-D: #56B4E9; --note-E: #009E73; --note-F: #F0E442; --note-G: #0072B2; --note-A: #D55E00; --note-B: #CC79A7; }
+body.cb .wk.ok { background: #009E73; } body.cb .wk.bad { background: #D55E00; } body.cb .wk.nxt { background: #E69F00; }
+body.cb .bk.ok { background: #009E73; } body.cb .bk.bad { background: #D55E00; } body.cb .bk.nxt { background: #E69F00; }
+/* Dyslexia font */
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800;900&display=swap');
+body.dys, body.dys * { font-family: 'Lexend', 'OpenDyslexic', sans-serif !important; letter-spacing: 0.05em; word-spacing: 0.15em; line-height: 1.8; }
+/* Focus mode: minimal UI, no distractions */
+body.focus .hdr-stat.streak, body.focus .nav-btn .lbl, body.focus .badge, body.focus .cel-st { display: none; }
+body.focus .nav { height: 48px; } body.focus .nav-btn .ico { font-size: 26px; }
+body.focus .s-stars, body.focus .s-meta { display: none; }
+
+/* ── 20. RESPONSIVE (Little Maestro breakpoints) ── */
 @media (max-width: 600px) { .piano { height: 120px; } .wk { font-size: 9px; padding-bottom: 6px; } :root { --header-h: 52px; --nav-h: 56px; } }
 @media (min-width: 900px) { .piano { height: 200px; } .wk { font-size: 13px; } }
 @media (min-width: 1400px) { .s-grid { max-width: 700px; } }
@@ -368,7 +381,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
     <div class="l-hud">
       <button class="btn btn-g btn-sm" id="lbk">←</button>
       <span class="l-score" id="lsc">0</span>
-      <div class="l-bar"><div class="l-fill" id="lfill" style="width:0%"></div></div>
+      <div class="l-bar"><div class="pbar"><div class="pfill" id="lfill" style="width:0%"></div></div></div>
       <span class="l-streak" id="lstr">🔥 0</span>
     </div>
     <div class="l-canvas"><canvas id="cv"></canvas>
@@ -494,7 +507,13 @@ const Aud=(()=>{
     o.connect(e);e.connect(ctx.destination);o.start(now);o.stop(now+dur/1000+0.1);
   }
   function inst(n,vel=90){play(n,1200,vel)}
-  function vol(v){}
+  let _gain=null;
+  function vol(v){
+    if(!ctx)return;
+    if(!_gain){_gain=ctx.createGain();_gain.connect(ctx.destination)}
+    _gain.gain.value=Math.max(0,Math.min(1,v));
+    if(piano&&piano.out)piano.out.disconnect(),piano.out.connect(_gain);
+  }
   return{init,resume,play,inst,vol,ok:()=>ok}
 })();
 
@@ -556,9 +575,52 @@ const SONGS=[
    n:[{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'h',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'h',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'G4',du:'q',h:'r',f:5},{n:'C4',du:'q',h:'r',f:1},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'w',h:'r',f:3}]},
   {id:10,t:'Ode à la joie',c:'Beethoven',w:3,d:3,k:'C',s:'Major',rh:true,
    bpm:{turtle:52,normal:72,rabbit:90,rocket:108},
-   n:[{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'q',h:'r',f:1},{n:'C4',du:'q',h:'r',f:1},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'h',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1}]}
+   n:[{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'q',h:'r',f:1},{n:'C4',du:'q',h:'r',f:1},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'h',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1}]},
+  /* ── Monde 1 additions ── */
+  {id:11,t:'Une souris verte',c:'Traditionnel',w:1,d:1,k:'C',s:'Major',rh:true,
+   bpm:{turtle:50,normal:72,rabbit:90,rocket:110},
+   n:[{n:'C4',du:'q',h:'r',f:1},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'G4',du:'h',h:'r',f:5},{n:'G4',du:'h',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'G4',du:'h',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'G4',du:'h',h:'r',f:5}]},
+  {id:12,t:'Do Ré Mi la perdrix',c:'Traditionnel',w:1,d:1,k:'C',s:'Major',rh:true,
+   bpm:{turtle:50,normal:72,rabbit:90,rocket:108},
+   n:[{n:'C4',du:'q',h:'r',f:1},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'C4',du:'q',h:'r',f:1},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'w',h:'r',f:1}]},
+  {id:13,t:'Ainsi font font font',c:'Traditionnel',w:1,d:1,k:'C',s:'Major',rh:true,
+   bpm:{turtle:55,normal:80,rabbit:100,rocket:120},
+   n:[{n:'C4',du:'q',h:'r',f:1},{n:'C4',du:'q',h:'r',f:1},{n:'C4',du:'q',h:'r',f:1},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'q',h:'r',f:1},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'C4',du:'h',h:'r',f:1}]},
+  {id:14,t:'Savez-vous planter les choux',c:'Traditionnel',w:1,d:1,k:'C',s:'Major',rh:true,
+   bpm:{turtle:52,normal:76,rabbit:95,rocket:115},
+   n:[{n:'C4',du:'q',h:'r',f:1},{n:'E4',du:'q',h:'r',f:3},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'G4',du:'h',h:'r',f:5},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1}]},
+  /* ── Monde 2 additions ── */
+  {id:15,t:'Il était un petit navire',c:'Traditionnel',w:2,d:2,k:'C',s:'Major',rh:true,
+   bpm:{turtle:50,normal:72,rabbit:90,rocket:110},
+   n:[{n:'C4',du:'q',h:'r',f:1},{n:'C4',du:'q',h:'r',f:1},{n:'C4',du:'e',h:'r',f:1},{n:'D4',du:'e',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'e',h:'r',f:3},{n:'F4',du:'e',h:'r',f:4},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'e',h:'r',f:5},{n:'A4',du:'e',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1}]},
+  {id:16,t:'Maman les petits bateaux',c:'Traditionnel',w:2,d:2,k:'C',s:'Major',rh:true,
+   bpm:{turtle:48,normal:70,rabbit:88,rocket:106},
+   n:[{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'G4',du:'h',h:'r',f:5},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1}]},
+  {id:17,t:'Pomme de reinette',c:'Traditionnel',w:2,d:2,k:'C',s:'Major',rh:true,
+   bpm:{turtle:52,normal:76,rabbit:95,rocket:115},
+   n:[{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'h',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1}]},
+  {id:18,t:'Un éléphant qui se balançait',c:'Traditionnel',w:2,d:2,k:'C',s:'Major',rh:true,
+   bpm:{turtle:50,normal:72,rabbit:90,rocket:108},
+   n:[{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'G4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'h',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'G4',du:'q',h:'r',f:5},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1}]},
+  /* ── Monde 3 additions ── */
+  {id:19,t:'Promenons-nous dans les bois',c:'Traditionnel',w:3,d:2,k:'C',s:'Major',rh:true,
+   bpm:{turtle:52,normal:76,rabbit:95,rocket:115},
+   n:[{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'h',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1}]},
+  {id:20,t:'La Mère Michel',c:'Traditionnel',w:3,d:2,k:'C',s:'Major',rh:true,
+   bpm:{turtle:50,normal:72,rabbit:90,rocket:110},
+   n:[{n:'C4',du:'q',h:'r',f:1},{n:'E4',du:'q',h:'r',f:3},{n:'G4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'F4',du:'q',h:'r',f:4},{n:'E4',du:'q',h:'r',f:3},{n:'D4',du:'q',h:'r',f:2},{n:'E4',du:'q',h:'r',f:3},{n:'F4',du:'q',h:'r',f:4},{n:'D4',du:'q',h:'r',f:2},{n:'C4',du:'h',h:'r',f:1}]},
+  /* ── Monde 4 : Classiques ── */
+  {id:21,t:'Für Elise',c:'Beethoven',w:4,d:3,k:'A',s:'Minor',rh:true,
+   bpm:{turtle:45,normal:65,rabbit:82,rocket:100},
+   n:[{n:'E5',du:'e',h:'r',f:3},{n:'D#5',du:'e',h:'r',f:2},{n:'E5',du:'e',h:'r',f:3},{n:'D#5',du:'e',h:'r',f:2},{n:'E5',du:'e',h:'r',f:3},{n:'B4',du:'e',h:'r',f:5},{n:'D5',du:'e',h:'r',f:2},{n:'C5',du:'e',h:'r',f:1},{n:'A4',du:'q',h:'r',f:5},{n:'C4',du:'e',h:'r',f:1},{n:'E4',du:'e',h:'r',f:3},{n:'A4',du:'e',h:'r',f:5},{n:'B4',du:'q',h:'r',f:5},{n:'E4',du:'e',h:'r',f:3},{n:'G#4',du:'e',h:'r',f:5},{n:'B4',du:'e',h:'r',f:5},{n:'C5',du:'q',h:'r',f:1}]},
+  {id:22,t:'Canon',c:'Pachelbel',w:4,d:3,k:'C',s:'Major',rh:true,
+   bpm:{turtle:48,normal:68,rabbit:86,rocket:104},
+   n:[{n:'E5',du:'q',h:'r',f:3},{n:'D5',du:'q',h:'r',f:2},{n:'C5',du:'q',h:'r',f:1},{n:'B4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'B4',du:'q',h:'r',f:5},{n:'C5',du:'q',h:'r',f:1},{n:'D5',du:'q',h:'r',f:2},{n:'E5',du:'q',h:'r',f:3},{n:'D5',du:'q',h:'r',f:2},{n:'C5',du:'q',h:'r',f:1},{n:'B4',du:'q',h:'r',f:5},{n:'A4',du:'q',h:'r',f:5},{n:'G4',du:'q',h:'r',f:5},{n:'A4',du:'h',h:'r',f:5},{n:'C5',du:'h',h:'r',f:1}]},
+  {id:23,t:'Prélude en Do',c:'Bach',w:4,d:3,k:'C',s:'Major',rh:true,
+   bpm:{turtle:42,normal:60,rabbit:78,rocket:96},
+   n:[{n:'C4',du:'e',h:'r',f:1},{n:'E4',du:'e',h:'r',f:3},{n:'G4',du:'e',h:'r',f:5},{n:'C5',du:'e',h:'r',f:1},{n:'E5',du:'e',h:'r',f:3},{n:'G4',du:'e',h:'r',f:5},{n:'C5',du:'e',h:'r',f:1},{n:'E5',du:'e',h:'r',f:3},{n:'C4',du:'e',h:'r',f:1},{n:'D4',du:'e',h:'r',f:2},{n:'A4',du:'e',h:'r',f:5},{n:'D5',du:'e',h:'r',f:2},{n:'F5',du:'e',h:'r',f:4},{n:'A4',du:'e',h:'r',f:5},{n:'D5',du:'e',h:'r',f:2},{n:'F5',du:'e',h:'r',f:4}]}
 ];
-const WORLDS=[{id:1,nm:'w1',ic:'🌳',req:0,cl:'w1'},{id:2,nm:'w2',ic:'🌊',req:8,cl:'w2'},{id:3,nm:'w3',ic:'🏰',req:16,cl:'w3'}];
+const WORLDS=[{id:1,nm:'w1',ic:'🌳',req:0,cl:'w1'},{id:2,nm:'w2',ic:'🌊',req:8,cl:'w2'},{id:3,nm:'w3',ic:'🏰',req:16,cl:'w3'},{id:4,nm:'w4',ic:'🎼',req:24,cl:'w4'}];
 const DUR={w:4,h:2,q:1,e:0.5};
 
 /* ================================================================
@@ -581,7 +643,7 @@ const Game=(()=>{
   let cv,cx,song,spd='normal',ni=0,sc=0,stk=0,cor=0,tot=0,run=false,notes=[];
   function init(){cv=document.getElementById('cv');cx=cv.getContext('2d')}
   function start(s,sp='normal'){
-    song=s;spd=sp;ni=0;sc=0;stk=0;cor=0;tot=0;notes=[];run=true;
+    song=s;spd=sp;ni=0;sc=0;stk=0;cor=0;tot=0;notes=[];run=true;Game.sid=s.id;
     const w=cv.parentElement;cv.width=w.clientWidth*devicePixelRatio;cv.height=w.clientHeight*devicePixelRatio;cx.scale(devicePixelRatio,devicePixelRatio);
     const bpm=s.bpm[spd]||s.bpm.normal,beat=60000/bpm;let el=0;
     s.n.forEach((nt,i)=>{const d=(DUR[nt.du]||1)*beat;notes.push({note:nt.n,y:0,dur:d,hit:false,idx:i});el+=d});
@@ -643,7 +705,7 @@ const Game=(()=>{
   }
   function setSpd(s){spd=s}
   function stop(){run=false;clr();if(Mid.lumi())Lumi.send(Mid.out(),Lumi.color(0,'#7C3AED'))}
-  return{init,start,input,setSpd,stop}
+  return{init,start,input,setSpd,stop,sid:0}
 })();
 
 /* ================================================================
@@ -699,10 +761,27 @@ async function selP(p){
   document.getElementById('hav').textContent=p.av;document.getElementById('hnm').textContent=p.nm;
   document.getElementById('hsk').textContent=p.sk||0;
   show('home');rHome();speak('Bonjour '+p.nm+' !')}
+function todayStr(){return new Date().toISOString().slice(0,10)}
+function dayDiff(a,b){return Math.round((new Date(a)-new Date(b))/86400000)}
 async function saveProg(sid,stars,acc,sc){
   if(!cur)return;const k=cur.id+'_'+sid,ex=prog[sid],best=ex?Math.max(ex.stars,stars):stars;
   prog[sid]={key:k,sid,stars:best,acc,sc,dt:new Date().toISOString()};await DB.put('progress',prog[sid]);
-  let ts=0;Object.values(prog).forEach(p=>ts+=p.stars);cur.ts=ts;await DB.put('profiles',cur)}
+  let ts=0;Object.values(prog).forEach(p=>ts+=p.stars);cur.ts=ts;
+  /* Daily streak */
+  const today=todayStr();
+  if(cur.ld!==today){const dd=cur.ld?dayDiff(today,cur.ld):0;cur.sk=dd===1?(cur.sk||0)+1:dd===0?cur.sk||1:1;cur.ld=today}
+  /* Badge checks */
+  if(!cur.badges)cur.badges=[];
+  if(ts>=3&&!cur.badges.includes('first_star'))cur.badges.push('first_star');
+  if(ts>=15&&!cur.badges.includes('star_collector'))cur.badges.push('star_collector');
+  if(ts>=30&&!cur.badges.includes('star_master'))cur.badges.push('star_master');
+  if(Object.keys(prog).length>=5&&!cur.badges.includes('explorer'))cur.badges.push('explorer');
+  if(Object.keys(prog).length>=15&&!cur.badges.includes('maestro'))cur.badges.push('maestro');
+  if((cur.sk||0)>=3&&!cur.badges.includes('streak_3'))cur.badges.push('streak_3');
+  if((cur.sk||0)>=7&&!cur.badges.includes('streak_7'))cur.badges.push('streak_7');
+  if(acc>=100&&!cur.badges.includes('perfect'))cur.badges.push('perfect');
+  await DB.put('profiles',cur);
+  document.getElementById('hsk').textContent=cur.sk||0}
 
 /* ════ HOME ════ */
 function rHome(){
@@ -714,20 +793,60 @@ function rHome(){
     if(!ok)b.innerHTML+=` <span style="font-size:11px;margin-left:auto;opacity:.6">${t('need',{n:wo.req})}</span>`;
     s.appendChild(b);
     if(ok){const g=document.createElement('div');g.className='s-grid';
-      SONGS.filter(sg=>sg.w===wo.id).forEach(sg=>{const sp=prog[sg.id];
+      SONGS.filter(sg=>sg.w===wo.id).filter(sg=>{const age=cur?.age||6;return sg.d<=Math.ceil(age/4)}).forEach(sg=>{const sp=prog[sg.id];
         const c=document.createElement('div');c.className='s-card';
         c.innerHTML=`<div class="s-title">${esc(sg.t)}</div><div class="s-meta">${sg.c}</div><div class="s-stars">${sp?'⭐'.repeat(sp.stars)+'☆'.repeat(3-sp.stars):'☆☆☆'}</div>`;
         c.onclick=()=>startL(sg);g.appendChild(c)});s.appendChild(g)}
     w.appendChild(s)})}
 function startL(song){show('lesson');mkPiano('lp',3,2);Game.init();Game.start(song);if(song.n.length)hl(song.n[0].n,'nxt');speak(song.t)}
 
+/* ════ FUN FACTS ════ */
+const FACTS={
+  1:{fr:'Au clair de la lune est une des plus vieilles chansons françaises — elle date du XVIIe siècle !',en:'Au clair de la lune is one of the oldest French songs — it dates back to the 17th century!'},
+  2:{fr:'Frère Jacques a été traduit dans plus de 30 langues à travers le monde !',en:'Frère Jacques has been translated into over 30 languages worldwide!'},
+  3:{fr:'Cette mélodie est aussi connue sous le nom de "Twinkle Twinkle Little Star" en anglais !',en:'This melody is also known as "Twinkle Twinkle Little Star" in English!'},
+  4:{fr:'J\'ai du bon tabac était chanté par les marins français au XVIIIe siècle.',en:'J\'ai du bon tabac was sung by French sailors in the 18th century.'},
+  5:{fr:'Les berceuses comme Dodo l\'enfant do aident vraiment les bébés à s\'endormir !',en:'Lullabies like Dodo l\'enfant do actually do help babies fall asleep!'},
+  6:{fr:'Le pont d\'Avignon existe vraiment ! Il s\'appelle le Pont Saint-Bénézet.',en:'The Avignon bridge really exists! It\'s called Pont Saint-Bénézet.'},
+  7:{fr:'Alouette est une chanson franco-canadienne chantée dans le monde entier !',en:'Alouette is a French-Canadian song sung all around the world!'},
+  8:{fr:'À la claire fontaine est considérée comme l\'hymne non officiel du Québec.',en:'À la claire fontaine is considered the unofficial anthem of Quebec.'},
+  9:{fr:'Vive le vent est l\'adaptation française de "Jingle Bells" composé en 1857.',en:'Vive le vent is the French version of "Jingle Bells", composed in 1857.'},
+  10:{fr:'L\'Ode à la joie de Beethoven est l\'hymne officiel de l\'Union européenne !',en:'Beethoven\'s Ode to Joy is the official anthem of the European Union!'},
+  11:{fr:'Personne ne sait qui a écrit "Une souris verte" — c\'est un mystère musical !',en:'Nobody knows who wrote "Une souris verte" — it\'s a musical mystery!'},
+  12:{fr:'Do Ré Mi la perdrix utilise les notes de musique comme paroles !',en:'Do Ré Mi la perdrix uses musical notes as lyrics!'},
+  13:{fr:'Ainsi font font font est un jeu de marionnettes — les mains tournent 3 fois !',en:'Ainsi font font font is a puppet game — hands turn 3 times!'},
+  14:{fr:'On plante les choux "avec le doigt, le coude, le nez" — chaque couplet ajoute une partie du corps !',en:'You plant cabbages "with the finger, elbow, nose" — each verse adds a body part!'},
+  15:{fr:'Le petit navire n\'a jamais navigué plus de 5 ou 6 semaines sur la mer !',en:'The little ship never sailed more than 5 or 6 weeks at sea!'},
+  16:{fr:'Maman les petits bateaux pose la question : ont-ils des jambes ? Mais non !',en:'This song asks: do little boats have legs? Of course not!'},
+  17:{fr:'Pomme de reinette est une variété de pomme qui existe vraiment !',en:'Pomme de reinette is a real apple variety!'},
+  18:{fr:'Dans la chanson, la toile d\'araignée grossit à chaque éléphant qui se balance !',en:'In the song, the spider web grows with each elephant that swings!'},
+  19:{fr:'Le loup n\'est jamais prêt dans cette chanson — il met toujours ses vêtements !',en:'The wolf is never ready in this song — he\'s always getting dressed!'},
+  20:{fr:'La Mère Michel a perdu son chat — mais le père Lustucru l\'a retrouvé !',en:'Mother Michel lost her cat — but Father Lustucru found it!'},
+  21:{fr:'Beethoven a composé Für Elise en 1810, mais on ne sait toujours pas qui était Elise !',en:'Beethoven composed Für Elise in 1810, but we still don\'t know who Elise was!'},
+  22:{fr:'Le Canon de Pachelbel est joué dans 60% des mariages dans le monde !',en:'Pachelbel\'s Canon is played at 60% of weddings worldwide!'},
+  23:{fr:'Bach a composé ce prélude en Do majeur comme exercice — c\'est devenu un chef-d\'œuvre !',en:'Bach composed this C major prelude as an exercise — it became a masterpiece!'}
+};
+const BADGES={
+  first_star:{ic:'⭐',fr:'Première étoile',en:'First Star'},
+  star_collector:{ic:'🌟',fr:'Collectionneur',en:'Star Collector'},
+  star_master:{ic:'💫',fr:'Maître des étoiles',en:'Star Master'},
+  explorer:{ic:'🗺️',fr:'Explorateur',en:'Explorer'},
+  maestro:{ic:'🎹',fr:'Maestro',en:'Maestro'},
+  streak_3:{ic:'🔥',fr:'3 jours de suite',en:'3 Day Streak'},
+  streak_7:{ic:'🏆',fr:'1 semaine de suite',en:'1 Week Streak'},
+  perfect:{ic:'💎',fr:'Score parfait',en:'Perfect Score'}
+};
+
 /* ════ CELEBRATION ════ */
 function showCel(stars,acc,sc){
   document.getElementById('cem').textContent=stars>=3?'🌟':stars>=2?'⭐':'👏';
   document.getElementById('cet').textContent=stars>=3?t('fantastic'):stars>=2?t('bravo'):t('almost');
+  const fact=FACTS[Game.sid]?.[LG]||'';
   document.getElementById('ces').textContent=`${acc}% ${t('correct')} — ${t('score')}: ${sc}`;
+  if(fact){const fp=document.createElement('p');fp.style.cssText='color:var(--gold);font-size:13px;margin-top:12px;font-style:italic';fp.textContent='💡 '+fact;
+    document.querySelector('.cel-c').insertBefore(fp,document.getElementById('cgo'))}
   document.getElementById('cst').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
-  document.getElementById('cgo').onclick=()=>{document.getElementById('cel').classList.remove('on');show('home');rHome()};
+  document.getElementById('cgo').onclick=()=>{document.getElementById('cel').classList.remove('on');document.querySelectorAll('.cel-c p[style]').forEach(p=>p.remove());show('home');rHome()};
   document.getElementById('cel').classList.add('on');speak(stars>=3?t('fantastic'):t('bravo'))}
 
 /* ════ SCREENS ════ */
@@ -739,12 +858,17 @@ function show(id){
   if(id!=='lesson')Game.stop()}
 
 /* ════ SETTINGS ════ */
+let CFG={lang:'fr',vol:70,cb:false,rm:false,dys:false,focus:false};
+async function loadCFG(){const s=await DB.get('settings','cfg');if(s){CFG={...CFG,...s};LG=CFG.lang;Aud.vol(CFG.vol/100);if(CFG.cb)document.body.classList.add('cb');if(CFG.rm)document.body.classList.add('rm');if(CFG.dys)document.body.classList.add('dys');if(CFG.focus)document.body.classList.add('focus')}}
+function saveCFG(){DB.put('settings',{id:'cfg',...CFG})}
 function rSet(){
   const w=document.getElementById('stw');w.innerHTML='';
-  [{type:'select',lbl:'Langue',opts:[{v:'fr',l:'🇫🇷 Français'},{v:'en',l:'🇬🇧 English'}],cur:LG,fn:v=>{LG=v;rSet();rHome()}},
-   {type:'range',lbl:'Volume',min:0,max:100,cur:70,fn:v=>Aud.vol(v/100)},
-   {type:'toggle',lbl:'Mode daltonien',cur:false,fn:v=>document.body.classList.toggle('cb',v)},
-   {type:'toggle',lbl:'Animations réduites',cur:false,fn:v=>document.body.classList.toggle('rm',v)},
+  [{type:'select',lbl:'Langue',opts:[{v:'fr',l:'🇫🇷 Français'},{v:'en',l:'🇬🇧 English'}],cur:CFG.lang,fn:v=>{CFG.lang=v;LG=v;saveCFG();rSet();rHome()}},
+   {type:'range',lbl:'Volume',min:0,max:100,cur:CFG.vol,fn:v=>{CFG.vol=+v;Aud.vol(v/100);saveCFG()}},
+   {type:'toggle',lbl:'Mode daltonien',cur:CFG.cb,fn:v=>{CFG.cb=v;document.body.classList.toggle('cb',v);saveCFG()}},
+   {type:'toggle',lbl:'Animations réduites',cur:CFG.rm,fn:v=>{CFG.rm=v;document.body.classList.toggle('rm',v);saveCFG()}},
+   {type:'toggle',lbl:'Police dyslexie',cur:CFG.dys,fn:v=>{CFG.dys=v;document.body.classList.toggle('dys',v);saveCFG()}},
+   {type:'toggle',lbl:'Mode focus',cur:CFG.focus,fn:v=>{CFG.focus=v;document.body.classList.toggle('focus',v);saveCFG()}},
    {type:'button',lbl:'Plein écran',fn:()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}}
   ].forEach(it=>{
     const r=document.createElement('div');r.className='st-row';r.innerHTML=`<span class="st-lbl">${it.lbl}</span>`;
@@ -757,7 +881,11 @@ function rSet(){
 /* ════ PARENT ════ */
 function initPar(){const w=document.getElementById('piw');w.innerHTML='';for(let i=0;i<4;i++){const inp=document.createElement('input');inp.type='password';inp.maxLength=1;inp.className='pin-d';inp.inputMode='numeric';inp.oninput=e=>{if(e.target.value&&i<3)w.children[i+1].focus();chkPin()};inp.onkeydown=e=>{if(e.key==='Backspace'&&!e.target.value&&i>0)w.children[i-1].focus()};w.appendChild(inp)}}
 function chkPin(){const d=[...document.querySelectorAll('.pin-d')].map(d=>d.value).join('');if(d.length===4){if(d==='1234'){document.getElementById('pov').classList.add('hidden');const c=document.getElementById('pcnt');c.classList.remove('hidden');c.style.display='flex';rPar()}else{document.getElementById('perr').textContent=t('pin_wrong');document.getElementById('perr').classList.remove('hidden');document.querySelectorAll('.pin-d').forEach(d=>d.value='');document.querySelector('.pin-d')?.focus()}}}
-function rPar(){if(!cur)return;document.getElementById('ps1').textContent=Object.keys(prog).length;document.getElementById('ps2').textContent=cur.ts||0;const accs=Object.values(prog).map(p=>p.acc).filter(Boolean);document.getElementById('ps3').textContent=(accs.length?Math.round(accs.reduce((a,b)=>a+b,0)/accs.length):0)+'%'}
+function rPar(){if(!cur)return;document.getElementById('ps1').textContent=Object.keys(prog).length;document.getElementById('ps2').textContent=cur.ts||0;const accs=Object.values(prog).map(p=>p.acc).filter(Boolean);document.getElementById('ps3').textContent=(accs.length?Math.round(accs.reduce((a,b)=>a+b,0)/accs.length):0)+'%';
+  /* Badges */
+  let bw=document.getElementById('badges-w');if(!bw){bw=document.createElement('div');bw.id='badges-w';bw.style.cssText='width:100%;max-width:480px';document.getElementById('pcnt').insertBefore(bw,document.querySelector('#pcnt > div:last-of-type'))}
+  bw.innerHTML='<div class="st-title">Badges</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+(cur.badges||[]).map(b=>{const bd=BADGES[b];return bd?`<span class="badge badge-gold">${bd.ic} ${bd[LG]}</span>`:''}).join('')+'</div>';
+  if(!(cur.badges||[]).length)bw.innerHTML+='<p style="color:var(--muted);font-size:13px">Aucun badge pour le moment</p>'}
 
 /* ════ SPEECH ════ */
 let _fv=null;
@@ -791,7 +919,7 @@ document.getElementById('go').onclick=async()=>{
   show('login');
 };
 
-(async()=>{await DB.init();await loadP();if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
+(async()=>{await DB.init();await loadCFG();await loadP();if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
 </script>
 </body>
 </html>
