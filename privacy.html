@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Melodino — Politique de confidentialité / Privacy Policy</title>
+  <link rel="stylesheet" href="_assets/fonts/fonts.css">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; max-width: 700px; margin: 0 auto; padding: 24px; line-height: 1.7; color: #1a1a2e; background: #fafafa; }
+    h1 { font-family: 'Nunito', sans-serif; font-size: 28px; margin-bottom: 8px; }
+    h2 { font-family: 'Nunito', sans-serif; font-size: 20px; margin-top: 32px; color: #5B21B6; }
+    h3 { font-size: 16px; margin-top: 24px; }
+    .date { color: #666; font-size: 14px; margin-bottom: 32px; }
+    .lang-switch { display: flex; gap: 8px; margin-bottom: 24px; }
+    .lang-switch a { padding: 6px 16px; border-radius: 20px; text-decoration: none; font-weight: 600; font-size: 14px; }
+    .lang-switch a.active { background: #7C3AED; color: #fff; }
+    .lang-switch a:not(.active) { background: #e5e5e5; color: #333; }
+    section[lang="en"] { display: none; }
+    :target ~ section[lang="fr"] { display: none; }
+    :target ~ section[lang="en"] { display: block; }
+    ul { padding-left: 20px; }
+    a { color: #5B21B6; }
+    .back { display: inline-block; margin-top: 32px; padding: 10px 24px; background: #7C3AED; color: #fff; border-radius: 20px; text-decoration: none; font-weight: 700; }
+  </style>
+</head>
+<body>
+<h1>Melodino</h1>
+<div class="lang-switch">
+  <a href="#" class="active" onclick="document.querySelectorAll('section[lang=fr]').forEach(s=>s.style.display='block');document.querySelectorAll('section[lang=en]').forEach(s=>s.style.display='none');return false">Francais</a>
+  <a href="#" onclick="document.querySelectorAll('section[lang=fr]').forEach(s=>s.style.display='none');document.querySelectorAll('section[lang=en]').forEach(s=>s.style.display='block');return false">English</a>
+</div>
+
+<!-- FRENCH -->
+<section lang="fr">
+<h2>Politique de confidentialite</h2>
+<p class="date">Derniere mise a jour : 27 mars 2026</p>
+
+<h3>1. Ce que nous collectons</h3>
+<p><strong>Nous ne collectons AUCUNE donnee personnelle.</strong></p>
+<ul>
+  <li>Pas de noms, emails, adresses</li>
+  <li>Pas de cookies, analytics, trackers</li>
+  <li>Pas de geolocalisation ou identifiants d'appareil</li>
+  <li>Pas de publicite</li>
+</ul>
+
+<h3>2. Stockage local</h3>
+<p>Les profils d'enfants (prenom, age, progression) sont stockes <strong>uniquement sur votre appareil</strong> via IndexedDB. Ces donnees ne quittent jamais votre appareil et ne sont transmises a aucun serveur.</p>
+
+<h3>3. Connexions externes</h3>
+<p>L'application charge des echantillons de piano depuis <code>gleitz.github.io</code> (GitHub Pages) lors du premier demarrage. Cette connexion transmet votre adresse IP a GitHub. Aucune autre donnee n'est transmise.</p>
+<p>Apres le premier chargement, l'application fonctionne <strong>100% hors ligne</strong> grace au Service Worker.</p>
+
+<h3>4. Technologies utilisees</h3>
+<ul>
+  <li><strong>Web Audio API</strong> — synthese sonore locale, aucune transmission</li>
+  <li><strong>Web MIDI API</strong> — communication locale avec clavier MIDI, aucune transmission</li>
+  <li><strong>SpeechSynthesis</strong> — synthese vocale locale du navigateur, aucune transmission</li>
+  <li><strong>IndexedDB</strong> — stockage local uniquement</li>
+  <li><strong>Service Worker</strong> — cache local pour fonctionnement hors ligne</li>
+</ul>
+
+<h3>5. Enfants et COPPA/RGPD</h3>
+<p>Melodino est concu pour les enfants de 3 a 12 ans. Conformement au COPPA (Children's Online Privacy Protection Act) et au RGPD :</p>
+<ul>
+  <li>Aucune donnee personnelle n'est collectee, stockee ou transmise</li>
+  <li>Aucun compte utilisateur n'est requis</li>
+  <li>Aucun contenu genere par les utilisateurs n'est partage</li>
+  <li>L'espace parent est protege par code PIN</li>
+  <li>L'export de donnees (JSON) reste sous le controle total du parent</li>
+</ul>
+
+<h3>6. Intelligence artificielle</h3>
+<p>Cette application a ete developpee avec l'aide de l'intelligence artificielle. Le contenu educatif (fun facts) a ete genere par IA puis verifie manuellement. L'application elle-meme n'utilise pas d'IA en temps reel.</p>
+
+<h3>7. Droits des parents</h3>
+<p>Les parents peuvent a tout moment :</p>
+<ul>
+  <li>Consulter les donnees de progression via l'espace parent (PIN)</li>
+  <li>Exporter toutes les donnees (JSON)</li>
+  <li>Supprimer toutes les donnees en vidant le stockage du navigateur</li>
+</ul>
+
+<h3>8. Contact</h3>
+<p>Pour toute question : ouvrir une issue sur le <a href="https://github.com/BuilderCed/melodino" rel="noopener">depot GitHub</a>.</p>
+
+<h3>9. Open source</h3>
+<p>Le code source est disponible sous licence MIT. Vous pouvez verifier l'absence de collecte de donnees dans le code.</p>
+</section>
+
+<!-- ENGLISH -->
+<section lang="en" style="display:none">
+<h2>Privacy Policy</h2>
+<p class="date">Last updated: March 27, 2026</p>
+
+<h3>1. What We Collect</h3>
+<p><strong>We collect ZERO personal information.</strong></p>
+<ul>
+  <li>No names, emails, addresses</li>
+  <li>No cookies, analytics, trackers</li>
+  <li>No geolocation or device identifiers</li>
+  <li>No advertising</li>
+</ul>
+
+<h3>2. Local Storage</h3>
+<p>Children's profiles (first name, age, progress) are stored <strong>only on your device</strong> via IndexedDB. This data never leaves your device and is not transmitted to any server.</p>
+
+<h3>3. External Connections</h3>
+<p>The application loads piano samples from <code>gleitz.github.io</code> (GitHub Pages) on first launch. This connection transmits your IP address to GitHub. No other data is transmitted.</p>
+<p>After first load, the application works <strong>100% offline</strong> thanks to the Service Worker.</p>
+
+<h3>4. Technologies Used</h3>
+<ul>
+  <li><strong>Web Audio API</strong> — local sound synthesis, no transmission</li>
+  <li><strong>Web MIDI API</strong> — local MIDI keyboard communication, no transmission</li>
+  <li><strong>SpeechSynthesis</strong> — local browser voice synthesis, no transmission</li>
+  <li><strong>IndexedDB</strong> — local storage only</li>
+  <li><strong>Service Worker</strong> — local cache for offline operation</li>
+</ul>
+
+<h3>5. Children & COPPA/GDPR</h3>
+<p>Melodino is designed for children ages 3-12. In compliance with COPPA and GDPR:</p>
+<ul>
+  <li>No personal data is collected, stored, or transmitted</li>
+  <li>No user accounts are required</li>
+  <li>No user-generated content is shared</li>
+  <li>Parent area is PIN-protected</li>
+  <li>Data export (JSON) remains under full parental control</li>
+</ul>
+
+<h3>6. Artificial Intelligence</h3>
+<p>This application was developed with the help of artificial intelligence. Educational content (fun facts) was AI-generated then manually verified. The application itself does not use real-time AI.</p>
+
+<h3>7. Parental Rights</h3>
+<p>Parents can at any time:</p>
+<ul>
+  <li>View progress data via the parent area (PIN)</li>
+  <li>Export all data (JSON)</li>
+  <li>Delete all data by clearing browser storage</li>
+</ul>
+
+<h3>8. Contact</h3>
+<p>For questions: open an issue on the <a href="https://github.com/BuilderCed/melodino" rel="noopener">GitHub repository</a>.</p>
+
+<h3>9. Open Source</h3>
+<p>Source code is available under MIT license. You can verify the absence of data collection in the code.</p>
+</section>
+
+<a class="back" href="index.html">← Retour a Melodino</a>
+</body>
+</html>

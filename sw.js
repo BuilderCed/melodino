@@ -1,16 +1,23 @@
-// Petit Maestro — Service Worker v1.0.0
-// Cache-first strategy for full offline support
+// Melodino — Service Worker v2.0.0
+// Cache-first, self-hosted assets, COPPA compliant
 
-const CACHE_NAME = 'melodino-v4';
+const CACHE_NAME = 'melodino-v5';
 const ASSETS = [
   './',
   './index.html',
+  './privacy.html',
+  './404.html',
   './_assets/manifest.json',
   './_assets/icon-192.svg',
   './_assets/icon-512.svg',
+  './_assets/fonts/fonts.css',
+  './_assets/fonts/nunito.woff2',
+  './_assets/fonts/inter.woff2',
+  './_assets/fonts/lexend.woff2',
+  './_assets/js/soundfont-player.min.js',
 ];
 
-// Install: pre-cache core assets
+// Install: pre-cache all core assets (fonts, JS, HTML)
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
@@ -28,14 +35,31 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Fetch: cache-first, network fallback, stale-while-revalidate for HTML
+// Fetch: cache-first for local assets, network-first for external (soundfont samples)
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  // Skip non-GET and cross-origin
-  if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
+  // Skip non-GET
+  if (e.request.method !== 'GET') return;
 
-  // For HTML: stale-while-revalidate (serve cache, update in background)
+  // External requests (soundfont samples from gleitz.github.io): cache after first fetch
+  if (url.origin !== self.location.origin) {
+    e.respondWith(
+      caches.match(e.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(e.request).then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+          }
+          return response;
+        }).catch(() => cached);
+      })
+    );
+    return;
+  }
+
+  // HTML: stale-while-revalidate
   if (e.request.destination === 'document' || url.pathname.endsWith('.html')) {
     e.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {
@@ -50,7 +74,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // For other assets: cache-first
+  // Other local assets: cache-first
   e.respondWith(
     caches.match(e.request).then((cached) => {
       if (cached) return cached;

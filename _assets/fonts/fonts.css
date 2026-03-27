@@ -1,0 +1,22 @@
+/* Self-hosted fonts — COPPA/GDPR compliant (no IP transmission to Google) */
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url(nunito.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url(inter.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Lexend';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url(lexend.woff2) format('woff2');
+}

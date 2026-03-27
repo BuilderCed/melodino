@@ -3,20 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Melodino 🎹</title>
-  <meta name="description" content="Apprends le piano en t'amusant ! App gratuite, open-source, pour enfants 4-10 ans. Compatible ROLI LUMI.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://gleitz.github.io; media-src 'self' https://gleitz.github.io; object-src 'none'; base-uri 'self';">
+  <title>Melodino — Apprends le piano en t'amusant !</title>
+  <meta name="description" content="App piano gratuite, open-source, pour enfants 3-12 ans. 23 chansons, 4 mondes, compatible ROLI LUMI. 100% offline, zero collecte de donnees. COPPA/RGPD conforme.">
   <meta name="theme-color" content="#7C3AED">
+  <meta name="color-scheme" content="dark">
+  <!-- PWA / iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Melodino">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="_assets/manifest.json">
   <link rel="apple-touch-icon" href="_assets/icon-192.svg">
+  <link rel="icon" type="image/svg+xml" href="_assets/icon-192.svg">
+  <!-- Open Graph -->
   <meta property="og:title" content="Melodino — Apprends le piano en t'amusant !">
-  <meta property="og:description" content="App piano gamifiee pour enfants. Gratuite, open-source, multilingue, offline.">
+  <meta property="og:description" content="App piano gamifiee pour enfants 3-12 ans. Gratuite, open-source, multilingue, offline. 23 chansons, ROLI LUMI.">
   <meta property="og:type" content="website">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/soundfont-player@0.11.0/dist/soundfont-player.min.js"></script>
+  <meta property="og:url" content="https://builderced.github.io/melodino/">
+  <meta property="og:image" content="https://builderced.github.io/melodino/_assets/icon-512.svg">
+  <meta property="og:image:alt" content="Melodino — Piano pour enfants">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:locale:alternate" content="en_US">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Melodino — Learn piano the fun way!">
+  <meta name="twitter:description" content="Free, open-source piano app for kids 3-12. 23 songs, offline, COPPA compliant.">
+  <meta name="twitter:image" content="https://builderced.github.io/melodino/_assets/icon-512.svg">
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"EducationalApplication","name":"Melodino","description":"App piano gratuite et gamifiee pour enfants 3-12 ans. 23 chansons, 4 mondes, compatible ROLI LUMI.","url":"https://builderced.github.io/melodino/","applicationCategory":"EducationApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"audience":{"@type":"EducationalAudience","educationalRole":"student","typicalAgeRange":"3-12"},"inLanguage":["fr","en"],"learningResourceType":"Interactive lesson","isAccessibleForFree":true,"creator":{"@type":"Person","name":"BuilderCed"}}
+  </script>
+  <!-- Self-hosted fonts (COPPA/GDPR compliant — no third-party IP transmission) -->
+  <link rel="stylesheet" href="_assets/fonts/fonts.css">
+  <!-- Self-hosted soundfont-player (no CDN dependency) -->
+  <script src="_assets/js/soundfont-player.min.js"></script>
 
 <style>
 /* ================================================================
@@ -321,6 +341,17 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 .cel-s { color: var(--muted); margin-bottom: 24px; }
 .cel-st { font-size: 40px; margin-bottom: 24px; }
 
+/* ── SKIP LINK + ARIA ── */
+.skip{position:absolute;top:-40px;left:0;background:var(--purple);color:#fff;padding:8px 16px;z-index:1000;font-weight:700;border-radius:0 0 var(--r-sm) 0;transition:top 0.2s}
+.skip:focus{top:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+/* Break reminder overlay */
+.break-ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.break-ov.on{display:flex}
+/* Profile form inline */
+.pf-form{display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;max-width:300px}
+.pf-form input,.pf-form select{width:100%;padding:12px;border-radius:var(--r-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--fb);font-size:16px}
+.pf-form input:focus,.pf-form select:focus{border-color:var(--purple);outline:none;box-shadow:0 0 0 3px var(--purple-sub)}
 .hidden { display: none !important; }
 
 /* ── 19. ACCESSIBILITY MODES ── */
@@ -328,8 +359,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
 body.cb { --note-C: #E69F00; --note-D: #56B4E9; --note-E: #009E73; --note-F: #F0E442; --note-G: #0072B2; --note-A: #D55E00; --note-B: #CC79A7; }
 body.cb .wk.ok { background: #009E73; } body.cb .wk.bad { background: #D55E00; } body.cb .wk.nxt { background: #E69F00; }
 body.cb .bk.ok { background: #009E73; } body.cb .bk.bad { background: #D55E00; } body.cb .bk.nxt { background: #E69F00; }
-/* Dyslexia font */
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800;900&display=swap');
+/* Dyslexia font (self-hosted via fonts.css) */
 body.dys, body.dys * { font-family: 'Lexend', 'OpenDyslexic', sans-serif !important; letter-spacing: 0.05em; word-spacing: 0.15em; line-height: 1.8; }
 /* Focus mode: minimal UI, no distractions */
 body.focus .hdr-stat.streak, body.focus .nav-btn .lbl, body.focus .badge, body.focus .cel-st { display: none; }
@@ -343,6 +373,9 @@ body.focus .s-stars, body.focus .s-meta { display: none; }
 </style>
 </head>
 <body>
+<a class="skip" href="#main-content">Aller au contenu</a>
+<!-- Live region for screen readers -->
+<div id="aria-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ═══ SPLASH ═══ -->
 <div id="splash">
@@ -351,6 +384,16 @@ body.focus .s-stars, body.focus .s-meta { display: none; }
   <p class="tagline">Apprends le piano en t'amusant !</p>
   <button class="btn btn-gold btn-lg" id="go">▶ Commencer</button>
   <p class="sub">🎹 Compatible ROLI LUMI &amp; claviers MIDI</p>
+  <a href="privacy.html" style="color:var(--dim);font-size:11px;margin-top:8px;text-decoration:underline">Politique de confidentialité</a>
+</div>
+
+<!-- ═══ BREAK REMINDER ═══ -->
+<div class="break-ov" id="breakov">
+  <span style="font-size:64px">😴</span>
+  <h2 style="font-family:var(--fh);font-weight:900;font-size:24px;color:var(--text)">Petite pause ?</h2>
+  <p style="color:var(--muted);max-width:300px;text-align:center" id="breakmsg">Tu joues depuis un moment. Tes yeux et tes doigts ont besoin de repos !</p>
+  <button class="btn btn-p btn-lg" id="breakcont">Continuer à jouer</button>
+  <button class="btn btn-s" id="breakstop">Arrêter pour aujourd'hui</button>
 </div>
 
 <!-- ═══ HEADER ═══ -->
@@ -367,7 +410,7 @@ body.focus .s-stars, body.focus .s-meta { display: none; }
 </header>
 
 <!-- ═══ SCREENS ═══ -->
-<main class="main">
+<main class="main" id="main-content" role="main">
   <section class="scr" id="login">
     <span style="font-size:56px">🎹</span>
     <h1 style="font-family:var(--fh);font-weight:900;font-size:clamp(26px,5vw,44px);background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Melodino</h1>
@@ -538,7 +581,7 @@ const Mid=(()=>{
     if(best){if(inp)inp.onmidimessage=null;inp=best;inp.onmidimessage=hm;dn=best.name;
       if(lumi&&out){setTimeout(()=>{Lumi.send(out,Lumi.octave(0));Lumi.send(out,Lumi.cmode(1));Lumi.send(out,Lumi.color(0,'#7C3AED'));Lumi.send(out,Lumi.bright(80));Lumi.send(out,Lumi.scale('Major'));Lumi.send(out,Lumi.key('C'))},300)}
     }else{inp=null;dn=null}upill()}
-  function upill(){const p=document.getElementById('mpill');if(!p)return;if(dn){p.className='midi-pill midi-on';p.textContent='🎹 '+(lumi?'LUMI':dn)}else{p.className='midi-pill midi-off';p.textContent='🎹 '+t('disconnected')}}
+  function upill(){const p=document.getElementById('mpill');if(!p)return;if(dn){p.className='midi-pill midi-on';p.textContent='🎹 '+(lumi?'LUMI':dn)}else if(!navigator.requestMIDIAccess){p.className='midi-pill midi-off';p.textContent='🎹 Non supporté';p.title='Web MIDI non disponible sur ce navigateur (Safari/Firefox)'}else{p.className='midi-pill midi-off';p.textContent='🎹 '+t('disconnected')}}
   return{init,onN,offN,out:()=>out,lumi:()=>lumi,upill}
 })();
 
@@ -631,7 +674,7 @@ const DB=(()=>{
   function init(){return new Promise(r=>{if(!indexedDB){r();return}const q=indexedDB.open(N,V);q.onupgradeneeded=e=>{const d=e.target.result;['profiles','progress','settings'].forEach(s=>{if(!d.objectStoreNames.contains(s))d.createObjectStore(s,{keyPath:s==='progress'?'key':'id'})})};q.onsuccess=e=>{db=e.target.result;r()};q.onerror=()=>r()})}
   function tx(s,m){return db.transaction(s,m).objectStore(s)}
   function get(s,k){if(!db)return Promise.resolve(null);return new Promise(r=>{const q=tx(s,'readonly').get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)})}
-  function put(s,v){if(!db)return Promise.resolve();return new Promise(r=>{tx(s,'readwrite').put(v);r()})}
+  function put(s,v){if(!db)return Promise.resolve();return new Promise(r=>{try{const req=tx(s,'readwrite').put(v);req.onsuccess=()=>r();req.onerror=()=>{console.warn('IndexedDB write failed:',s);r()}}catch(e){console.warn('IndexedDB error:',e.message);r()}})}
   function all(s){if(!db)return Promise.resolve([]);return new Promise(r=>{const q=tx(s,'readonly').getAll();q.onsuccess=()=>r(q.result||[]);q.onerror=()=>r([])})}
   return{init,get,put,all}
 })();
@@ -684,7 +727,7 @@ const Game=(()=>{
   function input(note){
     if(!run||ni>=song.n.length)return;
     const exp=song.n[ni],fn=notes[ni];
-    if(note===exp.n){fn.hit=true;cor++;tot++;stk++;sc+=10+stk;ni++;hl(note,'ok');
+    if(note===exp.n){fn.hit=true;cor++;tot++;stk++;sc+=10+stk;ni++;hl(note,'ok');announce(nd(note)+' ✓');
       if(Mid.lumi()&&stk>10)Lumi.send(Mid.out(),Lumi.color(0,stk>20?'#F59E0B':'#10B981'));
       setTimeout(()=>{clr();if(ni<song.n.length)hl(song.n[ni].n,'nxt')},200);
     }else{tot++;stk=0;hl(note,'bad');
@@ -712,7 +755,7 @@ const Game=(()=>{
    PART 7 — PIANO BUILDER
    ================================================================ */
 function mkPiano(id,so=4,no=2){
-  const el=document.getElementById(id);if(!el)return;el.innerHTML='';
+  const el=document.getElementById(id);if(!el)return;el.innerHTML='';el.setAttribute('role','group');el.setAttribute('aria-label','Piano');
   const W=['C','D','E','F','G','A','B'],B={C:'C#',D:'D#',F:'F#',G:'G#',A:'A#'},BO={C:.65,D:1.75,F:3.6,G:4.7,A:5.8};
   for(let o=so;o<so+no;o++){const oo=(o-so)*7;
     W.forEach((n,i)=>{
@@ -753,9 +796,23 @@ function rLogin(){
     a.onclick=newP;g.appendChild(a)}
 }
 const AVS=['🐱','🐶','🐰','🦊','🐻','🐼','🐨','🦁','🐸','🦄','🐙','🦋','🐢','🦜','🐬','🦉','🐝','🦩','🐳','🦘'];
-function newP(){const nm=prompt('Prénom ?');if(!nm?.trim())return;const age=parseInt(prompt('Âge ?'))||6;
-  const p={id:Date.now()+'',nm:nm.trim().slice(0,20),av:AVS[Math.floor(Math.random()*AVS.length)],age:Math.max(3,Math.min(12,age)),ts:0,sk:0,ld:null};
-  DB.put('profiles',p).then(()=>{profs.push(p);rLogin()})}
+function newP(){
+  /* Inline form instead of prompt() — works on all browsers */
+  const g=document.getElementById('avg');
+  const existing=g.querySelector('.pf-form');if(existing)return;
+  const f=document.createElement('div');f.className='pf-form';
+  f.innerHTML=`<input type="text" id="pf-nm" placeholder="Prénom" maxlength="20" autocomplete="off" autofocus>
+    <select id="pf-age"><option value="">Âge</option>${[3,4,5,6,7,8,9,10,11,12].map(a=>`<option value="${a}">${a} ans</option>`).join('')}</select>
+    <div style="display:flex;gap:8px"><button class="btn btn-p btn-sm" id="pf-ok">Créer</button><button class="btn btn-g btn-sm" id="pf-no">Annuler</button></div>`;
+  g.appendChild(f);
+  f.querySelector('#pf-nm').focus();
+  f.querySelector('#pf-ok').onclick=()=>{const nm=f.querySelector('#pf-nm').value.trim();const age=parseInt(f.querySelector('#pf-age').value)||6;
+    if(!nm){f.querySelector('#pf-nm').style.borderColor='var(--red)';return}
+    const p={id:Date.now()+'',nm:nm.slice(0,20),av:AVS[Math.floor(Math.random()*AVS.length)],age:Math.max(3,Math.min(12,age)),ts:0,sk:0,ld:null,badges:[]};
+    DB.put('profiles',p).then(()=>{profs.push(p);rLogin()})};
+  f.querySelector('#pf-no').onclick=()=>f.remove();
+  f.querySelector('#pf-nm').addEventListener('keydown',e=>{if(e.key==='Enter')f.querySelector('#pf-ok').click()})
+}
 async function selP(p){
   cur=p;prog={};(await DB.all('progress')).filter(r=>r.key.startsWith(p.id+'_')).forEach(r=>{prog[r.sid]=r});
   document.getElementById('hav').textContent=p.av;document.getElementById('hnm').textContent=p.nm;
@@ -795,10 +852,12 @@ function rHome(){
     if(ok){const g=document.createElement('div');g.className='s-grid';
       SONGS.filter(sg=>sg.w===wo.id).filter(sg=>{const age=cur?.age||6;return sg.d<=Math.ceil(age/4)}).forEach(sg=>{const sp=prog[sg.id];
         const c=document.createElement('div');c.className='s-card';
-        c.innerHTML=`<div class="s-title">${esc(sg.t)}</div><div class="s-meta">${sg.c}</div><div class="s-stars">${sp?'⭐'.repeat(sp.stars)+'☆'.repeat(3-sp.stars):'☆☆☆'}</div>`;
-        c.onclick=()=>startL(sg);g.appendChild(c)});s.appendChild(g)}
+        c.innerHTML=`<div class="s-title">${esc(sg.t)}</div><div class="s-meta">${sg.c}</div><div class="s-stars">${sp?'⭐'.repeat(sp.stars)+'☆'.repeat(3-sp.stars):'☆☆☆'}</div><div style="display:flex;gap:6px;margin-top:8px"><button class="btn btn-p btn-sm play-btn" aria-label="Jouer ${esc(sg.t)}">▶ Jouer</button><button class="btn btn-s btn-sm listen-btn" aria-label="Écouter ${esc(sg.t)}">🎧</button></div>`;
+        c.querySelector('.play-btn').onclick=(e)=>{e.stopPropagation();startL(sg)};
+        c.querySelector('.listen-btn').onclick=(e)=>{e.stopPropagation();listenSong(sg)};
+        g.appendChild(c)});s.appendChild(g)}
     w.appendChild(s)})}
-function startL(song){show('lesson');mkPiano('lp',3,2);Game.init();Game.start(song);if(song.n.length)hl(song.n[0].n,'nxt');speak(song.t)}
+function startL(song){show('lesson');mkPiano('lp',3,2);Game.init();Game.start(song);if(song.n.length)hl(song.n[0].n,'nxt');speak(song.t);startBreakTimer()}
 
 /* ════ FUN FACTS ════ */
 const FACTS={
@@ -894,6 +953,43 @@ function speak(txt){if(!('speechSynthesis' in window))return;speechSynthesis.can
   if(_fv)u.voice=_fv;u.lang=LG==='fr'?'fr-FR':'en-US';u.rate=0.85;u.pitch=1.1;u.volume=0.8;speechSynthesis.speak(u)}
 if('speechSynthesis' in window)speechSynthesis.addEventListener('voiceschanged',()=>{_fv=null});
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+/* ════ ARIA ANNOUNCE ════ */
+function announce(msg){const el=document.getElementById('aria-live');if(el){el.textContent='';setTimeout(()=>el.textContent=msg,50)}}
+
+/* ════ BREAK REMINDER ════ */
+let _brkStart=0,_brkTimer=null;
+function startBreakTimer(){
+  _brkStart=Date.now();clearInterval(_brkTimer);
+  const maxMin=cur?.age<=5?10:cur?.age<=8?20:30;
+  _brkTimer=setInterval(()=>{
+    if(Date.now()-_brkStart>maxMin*60000){clearInterval(_brkTimer);showBreak(maxMin)}
+  },30000)
+}
+function showBreak(mins){
+  document.getElementById('breakmsg').textContent=`Tu joues depuis ${mins} minutes. Tes yeux et tes doigts ont besoin de repos !`;
+  document.getElementById('breakov').classList.add('on');speak('Petite pause ?')
+}
+document.getElementById('breakcont').onclick=()=>{document.getElementById('breakov').classList.remove('on');_brkStart=Date.now()};
+document.getElementById('breakstop').onclick=()=>{document.getElementById('breakov').classList.remove('on');Game.stop();show('login');clearInterval(_brkTimer)};
+
+/* ════ LISTEN (play-along preview) ════ */
+function listenSong(song){
+  const bpm=song.bpm.normal||72,beat=60000/bpm;
+  let i=0;
+  function playNext(){
+    if(i>=song.n.length)return;
+    const nt=song.n[i],dur=(DUR[nt.du]||1)*beat;
+    Aud.play(nt.n,dur,70);hl(nt.n,'ok');
+    setTimeout(()=>{hl(nt.n,null);i++;playNext()},dur);
+  }
+  playNext()
+}
+
+/* ════ CANVAS RESIZE ════ */
+if(typeof ResizeObserver!=='undefined'){
+  new ResizeObserver(()=>{const cv=document.getElementById('cv');if(cv&&cv.parentElement){const w=cv.parentElement;cv.width=w.clientWidth*devicePixelRatio;cv.height=w.clientHeight*devicePixelRatio;const cx=cv.getContext('2d');cx.scale(devicePixelRatio,devicePixelRatio)}}).observe(document.querySelector('.l-canvas')||document.body)
+}
 
 /* ════ EVENTS ════ */
 document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>{show(b.dataset.s);if(b.dataset.s==='home')rHome();if(b.dataset.s==='settings')rSet();if(b.dataset.s==='freeplay')mkPiano('fp',3,2)});

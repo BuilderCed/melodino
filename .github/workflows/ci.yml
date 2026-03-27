@@ -90,7 +90,7 @@ jobs:
 
       - name: Check file size budget
         run: |
-          MAX_HTML=150  # KB
+          MAX_HTML=200  # KB (increased for 35-item audit additions)
           MAX_SW=5      # KB
           HTML_SIZE=$(wc -c < index.html | tr -d ' ')
           SW_SIZE=$(wc -c < sw.js | tr -d ' ')
@@ -103,6 +103,46 @@ jobs:
             exit 1
           fi
           echo "Size budget OK"
+
+      - name: Verify self-hosted assets (no Google Fonts CDN)
+        run: |
+          echo "Checking for external CDN dependencies..."
+          FAIL=0
+          if grep -q 'fonts.googleapis.com' index.html; then
+            echo "FAIL: Google Fonts CDN still referenced in index.html"
+            FAIL=1
+          fi
+          if grep -q 'cdn.jsdelivr.net' index.html; then
+            echo "FAIL: jsdelivr CDN still referenced in index.html"
+            FAIL=1
+          fi
+          # Verify self-hosted files exist
+          for f in _assets/fonts/nunito.woff2 _assets/fonts/inter.woff2 _assets/fonts/lexend.woff2 _assets/js/soundfont-player.min.js _assets/fonts/fonts.css; do
+            if [ ! -f "$f" ]; then
+              echo "FAIL: Missing self-hosted asset: $f"
+              FAIL=1
+            else
+              echo "PASS: $f exists"
+            fi
+          done
+          if [ "$FAIL" -eq 1 ]; then exit 1; fi
+          echo "All assets self-hosted"
+
+      - name: Verify privacy policy exists
+        run: |
+          if [ ! -f "privacy.html" ]; then
+            echo "FAIL: privacy.html missing (COPPA requirement)"
+            exit 1
+          fi
+          echo "PASS: privacy.html exists"
+
+      - name: Verify CSP meta tag
+        run: |
+          if ! grep -q 'Content-Security-Policy' index.html; then
+            echo "FAIL: No Content-Security-Policy meta tag found"
+            exit 1
+          fi
+          echo "PASS: CSP meta tag present"
 
   lighthouse:
     name: Lighthouse Audit
