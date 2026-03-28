@@ -575,7 +575,7 @@ const Aud=(()=>{
     _gain.gain.value=Math.max(0,Math.min(1,v));
     if(piano&&piano.out)piano.out.disconnect(),piano.out.connect(_gain);
   }
-  return{init,resume,play,inst,vol,ok:()=>ok}
+  return{init,resume,play,inst,vol,ok:()=>ok,get ctx(){return ctx}}
 })();
 
 /* ================================================================
@@ -745,21 +745,27 @@ const Game=(()=>{
     cx.shadowBlur=0; /* Reset shadow for notes */
     const sm={turtle:0.6,normal:1,rabbit:1.4,rocket:1.8}[spd]||1;
     const nc={C:'#FF6B6B',D:'#FF9F43',E:'#FECA57',F:'#48DBFB',G:'#1DD1A1',A:'#A29BFE',B:'#FD79A8'};
+    /* Accessibility: shape symbols per note for color-blind users (WCAG: never color alone) */
+    const ns={C:'■',D:'●',E:'▲',F:'◆',G:'★',A:'♦',B:'♥'};
     notes.forEach(fn=>{
       if(!fn.hit)fn.y+=150*sm*dt;
-      if(!fn.hit&&fn.idx===ni)fn.y=hy-12;
-      const kp={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[fn.note.replace(/[0-9#b]/g,'')]||0;
+      /* Latency calibration: offset hit line position by CFG.latency (ms→px) */
+      const latPx=(CFG.latency||0)*0.15*sm;
+      if(!fn.hit&&fn.idx===ni)fn.y=hy-12+latPx;
+      const nl=fn.note.replace(/[0-9#b]/g,'');
+      const kp={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[nl]||0;
       const nw=Math.max(w/14,28),x=(kp/14)*w;
       if(fn.y>-24&&fn.y<h+24){
-        const clr=fn.hit?'rgba(16,185,129,0.4)':(nc[fn.note.replace(/[0-9#b]/g,'')]||'#7C3AED');
-        /* Stitch: note glow (drop-shadow effect) */
+        const clr=fn.hit?'rgba(16,185,129,0.4)':(nc[nl]||'#7C3AED');
         cx.shadowColor=clr;cx.shadowBlur=fn.idx===ni?16:8;
         cx.fillStyle=fn.hit?clr+'66':clr+'cc';
         const nh=fn.idx===ni?26:22;const nww=fn.idx===ni?nw:nw-4;
         cx.beginPath();cx.roundRect(fn.idx===ni?x:x+2,fn.y,nww,nh,6);cx.fill();
         cx.shadowBlur=0;
         cx.fillStyle='#fff';cx.font=fn.idx===ni?'800 13px Nunito':'700 11px Nunito';cx.textAlign='center';
-        cx.fillText(nd(fn.note),x+nw/2,fn.y+(fn.idx===ni?17:15));
+        /* Note name + shape symbol (color-blind accessible) */
+        const sym=CFG.cb?(ns[nl]||'')+' ':'';
+        cx.fillText(sym+nd(fn.note),x+nw/2,fn.y+(fn.idx===ni?17:15));
       }
     });
     if(ni>=song.n.length){run=false;end();return}
@@ -770,9 +776,13 @@ const Game=(()=>{
     const exp=song.n[ni],fn=notes[ni];
     if(note===exp.n){fn.hit=true;cor++;tot++;stk++;sc+=10+stk;ni++;hl(note,'ok');announce(nd(note)+' ✓');
       if(Mid.lumi()&&stk>10)Lumi.send(Mid.out(),Lumi.color(0,stk>20?'#F59E0B':'#10B981'));
+      /* Haptic: short success pulse (mobile devices) */
+      if(navigator.vibrate)navigator.vibrate(30);
       setTimeout(()=>{clr();if(ni<song.n.length)hl(song.n[ni].n,'nxt')},200);
     }else{tot++;stk=0;hl(note,'bad');
       if(Mid.lumi()){Lumi.send(Mid.out(),Lumi.color(0,'#EF4444'));setTimeout(()=>Lumi.send(Mid.out(),Lumi.color(0,'#7C3AED')),200)}
+      /* Haptic: double buzz for wrong note */
+      if(navigator.vibrate)navigator.vibrate([40,30,40]);
       setTimeout(()=>clr(),300);
     }
     hud();
@@ -958,7 +968,7 @@ function show(id){
   if(id!=='lesson')Game.stop()}
 
 /* ════ SETTINGS ════ */
-let CFG={lang:'fr',vol:70,cb:false,rm:false,dys:false,focus:false};
+let CFG={lang:'fr',vol:70,cb:false,rm:false,dys:false,focus:false,latency:0};
 async function loadCFG(){const s=await DB.get('settings','cfg');if(s){CFG={...CFG,...s};LG=CFG.lang;Aud.vol(CFG.vol/100);if(CFG.cb)document.body.classList.add('cb');if(CFG.rm)document.body.classList.add('rm');if(CFG.dys)document.body.classList.add('dys');if(CFG.focus)document.body.classList.add('focus')}}
 function saveCFG(){DB.put('settings',{id:'cfg',...CFG})}
 function rSet(){
@@ -969,6 +979,7 @@ function rSet(){
    {type:'toggle',lbl:'Animations réduites',cur:CFG.rm,fn:v=>{CFG.rm=v;document.body.classList.toggle('rm',v);saveCFG()}},
    {type:'toggle',lbl:'Police dyslexie',cur:CFG.dys,fn:v=>{CFG.dys=v;document.body.classList.toggle('dys',v);saveCFG()}},
    {type:'toggle',lbl:'Mode focus',cur:CFG.focus,fn:v=>{CFG.focus=v;document.body.classList.toggle('focus',v);saveCFG()}},
+   {type:'range',lbl:'Calibration MIDI (ms)',min:-100,max:100,cur:CFG.latency,fn:v=>{CFG.latency=+v;saveCFG()}},
    {type:'button',lbl:'Plein écran',fn:()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.()}}
   ].forEach(it=>{
     const r=document.createElement('div');r.className='st-row';r.innerHTML=`<span class="st-lbl">${it.lbl}</span>`;
@@ -1014,18 +1025,34 @@ function showBreak(mins){
 document.getElementById('breakcont').onclick=()=>{document.getElementById('breakov').classList.remove('on');_brkStart=Date.now()};
 document.getElementById('breakstop').onclick=()=>{document.getElementById('breakov').classList.remove('on');Game.stop();show('login');clearInterval(_brkTimer)};
 
-/* ════ LISTEN (play-along preview) ════ */
+/* ════ LISTEN (play-along preview — Web Audio lookahead scheduler) ════ */
+let _listenStop=false;
 function listenSong(song){
-  const bpm=song.bpm.normal||72,beat=60000/bpm;
-  let i=0;
-  function playNext(){
-    if(i>=song.n.length)return;
-    const nt=song.n[i],dur=(DUR[nt.du]||1)*beat;
-    Aud.play(nt.n,dur,70);hl(nt.n,'ok');
-    setTimeout(()=>{hl(nt.n,null);i++;playNext()},dur);
-  }
-  playNext()
+  _listenStop=false;
+  const bpm=song.bpm.normal||72,beat=60/bpm;
+  /* Schedule all notes using audioContext.currentTime for precise timing */
+  let offset=0;
+  const schedule=song.n.map((nt,i)=>{
+    const dur=(DUR[nt.du]||1)*beat;
+    const entry={note:nt.n,start:offset,dur};
+    offset+=dur;
+    return entry;
+  });
+  /* Lookahead loop: check every 25ms, schedule 50ms ahead */
+  const startTime=Aud.ctx?Aud.ctx.currentTime+0.05:0;
+  let si=0;
+  const tid=setInterval(()=>{
+    if(_listenStop||si>=schedule.length){clearInterval(tid);clr();return}
+    const now=Aud.ctx?Aud.ctx.currentTime-startTime:0;
+    while(si<schedule.length&&schedule[si].start<=now+0.05){
+      const s=schedule[si];
+      Aud.play(s.note,s.dur*1000,70);hl(s.note,'ok');
+      const n=s.note;setTimeout(()=>hl(n,null),s.dur*900);
+      si++;
+    }
+  },25);
 }
+function stopListen(){_listenStop=true;clr()}
 
 /* ════ CANVAS RESIZE ════ */
 if(typeof ResizeObserver!=='undefined'){
