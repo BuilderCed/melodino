@@ -518,16 +518,33 @@ const Lumi=(()=>{
     this.a=function(val,sz=7){let u=this.n%7,p=0;if(u>0){p=this.v[this.v.length-1];this.v.pop()}this.n+=sz;while(sz>0){p|=(val<<u)&127;sz-=(7-u);val>>=(7-u);this.v.push(p);p=0;u=0}};
     this.g=function(){while(this.v.length<8)this.v.push(0);return this.v}}
   const H=[0xF0,0x00,0x21,0x10],D=0x37;
-  function send(o,c){if(!o)return;try{o.send([...H,0x77,D,...c,ck(c),0xF7])}catch{}}
+  /* SysEx queue — 150ms spacing prevents Chrome buffer overflow (research: benob/LUMI-lights) */
+  const q=[];let qr=false;
+  function flush(){if(!q.length){qr=false;return}qr=true;const{o,c}=q.shift();try{o.send([...H,0x77,D,...c,ck(c),0xF7])}catch(e){if(typeof ErrLog!=='undefined')ErrLog.log('midi','sysex-fail',e.message)}setTimeout(flush,150)}
+  function send(o,c){if(!o)return;q.push({o,c});if(!qr)flush()}
+  function sendNow(o,c){if(!o)return;try{o.send([...H,0x77,D,...c,ck(c),0xF7])}catch{}}
   function color(id,hex){const c=parseInt(hex.replace('#',''),16),r=(c>>16)&0xFF,g=(c>>8)&0xFF,b=c&0xFF;const ba=new BA();ba.a(0x10,7);ba.a(0x20+0x10*(id&1),7);ba.a(0b00100,5);ba.a(b,8);ba.a(g,8);ba.a(r,8);ba.a(0xFF,8);return ba.g()}
   function bright(v){const b=new BA();b.a(0x10,7);b.a(0x40,7);b.a(0b00100,5);b.a(v,7);return b.g()}
   function octave(v){const b=new BA();b.a(0x10,7);b.a(0x40,7);b.a(0b00000,5);b.a(v,32);return b.g()}
   function cmode(v){const b=new BA();b.a(0x10,7);b.a(0x40,7);b.a(0b00010,5);b.a(v&3,2);return b.g()}
-  const sc={'Major':[0x02,0x00],'Minor':[0x22,0x00],'Chromatic':[0x42,0x04]};
+  /* Extended scales (18 total, from benob/LUMI-lights reverse-engineering) */
+  const sc={
+    'Major':[0x02,0x00],'Minor':[0x22,0x00],'Harmonic Minor':[0x42,0x00],'Chromatic':[0x42,0x04],
+    'Pentatonic':[0x62,0x00],'Pentatonic Major':[0x02,0x01],'Pentatonic Minor':[0x22,0x01],
+    'Blues':[0x42,0x01],'Dorian':[0x62,0x01],'Phrygian':[0x02,0x02],'Lydian':[0x22,0x02],
+    'Mixolydian':[0x42,0x02],'Locrian':[0x62,0x02],'Whole Tone':[0x02,0x03],
+    'Arabic':[0x42,0x03],'Japanese':[0x62,0x03],'Ryukyu':[0x02,0x04],'Spanish':[0x22,0x04]
+  };
   function scale(n){return[0x10,0x60,...(sc[n]||sc.Major),0,0,0,0]}
   const km={'C':[0x03,0x00],'D':[0x43,0x00],'E':[0x03,0x01],'F':[0x23,0x01],'G':[0x63,0x01],'A':[0x23,0x02],'B':[0x63,0x02]};
   function key(n){return[0x10,0x30,...(km[n]||km.C),0,0,0,0]}
-  return{send,color,bright,octave,cmode,scale,key}
+  /* New commands from benob research */
+  function sensitivity(v){const b=new BA();b.a(0x10,7);b.a(0x20,7);b.a(0b00001,5);b.a(v,7);return b.g()}
+  function fixedVel(on){const b=new BA();b.a(0x10,7);b.a(0x70,7);b.a(0b00001,5);b.a(on?1:0,1);return b.g()}
+  function fixedVelVal(v){const b=new BA();b.a(0x10,7);b.a(0x00,7);b.a(0b00010,5);b.a(v,7);return b.g()}
+  function transpose(v){const b=new BA();b.a(0x10,7);b.a(0x50,7);b.a(0b00000,5);b.a(v,32);return b.g()}
+  function reset(){return[0x00,0x01,0x01,0x00,0x5D]}
+  return{send,sendNow,color,bright,octave,cmode,scale,key,sensitivity,fixedVel,fixedVelVal,transpose,reset}
 })();
 
 /* ================================================================
@@ -572,7 +589,12 @@ const Mid=(()=>{
   async function init(){
     if(!navigator.requestMIDIAccess)return;
     try{acc=await navigator.requestMIDIAccess({sysex:true})}catch{try{acc=await navigator.requestMIDIAccess({sysex:false})}catch{return}}
-    acc.onstatechange=()=>scan();scan();
+    acc.onstatechange=(e)=>{
+      /* Auto-reconnect: rescan on any state change (hot-plug/unplug) */
+      if(e.port.state==='connected'){scan();if(typeof announce==='function')announce('🎹 '+e.port.name+' '+t('connected'))}
+      else if(e.port.state==='disconnected'){dn=null;lumi=false;out=null;upill();if(typeof announce==='function')announce('🎹 '+t('disconnected'))}
+    };
+    scan();
   }
   function scan(){
     if(!acc)return;let best=null;lumi=false;out=null;
@@ -580,7 +602,16 @@ const Mid=(()=>{
     if(!best){const f=acc.inputs.values().next().value;if(f)best=f}
     for(const o of acc.outputs.values()){if(o.name.toLowerCase().includes('lumi')){out=o;break}}
     if(best){if(inp)inp.onmidimessage=null;inp=best;inp.onmidimessage=hm;dn=best.name;
-      if(lumi&&out){setTimeout(()=>{Lumi.send(out,Lumi.octave(0));Lumi.send(out,Lumi.cmode(1));Lumi.send(out,Lumi.color(0,'#7C3AED'));Lumi.send(out,Lumi.bright(80));Lumi.send(out,Lumi.scale('Major'));Lumi.send(out,Lumi.key('C'))},300)}
+      if(lumi&&out){setTimeout(()=>{
+        Lumi.send(out,Lumi.octave(0));Lumi.send(out,Lumi.cmode(1));
+        Lumi.send(out,Lumi.color(0,'#7C3AED'));Lumi.send(out,Lumi.bright(80));
+        Lumi.send(out,Lumi.scale('Major'));Lumi.send(out,Lumi.key('C'));
+        /* Age-adaptive LUMI config: softer sensitivity + fixed velocity for young kids */
+        const age=typeof cur!=='undefined'&&cur?cur.age:6;
+        if(age<=5){Lumi.send(out,Lumi.sensitivity(40));Lumi.send(out,Lumi.fixedVel(true));Lumi.send(out,Lumi.fixedVelVal(80))}
+        else if(age<=8){Lumi.send(out,Lumi.sensitivity(60));Lumi.send(out,Lumi.fixedVel(false))}
+        else{Lumi.send(out,Lumi.sensitivity(80));Lumi.send(out,Lumi.fixedVel(false))}
+      },300)}
     }else{inp=null;dn=null}upill()}
   function upill(){const p=document.getElementById('mpill');if(!p)return;if(dn){p.className='midi-pill midi-on';p.textContent='🎹 '+(lumi?'LUMI':dn)}else if(!navigator.requestMIDIAccess){p.className='midi-pill midi-off';p.textContent='🎹 Non supporté';p.title='Web MIDI non disponible sur ce navigateur (Safari/Firefox)'}else{p.className='midi-pill midi-off';p.textContent='🎹 '+t('disconnected')}}
   return{init,onN,offN,out:()=>out,lumi:()=>lumi,upill}
@@ -691,7 +722,16 @@ const Game=(()=>{
     const w=cv.parentElement;cv.width=w.clientWidth*devicePixelRatio;cv.height=w.clientHeight*devicePixelRatio;cx.scale(devicePixelRatio,devicePixelRatio);
     const bpm=s.bpm[spd]||s.bpm.normal,beat=60000/bpm;let el=0;
     s.n.forEach((nt,i)=>{const d=(DUR[nt.du]||1)*beat;notes.push({note:nt.n,y:0,dur:d,hit:false,idx:i});el+=d});
-    if(Mid.lumi()){const o=Mid.out();Lumi.send(o,Lumi.key(s.k||'C'));Lumi.send(o,Lumi.scale(s.s||'Major'));Lumi.send(o,Lumi.cmode(1));Lumi.send(o,Lumi.color(0,'#7C3AED'))}
+    if(Mid.lumi()){const o=Mid.out();
+      /* Sync LUMI octave to song's note range */
+      const noteOcts=s.n.map(nt=>parseInt(nt.n.slice(-1)));
+      const minOct=Math.min(...noteOcts);
+      Lumi.send(o,Lumi.octave(Math.max(0,minOct-3)));
+      Lumi.send(o,Lumi.key(s.k||'C'));Lumi.send(o,Lumi.scale(s.s||'Major'));
+      Lumi.send(o,Lumi.cmode(1));Lumi.send(o,Lumi.color(0,'#7C3AED'));
+      /* Adapt brightness for visibility */
+      Lumi.send(o,Lumi.bright(90));
+    }
     hud();requestAnimationFrame(loop);
   }
   let lt=0;
@@ -748,7 +788,7 @@ const Game=(()=>{
     saveProg(song.id,stars,acc,sc);showCel(stars,acc,sc);
   }
   function setSpd(s){spd=s}
-  function stop(){run=false;clr();if(Mid.lumi())Lumi.send(Mid.out(),Lumi.color(0,'#7C3AED'))}
+  function stop(){run=false;clr();if(Mid.lumi()){Lumi.send(Mid.out(),Lumi.color(0,'#7C3AED'));Lumi.send(Mid.out(),Lumi.bright(80))}}
   return{init,start,input,setSpd,stop,sid:0}
 })();
 
@@ -962,7 +1002,7 @@ function announce(msg){const el=document.getElementById('aria-live');if(el){el.t
 let _brkStart=0,_brkTimer=null;
 function startBreakTimer(){
   _brkStart=Date.now();clearInterval(_brkTimer);
-  const maxMin=cur?.age<=5?10:cur?.age<=8?20:30;
+  const maxMin=cur?.age<=5?10:cur?.age<=8?15:25;
   _brkTimer=setInterval(()=>{
     if(Date.now()-_brkStart>maxMin*60000){clearInterval(_brkTimer);showBreak(maxMin)}
   },30000)
@@ -1005,8 +1045,12 @@ document.getElementById('pbk').onclick=()=>{document.getElementById('pov').class
 document.getElementById('bex').onclick=async()=>{const d={profiles:await DB.all('profiles'),progress:await DB.all('progress'),v:'2.0'};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='melodino-backup.json';a.click();URL.revokeObjectURL(u)};
 document.getElementById('bim').onclick=()=>document.getElementById('ifile').click();
 document.getElementById('ifile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.profiles)for(const p of d.profiles)await DB.put('profiles',p);if(d.progress)for(const p of d.progress)await DB.put('progress',p);await loadP();alert('Import OK!')}catch{alert('Fichier invalide')}};
-Mid.onN.push(i=>{Aud.resume();keyOn(i.full);hl(i.full,'hit')});
-Mid.offN.push(i=>hl(i.full,null));
+Mid.onN.push(i=>{
+  Aud.resume();keyOn(i.full);hl(i.full,'hit');
+  /* Velocity→brightness: stronger press = brighter LED (LUMI only) */
+  if(Mid.lumi()&&Mid.out()){const br=Math.min(127,Math.max(40,Math.round(i.vel*0.8+30)));Lumi.sendNow(Mid.out(),Lumi.bright(br))}
+});
+Mid.offN.push(i=>{hl(i.full,null);if(Mid.lumi()&&Mid.out())Lumi.sendNow(Mid.out(),Lumi.bright(90))});
 
 /* ════ SPLASH + INIT ════ */
 document.getElementById('go').onclick=async()=>{
