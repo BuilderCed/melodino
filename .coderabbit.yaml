@@ -1,0 +1,50 @@
+language: fr-FR
+
+reviews:
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+  path_instructions:
+    - path: "**/*.{ts,tsx}"
+      instructions: |
+        - TypeScript strict mode, no 'any' unless justified
+        - Error handling complet (try/catch, Result pattern)
+        - Zod validation aux frontieres systeme
+    - path: "**/components/**/*.tsx"
+      instructions: |
+        - Accessibilite (a11y) : aria-labels, keyboard navigation
+        - Responsive design : mobile-first
+    - path: ".github/**"
+      instructions: |
+        - Actions pinnees par SHA (pas @v4)
+        - Permissions GITHUB_TOKEN minimales
+        - timeout-minutes sur chaque job
+    - path: "**/*.py"
+      instructions: |
+        - Type hints obligatoires
+        - Docstrings pour fonctions publiques
+        - Pas de print() en production
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: auto
+
+tools:
+  eslint:
+    enabled: true
+  actionlint:
+    enabled: true
+  markdownlint:
+    enabled: true
+  gitleaks:
+    enabled: true
