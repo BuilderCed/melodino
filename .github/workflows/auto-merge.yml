@@ -1,0 +1,11 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request:
+
+jobs:
+  auto-merge:
+    uses: BuilderCed/.github/.github/workflows/reusable-dependabot-auto-merge.yml@main
+    permissions:
+      contents: write
+      pull-requests: write

@@ -1,0 +1,17 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  security:
+    uses: BuilderCed/.github/.github/workflows/reusable-security-scan.yml@main
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
