@@ -1,30 +1,56 @@
+# Dependabot v2 — Anti-fatigue config for solo founder
+# Groups updates to reduce PR noise, weekly cadence, patch auto-merge ready
+# Deploy: copy to .github/dependabot.yml in each repo
+# Auto-merge: requires branch protection rule + `gh pr merge --auto --squash`
 version: 2
+
 updates:
+  # ─── JavaScript/TypeScript (npm or pnpm) ─────────────────────────────────────
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "09:00"
+      time: "06:00"
       timezone: "Europe/Paris"
     open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps):"
+    # Group minor+patch together to reduce PR count
     groups:
-      minor-and-patch:
+      production-deps:
+        dependency-type: "production"
         update-types:
           - "minor"
           - "patch"
-    labels:
-      - "dependencies"
-      - "automated"
-    assignees:
-      - "BuilderCed"
+      dev-deps:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ─── GitHub Actions (pin to SHA for supply chain defense) ────────────────────
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "09:00"
-      timezone: "Europe/Paris"
+    open-pull-requests-limit: 3
     labels:
-      - "ci/cd"
-      - "automated"
+      - "ci"
+    commit-message:
+      prefix: "chore(ci):"
+
+  # ─── Python (pip/uv) — uncomment if project has pyproject.toml ──────────────
+  # - package-ecosystem: "pip"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "monday"
+  #   open-pull-requests-limit: 5
+  #   labels:
+  #     - "dependencies"
+  #   commit-message:
+  #     prefix: "chore(deps):"

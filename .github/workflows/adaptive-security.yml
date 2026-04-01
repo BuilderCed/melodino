@@ -1,0 +1,197 @@
+# =============================================================================
+# Adaptive Security v2.0 — Risk-based scans + Dependency Vulnerability Audit
+# =============================================================================
+# Classifies PR risk level, runs light/standard/full scans.
+# Includes osv-scanner for dependency CVE detection (SARIF → GitHub Security tab).
+# Weekly scheduled scan for continuous monitoring.
+#
+# Deploy: copy to .github/workflows/adaptive-security.yml in each repo
+# SHA pinning: replace @vX tags with commit SHAs before deploy (supply chain defense)
+#   gh api repos/actions/checkout/git/ref/tags/v4 --jq '.object.sha'
+# =============================================================================
+
+name: Adaptive Security
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  schedule:
+    # Weekly scan (Sunday 06:00 UTC) — catches new CVEs between PRs
+    - cron: '0 6 * * 0'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  # ─── Risk Classification (PR only) ──────────────────────────────────────────
+  classify:
+    name: Classify Risk Level
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      security_level: ${{ steps.classify.outputs.level }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        with:
+          fetch-depth: 0
+
+      - name: Classify PR Risk Level
+        id: classify
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          CHANGED=$(git diff --name-only "origin/${BASE_REF}"...HEAD 2>/dev/null || echo "")
+          if echo "$CHANGED" | grep -qE "(auth|security|crypto|secrets|\.env|config/prod)"; then
+            echo "level=critical" >> $GITHUB_OUTPUT
+          elif echo "$CHANGED" | grep -qE "(api|database|payment|user|middleware)"; then
+            echo "level=high" >> $GITHUB_OUTPUT
+          elif echo "$CHANGED" | grep -qE "\.(md|txt|json)$" && ! echo "$CHANGED" | grep -qE "\.(ts|tsx|js|jsx|py|go|rs)$"; then
+            echo "level=docs-only" >> $GITHUB_OUTPUT
+          else
+            echo "level=standard" >> $GITHUB_OUTPUT
+          fi
+
+  # ─── Socket.dev: zero-day supply chain (typosquatting, postinstall, obfuscation)
+  socket-scan:
+    name: Socket Supply Chain
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+      - name: Socket Security
+        uses: SocketDev/socket-security-action@v1
+        continue-on-error: true  # Free tier — keep permissive
+
+  # ─── Docs-only: skip heavy scans ────────────────────────────────────────────
+  light-scan:
+    name: Docs-only (skip)
+    needs: classify
+    if: needs.classify.outputs.security_level == 'docs-only'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Docs-only change, skipping security scans"
+
+  # ─── Standard: gitleaks + dependency audit ──────────────────────────────────
+  standard-scan:
+    name: Standard Security
+    needs: classify
+    if: needs.classify.outputs.security_level == 'standard'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Gitleaks (secret detection)
+        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc  # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true  # Advisory — don't block PRs on secrets scan
+
+      - name: OSV-Scanner (dependency CVEs)
+        uses: google/osv-scanner-action/osv-scanner-action@98b584ee2ed2da3935ccce10e06739d54cdcd20b  # v2
+        with:
+          scan-args: |-
+            --recursive
+            --format=sarif
+            --output=osv-results.sarif
+            .
+        # No continue-on-error — CVE failures MUST block merge
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@3b1a19a80ab047f35cbb237b5bd9bdc1e14f166c  # v3
+        if: always()
+        with:
+          sarif_file: osv-results.sarif
+        continue-on-error: true  # SARIF upload is best-effort
+
+  # ─── Full: secrets + SAST + dependency audit ────────────────────────────────
+  full-security-scan:
+    name: Full Security
+    needs: classify
+    if: needs.classify.outputs.security_level == 'high' || needs.classify.outputs.security_level == 'critical'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog (verified secrets)
+        uses: trufflesecurity/trufflehog@v3.93.1
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          extra_args: --only-verified
+        continue-on-error: true  # Advisory
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc  # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true  # Advisory
+
+      - name: Semgrep (SAST)
+        uses: semgrep/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d  # v1
+        with:
+          config: p/security-audit p/secrets
+        continue-on-error: true  # Advisory
+
+      - name: OSV-Scanner (dependency CVEs)
+        uses: google/osv-scanner-action/osv-scanner-action@98b584ee2ed2da3935ccce10e06739d54cdcd20b  # v2
+        with:
+          scan-args: |-
+            --recursive
+            --format=sarif
+            --output=osv-results.sarif
+            .
+        # No continue-on-error — CVE failures MUST block merge
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@3b1a19a80ab047f35cbb237b5bd9bdc1e14f166c  # v3
+        if: always()
+        with:
+          sarif_file: osv-results.sarif
+        continue-on-error: true  # SARIF upload is best-effort
+
+  # ─── Scheduled: weekly dependency audit + SBOM (independent of PRs) ──────────
+  scheduled-dependency-audit:
+    name: Weekly Dependency Audit + SBOM
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: OSV-Scanner (full recursive scan)
+        uses: google/osv-scanner-action/osv-scanner-action@98b584ee2ed2da3935ccce10e06739d54cdcd20b  # v2
+        with:
+          scan-args: |-
+            --recursive
+            --format=sarif
+            --output=osv-results.sarif
+            .
+        # No continue-on-error — weekly scan must surface issues
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@3b1a19a80ab047f35cbb237b5bd9bdc1e14f166c  # v3
+        if: always()
+        with:
+          sarif_file: osv-results.sarif
+        continue-on-error: true  # SARIF upload is best-effort
+
+      # SBOM generation (EU AI Act Art.50 compliance — deadline 2 Aug 2026)
+      - name: Install osv-scanner for SBOM
+        run: |
+          curl -fsSL https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_linux_amd64 -o /usr/local/bin/osv-scanner
+          chmod +x /usr/local/bin/osv-scanner
+
+      - name: Generate CycloneDX SBOM
+        run: osv-scanner scan --recursive --format cyclonedx-1-5 --output sbom-cyclonedx.json . 2>/dev/null || true
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        if: always()
+        with:
+          name: sbom-${{ github.sha }}
+          path: sbom-cyclonedx.json
+          retention-days: 180  # AI Act requires 6 months retention
