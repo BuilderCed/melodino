@@ -7,7 +7,7 @@
 [![Offline Ready](https://img.shields.io/badge/Offline-Ready-blue.svg)](#-offline--pwa)
 [![COPPA Compliant](https://img.shields.io/badge/COPPA-Compliant-green.svg)](#-privacy--safety)
 
-> A free, open-source, gamified piano learning app for children aged 3-12. Multilingual, age-adaptive, accessible, with ROLI LUMI LED keyboard integration. Single HTML file, zero install, 100% offline.
+> A free, open-source, gamified piano learning app for children aged 5-12. Multilingual, age-adaptive, accessible, with ROLI LUMI LED keyboard integration. Single HTML file, zero install, 100% offline.
 
 ---
 
@@ -24,7 +24,7 @@
 - **Solfege (Do-Re-Mi)** or **Letter names (C-D-E)** — auto-switches by locale
 - Songs from around the world: France, England, Japan, China, and more
 
-### 👶 Age-Adaptive (3-12 years)
+### 👶 Age-Adaptive (5-12 years)
 - **3-5 years**: Big buttons, voice guidance, simple songs, right hand only
 - **6-8 years**: Progress bars, badges, two-hand introduction
 - **9-12 years**: Full menus, streaks, detailed stats, advanced songs

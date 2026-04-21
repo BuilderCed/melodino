@@ -2,7 +2,7 @@
   "name": "melodino",
   "version": "1.2.0",
   "private": true,
-  "description": "Piano learning PWA for kids 3-12",
+  "description": "Piano learning PWA for kids 5-12",
   "scripts": {
     "test": "npx vitest run",
     "test:unit": "npx vitest run tests/unit/",

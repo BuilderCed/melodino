@@ -13,7 +13,7 @@ Songs are defined in the `SONGS` array inside `index.html`. Each song follows th
   composer: 'Traditional',                     // Composer name
   world: 1,                                   // World number (1-3)
   difficulty: 1,                               // 1=easy, 2=medium, 3=hard
-  ageMin: 3,                                   // Minimum recommended age
+  ageMin: 5,                                   // Minimum recommended age
   rightHandOnly: true,                         // true for beginners
   bpm: { turtle: 50, normal: 72, rabbit: 90, rocket: 110 },
   notes: [

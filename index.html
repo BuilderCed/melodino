@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://gleitz.github.io; media-src 'self' https://gleitz.github.io; object-src 'none'; base-uri 'self';">
   <title>Melodino — Apprends le piano en t'amusant !</title>
-  <meta name="description" content="App piano gratuite, open-source, pour enfants 3-12 ans. 23 chansons, 4 mondes, compatible ROLI LUMI. 100% offline, zero collecte de donnees. COPPA/RGPD conforme.">
+  <meta name="description" content="App piano gratuite, open-source, pour enfants 5-12 ans. 23 chansons, 4 mondes, compatible ROLI LUMI. 100% offline, zero collecte de donnees. COPPA/RGPD conforme.">
   <meta name="theme-color" content="#7C3AED">
   <meta name="color-scheme" content="dark">
   <meta name="version" content="1.2.0">
@@ -18,7 +18,7 @@
   <link rel="icon" type="image/svg+xml" href="_assets/icon-192.svg">
   <!-- Open Graph -->
   <meta property="og:title" content="Melodino — Apprends le piano en t'amusant !">
-  <meta property="og:description" content="App piano gamifiee pour enfants 3-12 ans. Gratuite, open-source, multilingue, offline. 23 chansons, ROLI LUMI.">
+  <meta property="og:description" content="App piano gamifiee pour enfants 5-12 ans. Gratuite, open-source, multilingue, offline. 23 chansons, ROLI LUMI.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://builderced.github.io/melodino/">
   <meta property="og:image" content="https://builderced.github.io/melodino/_assets/icon-512.svg">
@@ -28,11 +28,11 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Melodino — Learn piano the fun way!">
-  <meta name="twitter:description" content="Free, open-source piano app for kids 3-12. 23 songs, offline, COPPA compliant.">
+  <meta name="twitter:description" content="Free, open-source piano app for kids 5-12. 23 songs, offline, COPPA compliant.">
   <meta name="twitter:image" content="https://builderced.github.io/melodino/_assets/icon-512.svg">
   <!-- Structured Data -->
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"EducationalApplication","name":"Melodino","description":"App piano gratuite et gamifiee pour enfants 3-12 ans. 23 chansons, 4 mondes, compatible ROLI LUMI.","url":"https://builderced.github.io/melodino/","applicationCategory":"EducationApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"audience":{"@type":"EducationalAudience","educationalRole":"student","typicalAgeRange":"3-12"},"inLanguage":["fr","en"],"learningResourceType":"Interactive lesson","isAccessibleForFree":true,"creator":{"@type":"Person","name":"BuilderCed"}}
+  {"@context":"https://schema.org","@type":"EducationalApplication","name":"Melodino","description":"App piano gratuite et gamifiee pour enfants 5-12 ans. 23 chansons, 4 mondes, compatible ROLI LUMI.","url":"https://builderced.github.io/melodino/","applicationCategory":"EducationApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"audience":{"@type":"EducationalAudience","educationalRole":"student","typicalAgeRange":"3-12"},"inLanguage":["fr","en"],"learningResourceType":"Interactive lesson","isAccessibleForFree":true,"creator":{"@type":"Person","name":"BuilderCed"}}
   </script>
   <!-- Self-hosted fonts (COPPA/GDPR compliant — no third-party IP transmission) -->
   <link rel="stylesheet" href="_assets/fonts/fonts.css">
@@ -853,13 +853,13 @@ function newP(){
   const existing=g.querySelector('.pf-form');if(existing)return;
   const f=document.createElement('div');f.className='pf-form';
   f.innerHTML=`<input type="text" id="pf-nm" placeholder="Prénom" maxlength="20" autocomplete="off" autofocus>
-    <select id="pf-age"><option value="">Âge</option>${[3,4,5,6,7,8,9,10,11,12].map(a=>`<option value="${a}">${a} ans</option>`).join('')}</select>
+    <select id="pf-age"><option value="">Âge</option>${[5,6,7,8,9,10,11,12].map(a=>`<option value="${a}">${a} ans</option>`).join('')}</select>
     <div style="display:flex;gap:8px"><button class="btn btn-p btn-sm" id="pf-ok">Créer</button><button class="btn btn-g btn-sm" id="pf-no">Annuler</button></div>`;
   g.appendChild(f);
   f.querySelector('#pf-nm').focus();
   f.querySelector('#pf-ok').onclick=()=>{const nm=f.querySelector('#pf-nm').value.trim();const age=parseInt(f.querySelector('#pf-age').value)||6;
     if(!nm){f.querySelector('#pf-nm').style.borderColor='var(--red)';return}
-    const p={id:Date.now()+'',nm:nm.slice(0,20),av:AVS[Math.floor(Math.random()*AVS.length)],age:Math.max(3,Math.min(12,age)),ts:0,sk:0,ld:null,badges:[]};
+    const p={id:Date.now()+'',nm:nm.slice(0,20),av:AVS[Math.floor(Math.random()*AVS.length)],age:Math.max(5,Math.min(12,age)),ts:0,sk:0,ld:null,badges:[]};
     DB.put('profiles',p).then(()=>{profs.push(p);rLogin()})};
   f.querySelector('#pf-no').onclick=()=>f.remove();
   f.querySelector('#pf-nm').addEventListener('keydown',e=>{if(e.key==='Enter')f.querySelector('#pf-ok').click()})
